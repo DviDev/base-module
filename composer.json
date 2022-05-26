@@ -1,0 +1,24 @@
+{
+    "name": "dvi-wakanda/base-module",
+    "description": "laravel base module",
+    "type": "laravel-module",
+    "authors": [
+        {
+            "name": "Davi Menezes",
+            "email": "davimenezes.dev@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Base\\": ""
+        }
+    }
+}
