@@ -99,9 +99,9 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      */
     public function registerFactories()
     {
-        if (! app()->environment('production') && $this->app->runningInConsole()) {
-            app(\Factory::class)->load(module_path($this->moduleName, 'Database/factories'));
-        }
+//        if (! app()->environment('production') && $this->app->runningInConsole()) {
+//            app(\Factory::class)->load(module_path($this->moduleName, 'Database/factories'));
+//        }
     }
 
     /**
