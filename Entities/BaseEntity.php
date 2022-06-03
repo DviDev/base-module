@@ -5,6 +5,7 @@ namespace Modules\Base\Entities;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 use Modules\Base\Contracts\EntityInterface;
+use ReturnTypeWillChange;
 
 abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayable
 {
@@ -78,7 +79,7 @@ abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayabl
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->toArray();
     }

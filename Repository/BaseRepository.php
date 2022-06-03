@@ -73,6 +73,7 @@ abstract class BaseRepository
             $this->entity->model = $this->model;
             return $this->model;
         } catch (\Exception $exception) {
+            dd($exception->getMessage());
             ExceptionBaseResponse::throw(BaseTypeErrors::ERROR_IN_RECORD_INFORMATION, null, $exception);
         }
 
