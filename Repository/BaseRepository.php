@@ -73,10 +73,8 @@ abstract class BaseRepository
             $this->entity->model = $this->model;
             return $this->model;
         } catch (\Exception $exception) {
-            dd($exception->getMessage());
             ExceptionBaseResponse::throw(BaseTypeErrors::ERROR_IN_RECORD_INFORMATION, null, $exception);
         }
-
     }
 
     public static function obj()
@@ -101,7 +99,8 @@ abstract class BaseRepository
         return $this->firstOrNew($query)->toEntity();
     }
 
-    public function remove($id) {
+    public function remove($id)
+    {
         return $this->modelClass()::query()
             ->where('id', '=', $id)->delete();
     }
@@ -155,7 +154,7 @@ abstract class BaseRepository
     public function __call($name, $arguments)
     {
         $query = $this->modelClass()::query();
-        /**@var BaseRepository $obj*/
+        /**@var BaseRepository $obj */
         if (method_exists($query, $name)) {
             $result = $query->$name($arguments[0]);
             if (is_a($result, BaseModel::class)) {
@@ -169,7 +168,7 @@ abstract class BaseRepository
     public static function __callStatic($name, $arguments)
     {
         $class = get_called_class();
-        /**@var BaseRepository $obj*/
+        /**@var BaseRepository $obj */
         $obj = new $class();
         if (is_callable($obj->$name($arguments))) {
             $result = $obj->$name($arguments);
