@@ -73,7 +73,10 @@ abstract class BaseRepository
             $this->entity->model = $this->model;
             return $this->model;
         } catch (\Exception $exception) {
-            ExceptionBaseResponse::throw(BaseTypeErrors::ERROR_IN_RECORD_INFORMATION, null, $exception);
+            if (request()->route() && request()->route()->getPrefix() === 'api') {
+                ExceptionBaseResponse::throw(BaseTypeErrors::ERROR_IN_RECORD_INFORMATION, null, $exception);
+            }
+            throw $exception;
         }
     }
 
