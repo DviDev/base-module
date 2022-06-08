@@ -133,9 +133,11 @@ abstract class BaseRepository
     protected function db(Closure $fn, ...$classes)
     {
         $params = [];
+        /**@var BaseModel $class */
         foreach ($classes as $class) {
-            /**@var BaseEntityModel $class */
-            $params[] = $class::props($class::dbTable());
+            /**@var BaseEntityModel $modelEntity */
+            $modelEntity = (new $class())->modelEntity();
+            $params[] = $modelEntity::props($class::table());
         }
         return call_user_func_array($fn, $params);
     }

@@ -4,8 +4,8 @@ namespace Modules\Base\Contracts;
 
 interface BaseModelInterface
 {
-    /**@return EntityInterface*/
-    function modelEntity();
+    /**@return EntityInterface */
+    public function modelEntity();
 
-    function toEntity();
+    public function toEntity();
 }

@@ -7,14 +7,12 @@ use Modules\Base\Models\BaseModel;
 
 /**
  * @extends BaseModel
-*/
+ */
 trait BaseModelImplementation
 {
     public function __construct(array $attributes = [])
     {
-        if ($entity = $this->modelEntity()) {
-            $this->table = $entity::dbTable();
-        }
+        $this->table = static::table();
         $this->timestamps = false;
         parent::__construct($attributes);
     }
@@ -28,7 +26,7 @@ trait BaseModelImplementation
     {
         $entity_class = $this->modelEntity();
 
-        /**@var BaseEntityModel $entity*/
+        /**@var BaseEntityModel $entity */
         $entity = $entity_class::props();
         $entity->model = $this;
 
@@ -36,7 +34,7 @@ trait BaseModelImplementation
             $entity->set($prop, $this->$prop, true);
         }
 
-        /**@var $entity T*/
+        /**@var $entity T */
         return $entity;
     }
 }
