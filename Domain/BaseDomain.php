@@ -4,11 +4,7 @@ namespace Modules\Base\Domain;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
-use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Services\Response\BaseResponse;
-use Modules\Contact\Entities\User;
-use Modules\Contact\Models\UserModel;
-use Modules\Contact\Repository\UserRepository;
 use ReflectionObject;
 
 /**
@@ -50,19 +46,6 @@ abstract class BaseDomain
     }
 
     abstract public function repositoryClass();
-
-    /**@return User|BaseEntityModel */
-    public static function getTerminalUser($data)
-    {
-        if (empty($data['seed_hash'])) {
-            /**@var UserModel $user*/
-            $user = auth()->user();
-            return $user->toEntity();
-        }
-        self::checkIfSeeding($data);
-
-        return (new UserRepository)->findOrNew($data['seed_terminal_user_id']);
-    }
 
     public function __call($name, $arguments)
     {
