@@ -29,4 +29,10 @@ abstract class BaseModel extends Model implements BaseModelInterface
     {
         return $table . ($alias ? ' as ' . $alias : '');
     }
+
+    public function repository()
+    {
+        $entity = $this->modelEntity();
+        return (new $entity)->repository();
+    }
 }
