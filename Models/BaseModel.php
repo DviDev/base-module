@@ -35,4 +35,9 @@ abstract class BaseModel extends Model implements BaseModelInterface
         $entity = $this->modelEntity();
         return (new $entity)->repository();
     }
+
+    public function props()
+    {
+        return $this->modelEntity()::props();
+    }
 }
