@@ -15,4 +15,13 @@ abstract class BaseFactory extends Factory
         $entity = new $entity_class;
         return parent::create($fn($entity->props()));
     }
+
+    /**
+     * @return string
+     */
+    protected function createName(): string
+    {
+        return str($this->faker->unique()->name)
+            ->replace(['Dr.', 'Dra.', 'Sr.', 'Sra.', 'Srta.', 'Jr.', 'da', 'de'], '')->trim()->value();
+    }
 }

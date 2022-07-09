@@ -18,26 +18,4 @@ use Modules\Base\Entities\BaseEntityModel;
 abstract class BaseModel extends Model implements BaseModelInterface
 {
     use BaseModelImplementation;
-
-    /**
-     * @param null $alias
-     * @example return parent::setTable('table_name', $alias);
-     */
-    abstract public static function table($alias = null): string;
-
-    protected static function dbTable($table, $alias = null): string
-    {
-        return $table . ($alias ? ' as ' . $alias : '');
-    }
-
-    public function repository()
-    {
-        $entity = $this->modelEntity();
-        return (new $entity)->repository();
-    }
-
-    public function props()
-    {
-        return $this->modelEntity()::props();
-    }
 }

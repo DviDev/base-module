@@ -37,4 +37,27 @@ trait BaseModelImplementation
         /**@var $entity T */
         return $entity;
     }
+
+    protected static function dbTable($table, $alias = null): string
+    {
+        return $table . ($alias ? ' as ' . $alias : '');
+    }
+
+    public function repository()
+    {
+        $entity = $this->modelEntity();
+        return (new $entity)->repository();
+    }
+
+    public function props(): object
+    {
+        return $this->modelEntity()::props();
+    }
+
+    public static function createFn(\Closure $fn)
+    {
+        $entity_class = (new static())->modelEntity();
+        $entity = new $entity_class();
+        return $fn($entity->props());
+    }
 }

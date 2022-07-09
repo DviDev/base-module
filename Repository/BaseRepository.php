@@ -95,6 +95,12 @@ abstract class BaseRepository
         return $this->modelClass()::query()->create($data);
     }
 
+    public static function createFn(\Closure $fn): object|bool
+    {
+        $entity_class = (new static())->model()->modelEntity();
+        return (new static())->create($fn((new $entity_class)->props()));
+    }
+
     /**@return BaseEntityModel */
     public function findOrNew($id)
     {
