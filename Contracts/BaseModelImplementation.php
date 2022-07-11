@@ -58,6 +58,6 @@ trait BaseModelImplementation
     {
         $entity_class = (new static())->modelEntity();
         $entity = new $entity_class();
-        return $fn($entity->props());
+        return self::query()->create($fn($entity->props()));
     }
 }
