@@ -6,16 +6,14 @@ use Illuminate\Contracts\Validation\Rule;
 
 class MinWords implements Rule
 {
-    public string $attribute;
 
     /**
      * Create a new rule instance.
      *
      * @return void
      */
-    public function __construct(public $min)
+    public function __construct(public $min, public $attribute = null)
     {
-        //
     }
 
     /**
@@ -27,7 +25,6 @@ class MinWords implements Rule
      */
     public function passes($attribute, $value)
     {
-        $this->attribute = $attribute;
         return str($value)->explode(' ')->count() > $this->min;
     }
 
