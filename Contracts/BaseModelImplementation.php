@@ -49,9 +49,9 @@ trait BaseModelImplementation
         return (new $entity)->repository();
     }
 
-    public function props(): object
+    public function props($alias = null, $refresh = false): object
     {
-        return $this->modelEntity()::props();
+        return $this->modelEntity()::props($alias, $refresh);
     }
 
     public static function createFn(\Closure $fn)
