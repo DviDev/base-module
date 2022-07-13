@@ -25,7 +25,7 @@ class MinWords implements Rule
      */
     public function passes($attribute, $value)
     {
-        return str($value)->explode(' ')->count() > $this->min;
+        return str($value)->explode(' ')->count() >= $this->min;
     }
 
     /**
