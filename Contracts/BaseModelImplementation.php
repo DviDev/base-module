@@ -57,7 +57,7 @@ trait BaseModelImplementation
     public static function createFn(\Closure $fn)
     {
         $entity_class = (new static())->modelEntity();
-        $entity = new $entity_class();
-        return self::query()->create($fn($entity->props()));
+        $attributes = $fn($entity_class::props());
+        return self::query()->create($attributes);
     }
 }
