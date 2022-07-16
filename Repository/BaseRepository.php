@@ -10,6 +10,7 @@ use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Models\BaseModel;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
+use phpDocumentor\Reflection\Types\Callable_;
 
 /**
  * @author     Davi Menezes
@@ -190,4 +191,13 @@ abstract class BaseRepository
         }
         return null;
     }
+
+    public static function deleteFn(Closure $fn)
+    {
+        $model = (new static)->model();
+        $props = $model->modelEntity()::props(null, true);
+        $term = $fn($props);
+        $model->newQuery()->where($term[0], $term[1], $term[2])->delete();
+    }
+
 }

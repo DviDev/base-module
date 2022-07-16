@@ -21,7 +21,25 @@ abstract class BaseFactory extends Factory
      */
     protected function createName(): string
     {
-        return str($this->faker->unique()->name)
-            ->replace(['Dr.', 'Dra.', 'Sr.', 'Sra.', 'Srta.', 'Jr.', 'da', 'de'], '')->trim()->value();
+        return $this->removeAbreviations($this->faker->unique()->name)->trim()->value();
+    }
+
+    /**
+     * @param string $name
+     * @return string
+     */
+    protected function getEmail(string $name): string
+    {
+        return str(iconv('UTF-8', 'ASCII//TRANSLIT', $this->removeAbreviations($name)))
+                ->lower()->explode(' ')->shift(3)->join('_') . '@gmail.com';
+    }
+
+    /**
+     * @return \Illuminate\Support\Stringable
+     */
+    protected function removeAbreviations(string $str)
+    {
+        return str($str)
+            ->replace(['Dr.', 'Dra.', 'Sr.', 'Sra.', 'Srta.', 'Jr.', ' da', ' de'], '')->trim();
     }
 }
