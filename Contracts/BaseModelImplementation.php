@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Contracts;
 
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Models\BaseModel;
 
@@ -59,5 +60,20 @@ trait BaseModelImplementation
         $entity_class = (new static())->modelEntity();
         $attributes = $fn($entity_class::props());
         return self::query()->create($attributes);
+    }
+
+    public static function whereFn(\Closure $fn): Builder
+    {
+        $entity_class = (new static())->modelEntity();
+        $arrays = $fn($entity_class::props());
+        $builder = self::query();
+
+        foreach ($arrays as $array) {
+            $item1 = $array[0];
+            $item2 = !isset($array[2]) ? '=' : $array[1];
+            $item3 = $array[2] ?? $array[1];
+            $builder->where($item1, $item2, $item3);
+        }
+        return $builder;
     }
 }
