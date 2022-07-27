@@ -18,4 +18,15 @@ use Modules\Base\Entities\BaseEntityModel;
 abstract class BaseModel extends Model implements BaseModelInterface
 {
     use BaseModelImplementation;
+
+    protected static function booted()
+    {
+        static::updating(function ($model) {
+            if (isset($model->updated_at)) {
+                $model->updated_at = now();
+            }
+        });
+
+        parent::booted();
+    }
 }
