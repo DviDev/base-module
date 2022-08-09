@@ -55,6 +55,7 @@ trait BaseModelImplementation
         return $this->modelEntity()::props($alias, $refresh);
     }
 
+    /**@return self*/
     public static function createFn(\Closure $fn)
     {
         $entity_class = (new static())->modelEntity();
