@@ -121,15 +121,11 @@ abstract class BaseRepository
         return $this->modelClass()::query()->first();
     }
 
-    /**@return BaseEntity */
     public function find($id)
     {
         $class = get_called_class();
         $obj = new $class();
-        /**@var BaseRepository $obj */
-        $model = $obj->modelClass()::query()->find($id);
-        /**@var BaseModel $model */
-        return $model ? $model->toEntity() : null;
+        return $obj->modelClass()::query()->find($id);
     }
 
     public function exists($id): bool
