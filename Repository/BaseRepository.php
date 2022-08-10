@@ -16,8 +16,8 @@ use phpDocumentor\Reflection\Types\Callable_;
  * @author     Davi Menezes
  * @copyright  Copyright (c) 2020. (davimenezes.dev@gmail.com)
  * @see https://github.com/DaviMenezes
- * @method  BaseEntityModel findOrFail($id)
- * @method-red  static BaseEntity find($id)
+ * @method  BaseModel findOrFail($id)
+ * @method-red  static BaseModel find($id)
  */
 abstract class BaseRepository
 {
@@ -102,11 +102,10 @@ abstract class BaseRepository
         return (new static())->create($fn((new $entity_class)->props()));
     }
 
-    /**@return BaseEntityModel */
-    public function findOrNew($id)
+    public function findOrNew($id): Model|Builder
     {
         $query = $this->modelClass()::query()->where('id', $id);
-        return $this->firstOrNew($query)->toEntity();
+        return $this->firstOrNew($query);
     }
 
     public function remove($id)
@@ -164,11 +163,7 @@ abstract class BaseRepository
         $query = $this->modelClass()::query();
         /**@var BaseRepository $obj */
         if (method_exists($query, $name)) {
-            $result = $query->$name($arguments[0]);
-            if (is_a($result, BaseModel::class)) {
-                return $result->toEntity();
-            }
-            return $result;
+            return $query->$name($arguments[0]);
         }
         return null;
     }
@@ -179,11 +174,7 @@ abstract class BaseRepository
         /**@var BaseRepository $obj */
         $obj = new $class();
         if (is_callable($obj->$name($arguments))) {
-            $result = $obj->$name($arguments);
-            if (is_a($result, BaseModel::class)) {
-                return $result->toEntity();
-            }
-            return $result;
+            return $obj->$name($arguments);
         }
         return null;
     }
