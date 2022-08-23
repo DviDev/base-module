@@ -13,9 +13,20 @@ use Modules\Base\Entities\BaseEntityModel;
  * @copyright  Copyright (c) 2020. (davimenezes.dev@gmail.com)
  * @see https://github.com/DaviMenezes
  * @method BaseEntityModel toEntity()
- * @method $this first()
+ * @method self|static first()
  */
 abstract class BaseModel extends Model implements BaseModelInterface
 {
     use BaseModelImplementation;
+
+    protected static function booted()
+    {
+        static::updating(function ($model) {
+            if (isset($model->updated_at)) {
+                $model->updated_at = now();
+            }
+        });
+
+        parent::booted();
+    }
 }

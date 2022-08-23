@@ -2,19 +2,18 @@
 
 namespace Modules\Base\Contracts;
 
+use Illuminate\Database\Eloquent\Builder;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Models\BaseModel;
 
 /**
  * @extends BaseModel
-*/
+ */
 trait BaseModelImplementation
 {
     public function __construct(array $attributes = [])
     {
-        if ($entity = $this->modelEntity()) {
-            $this->table = $entity::dbTable();
-        }
+        $this->table = static::table();
         $this->timestamps = false;
         parent::__construct($attributes);
     }
@@ -28,7 +27,7 @@ trait BaseModelImplementation
     {
         $entity_class = $this->modelEntity();
 
-        /**@var BaseEntityModel $entity*/
+        /**@var BaseEntityModel $entity */
         $entity = $entity_class::props();
         $entity->model = $this;
 
@@ -36,7 +35,46 @@ trait BaseModelImplementation
             $entity->set($prop, $this->$prop, true);
         }
 
-        /**@var $entity T*/
+        /**@var $entity T */
         return $entity;
+    }
+
+    protected static function dbTable($table, $alias = null): string
+    {
+        return $table . ($alias ? ' as ' . $alias : '');
+    }
+
+    public function repository()
+    {
+        $entity = $this->modelEntity();
+        return (new $entity)->repository();
+    }
+
+    public function props($alias = null, $refresh = false): object
+    {
+        return $this->modelEntity()::props($alias, $refresh);
+    }
+
+    /**@return self*/
+    public static function createFn(\Closure $fn)
+    {
+        $entity_class = (new static())->modelEntity();
+        $attributes = $fn($entity_class::props());
+        return self::query()->create($attributes);
+    }
+
+    public static function whereFn(\Closure $fn): Builder
+    {
+        $entity_class = (new static())->modelEntity();
+        $arrays = $fn($entity_class::props());
+        $builder = self::query();
+
+        foreach ($arrays as $array) {
+            $item1 = $array[0];
+            $item2 = !isset($array[2]) ? '=' : $array[1];
+            $item3 = $array[2] ?? $array[1];
+            $builder->where($item1, $item2, $item3);
+        }
+        return $builder;
     }
 }

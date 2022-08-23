@@ -4,8 +4,14 @@ namespace Modules\Base\Contracts;
 
 interface BaseModelInterface
 {
-    /**@return EntityInterface*/
-    function modelEntity();
+    /**@return EntityInterface */
+    public function modelEntity();
 
-    function toEntity();
+    public function toEntity();
+
+    /**
+     * @param null $alias
+     * @example return parent::setTable('table_name', $alias);
+     */
+    public static function table($alias = null): string;
 }

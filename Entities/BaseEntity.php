@@ -8,6 +8,8 @@ use Modules\Base\Contracts\EntityInterface;
 
 abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayable
 {
+    use Props;
+
     protected array $attributes_ = [];
 
     protected array $changed = [];
@@ -16,7 +18,7 @@ abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayabl
 
     public function __construct(...$attributes)
     {
-        $this->attributes_ = $attributes[0]?? [];
+        $this->attributes_ = $attributes[0] ?? [];
     }
 
     public function getAttributes(): array
@@ -51,7 +53,8 @@ abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayabl
         return $this;
     }
 
-    public function __isset($name){
+    public function __isset($name)
+    {
         return array_key_exists($name, $this->attributes_);
     }
 
@@ -78,7 +81,7 @@ abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayabl
      *
      * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->toArray();
     }
