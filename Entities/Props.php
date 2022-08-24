@@ -52,11 +52,10 @@ trait Props
             foreach (static::propsArray() as $name) {
                 $props[$name] = ($alias ? ($alias . '.') : '') . $name;
             }
-            $obj = new $class($props);
-            foreach ($props as $name) {
+            /*foreach ($props as $name) {
                 $obj->{$name} = $name;
-            }
-            return $obj;
+            }*/
+            return new $class($props);
         };
         if ($force) {
             $props = $getProps();
