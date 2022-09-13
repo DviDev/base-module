@@ -11,6 +11,28 @@ use Modules\Base\Models\BaseModel;
  */
 trait BaseModelImplementation
 {
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            if (in_array('created_at', $model->props()->toArray()) && !isset($model->created_at)) {
+                $model->created_at = now();
+            }
+        });
+        static::creating(function ($model) {
+            if (in_array('created_at', $model->props()->toArray()) && !isset($model->created_at)) {
+                $model->created_at = now();
+            }
+        });
+
+        static::updating(function ($model) {
+            if (in_array('updated_at', $model->props()->toArray()) && !isset($model->updated_at)) {
+                $model->updated_at = now();
+            }
+        });
+
+        parent::booted();
+    }
+
     public function __construct(array $attributes = [])
     {
         $this->table = static::table();
