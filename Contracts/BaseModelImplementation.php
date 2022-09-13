@@ -99,4 +99,25 @@ trait BaseModelImplementation
         }
         return $builder;
     }
+
+    public function save(array $options = []): bool
+    {
+        $props = self::props();
+        if (in_array('created_at', $props->toArray())) {
+            $this->created_at = $this->created_at ?? now();
+        }
+        if (in_array('updated_at', $props->toArray())) {
+            $this->updated_at = $this->updated_at ?? now();
+        }
+        return parent::save($options);
+    }
+
+    public function delete(): ?bool
+    {
+        $props = self::props();
+        if (in_array('deleted_at', $props->toArray())) {
+            $this->deleted_at = $this->deleted_at ?? now();
+        }
+        return parent::delete();
+    }
 }
