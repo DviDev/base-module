@@ -11,6 +11,28 @@ use Modules\Base\Models\BaseModel;
  */
 trait BaseModelImplementation
 {
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            if (in_array('created_at', $model->props()->toArray()) && !isset($model->created_at)) {
+                $model->created_at = now();
+            }
+        });
+        static::creating(function ($model) {
+            if (in_array('created_at', $model->props()->toArray()) && !isset($model->created_at)) {
+                $model->created_at = now();
+            }
+        });
+
+        static::updating(function ($model) {
+            if (in_array('updated_at', $model->props()->toArray()) && !isset($model->updated_at)) {
+                $model->updated_at = now();
+            }
+        });
+
+        parent::booted();
+    }
+
     public function __construct(array $attributes = [])
     {
         $this->table = static::table();
@@ -76,5 +98,26 @@ trait BaseModelImplementation
             $builder->where($item1, $item2, $item3);
         }
         return $builder;
+    }
+
+    public function save(array $options = []): bool
+    {
+        $props = self::props();
+        if (in_array('created_at', $props->toArray())) {
+            $this->created_at = $this->created_at ?? now();
+        }
+        if (in_array('updated_at', $props->toArray())) {
+            $this->updated_at = $this->updated_at ?? now();
+        }
+        return parent::save($options);
+    }
+
+    public function delete(): ?bool
+    {
+        $props = self::props();
+        if (in_array('deleted_at', $props->toArray())) {
+            $this->deleted_at = $this->deleted_at ?? now();
+        }
+        return parent::delete();
     }
 }
