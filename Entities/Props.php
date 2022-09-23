@@ -13,7 +13,7 @@ trait Props
     {
         $reflectionClass = new ReflectionClass(static::class);
         $namespace = $reflectionClass->getNamespaceName();
-        $entity = $entity = str($namespace)->explode('\\')->pop(2)->first();
+        $entity = str($namespace)->explode('\\')->pop(2)->first();
         $trait_props_exists = collect($reflectionClass->getTraitNames())->some($namespace . '\\' . $entity . 'Props');
         $reflectionClass = !$trait_props_exists
             ? $reflectionClass
