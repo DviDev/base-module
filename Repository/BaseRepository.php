@@ -5,12 +5,10 @@ namespace Modules\Base\Repository;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Base\Entities\BaseEntity;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Models\BaseModel;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
-use phpDocumentor\Reflection\Types\Callable_;
 
 /**
  * @author     Davi Menezes
@@ -53,7 +51,6 @@ abstract class BaseRepository
         if (!$modelClass) {
             ExceptionBaseResponse::throw(BaseTypeErrors::ENTITY_NOT_IMPLEMENTED);
         }
-//        $model = new $modelClass();
         $entity_class = $this->model()->modelEntity();
         if (!$this->entity instanceof $entity_class) {
             ExceptionBaseResponse::throw(BaseTypeErrors::ENTITY_TYPE_ERROR);
@@ -61,9 +58,6 @@ abstract class BaseRepository
 
         try {
             foreach ($this->entity->getAttributes() as $attr => $value) {
-//                if ($attr !== $model->getKeyName() && !$this->>$this->entity->isChanged($attr)) {
-//                    continue;
-//                }
                 $this->model->setAttribute($attr, $value);
             }
             if (isset($this->model->id)) {
