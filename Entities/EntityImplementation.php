@@ -9,7 +9,7 @@ trait EntityImplementation
     /**@return object */
     public static function new(): object
     {
-        $class = static::class;;
+        $class = static::class;
         return new $class;
     }
 }
