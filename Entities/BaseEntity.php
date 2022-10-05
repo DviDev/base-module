@@ -10,6 +10,8 @@ abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayabl
 {
     use Props;
 
+    public ?string $table_alias = null;
+
     protected array $attributes_ = [];
 
     protected array $changed = [];
