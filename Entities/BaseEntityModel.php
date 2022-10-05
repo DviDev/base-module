@@ -55,6 +55,7 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
 
     public function table(): string
     {
-        return $this->repository()->modelClass()::table();
+        $table = $this->repository()->modelClass()::table();
+        return !$this->table_alias ? $table : $table.' as ' .$this->table_alias;
     }
 }

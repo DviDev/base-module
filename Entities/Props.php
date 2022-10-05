@@ -52,7 +52,9 @@ trait Props
             foreach (static::propsArray() as $name) {
                 $props[$name] = ($alias ? ($alias . '.') : '') . $name;
             }
-            return new $class($props);
+            $class = new $class($props);
+            $class->table_alias = $alias;
+            return $class;
         };
         if ($force) {
             $props = $getProps();
