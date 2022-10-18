@@ -3,6 +3,7 @@
 namespace Modules\Base\Contracts;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Models\BaseModel;
 
@@ -13,19 +14,20 @@ trait BaseModelImplementation
 {
     protected static function booted()
     {
-        static::saving(function ($model) {
-            if (in_array('created_at', $model->props()->toArray()) && !isset($model->created_at)) {
+        static::saving(function (Model $model) {
+            $props = $model->props()->toArray();
+            if (in_array('created_at', $props) && !isset($model->created_at)) {
                 $model->created_at = now();
             }
         });
-        static::creating(function ($model) {
+        static::creating(function (Model $model) {
             if (in_array('created_at', $model->props()->toArray()) && !isset($model->created_at)) {
                 $model->created_at = now();
             }
         });
 
-        static::updating(function ($model) {
-            if (in_array('updated_at', $model->props()->toArray()) && !isset($model->updated_at)) {
+        static::updating(function (Model $model) {
+            if (in_array('updated_at', $model->props()->toArray()) && $model->isDirty()) {
                 $model->updated_at = now();
             }
         });
