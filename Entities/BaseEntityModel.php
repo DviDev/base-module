@@ -9,9 +9,9 @@ use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
 
 /**
- * @method save()
+ * @method $this save()
  * @method static self new()
-*/
+ */
 abstract class BaseEntityModel extends BaseEntity implements EntityModelInterface
 {
     /**@var self|BaseModel */
