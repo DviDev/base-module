@@ -4,6 +4,7 @@ namespace Modules\Base\Domain;
 
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Modules\Base\Repository\BaseRepository;
 use Modules\Base\Services\Response\BaseResponse;
 use ReflectionObject;
 
@@ -14,7 +15,7 @@ use ReflectionObject;
  */
 abstract class BaseDomain
 {
-    public $repository;
+    public BaseRepository $repository;
     protected BaseResponse $baseResponse;
 
     public function __construct()
@@ -22,30 +23,18 @@ abstract class BaseDomain
         $this->baseResponse = new BaseResponse();
     }
 
-    public function baseResponse()
+    public function baseResponse(): BaseResponse
     {
         return $this->baseResponse;
     }
 
-    /**
-     * @param $data
-     * @throws Exception
-     */
-    public static function checkIfSeeding($data): void
-    {
-        if (config('app.env') === 'production' && $data !== config('app.key')) {
-            Log::critical('PERIGO. TENTATIVA DE RESGATAR USUARIO INDEVIDAMENTE');
-            throw new Exception('PERIGO. TENTATIVA DE RESGATAR USUARIO INDEVIDAMENTE');
-        }
-    }
-
-    public function repository()
+    public function repository(): BaseRepository
     {
         $class = $this->repositoryClass();
         return $this->repository = $this->repository ?? new $class();
     }
 
-    abstract public function repositoryClass();
+    abstract public function repositoryClass(): string;
 
     public function __call($name, $arguments)
     {
