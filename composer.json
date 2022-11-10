@@ -1,5 +1,5 @@
 {
-    "name": "dvi-wakanda/base-module",
+    "name": "dvi-dev/base-module",
     "description": "laravel base module",
     "type": "laravel-module",
     "authors": [
