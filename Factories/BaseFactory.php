@@ -21,7 +21,7 @@ abstract class BaseFactory extends Factory
      */
     protected function createName(): string
     {
-        return $this->removeAbreviations($this->faker->unique()->name)->trim()->value();
+        return $this->removeAbreviations($this->faker->name())->trim()->value();
     }
 
     /**
