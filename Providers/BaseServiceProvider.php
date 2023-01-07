@@ -89,6 +89,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
             $this->loadTranslationsFrom($langPath, $this->moduleNameLower);
         } else {
             $this->loadTranslationsFrom(module_path($this->moduleName, 'Resources/lang'), $this->moduleNameLower);
+            $this->loadJsonTranslationsFrom(module_path($this->moduleName, 'Resources/lang'));
         }
     }
 
