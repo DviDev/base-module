@@ -23,6 +23,9 @@ abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayabl
         $this->attributes_ = $attributes[0] ?? [];
     }
 
+    /**
+     * alias to toArray method
+     */
     public function getAttributes(): array
     {
         return $this->attributes_;

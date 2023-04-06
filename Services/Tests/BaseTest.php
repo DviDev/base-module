@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Services\Tests;
 
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Models\BaseModel;
@@ -13,20 +14,14 @@ abstract class BaseTest extends TestCase
 
     abstract public function getModelClass(): string|BaseModel;
 
-    /**
-     * @test
-     */
-    public function tableMustExist()
+    public function testTableMustExist()
     {
         $this->assertTrue(
             Schema::hasTable($this->getModelClass()::table())
         );
     }
 
-    /**
-     * @test
-     */
-    public function tableHasExpectedColumns()
+    public function testTableHasExpectedColumns()
     {
         $this->assertTrue(
             Schema::hasColumns($this->getModelClass()::table(),
@@ -35,51 +30,55 @@ abstract class BaseTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
-    public function canCreateInstanceOfEntity()
+    public function testCanCreateInstanceOfEntity()
     {
         $entity_class = $this->getEntityClass();
         $entity = new $entity_class();
         $this->assertInstanceOf($entity_class, $entity);
     }
 
-    /**
-     * @test
-     */
-    public function canCreateInstanceOfModel()
+    public function testCanCreateInstanceOfModel()
     {
         $model_class = $this->getModelClass();
         $model = new $model_class();
         $this->assertInstanceOf($model_class, $model);
     }
 
-    /**
-     * @test
-     */
-    public function shouldSave()
+    public function testShouldSave($attributes = null)
     {
-        $modelClass = $this->getModelClass();
-        $model = $modelClass::factory()->create();
-        $this->assertDatabaseHas($modelClass::table(), $model->attributesToArray());
+        if (!$attributes) {
+            $modelClass = $this->getModelClass();
+            $model = $modelClass::factory()->create();
+            $attributes = $model->attributesToArray();
+        }
+        if (isset($attributes['created_at'])) {
+            $attributes['created_at'] = (new Carbon($attributes['created_at']))->format('Y-m-d H:i:s');
+        }
+        if (isset($attributes['updated_at'])) {
+            $attributes['updated_at'] = (new Carbon($attributes['updated_at']))->format('Y-m-d H:i:s');
+        }
+
+        $this->assertDatabaseHas($this->getModelClass()::table(), $attributes);
     }
 
-    /**
-     * @test
-     */
-    public function shouldUpdate()
+    public function testShouldUpdate($attributes = null)
     {
-        $model = $this->getModelClass()::factory()->create();
-        $make = $this->getModelClass()::factory()->make();
-        $model->update($make->attributesToArray());
-        $this->assertDatabaseHas($this->getModelClass()::table(), $model->attributesToArray());
+        if (!$attributes) {
+            $model = $this->getModelClass()::factory()->create();
+            $make = $this->getModelClass()::factory()->make();
+            $model->update($make->attributesToArray());
+            $attributes = $model->attributesToArray();
+        }
+        if (isset($attributes['created_at'])) {
+            $attributes['created_at'] = (new Carbon($attributes['created_at']))->format('Y-m-d H:i:s');
+        }
+        if (isset($attributes['updated_at'])) {
+            $attributes['updated_at'] = (new Carbon($attributes['updated_at']))->format('Y-m-d H:i:s');
+        }
+        $this->assertDatabaseHas($this->getModelClass()::table(), $attributes);
     }
 
-    /**
-     * @test
-     */
-    public function shouldDelete()
+    public function testShouldDelete()
     {
         $model = $this->getModelClass()::factory()->create();
         $model->delete();
