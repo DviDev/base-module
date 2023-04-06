@@ -64,7 +64,7 @@ abstract class BaseTest extends TestCase
     public function testShouldUpdate($attributes = null)
     {
         if (!$attributes) {
-            $model = $this->getModelClass()::factory()->create();
+            $model = $this->create();
             $make = $this->getModelClass()::factory()->make();
             $model->update($make->attributesToArray());
             $attributes = $model->attributesToArray();
