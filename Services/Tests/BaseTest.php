@@ -80,8 +80,13 @@ abstract class BaseTest extends TestCase
 
     public function testShouldDelete()
     {
-        $model = $this->getModelClass()::factory()->create();
+        $model = $this->create();
         $model->delete();
         $this->assertDatabaseMissing($this->getModelClass()::table(), $model->attributesToArray());
+    }
+
+    protected function create():BaseModel
+    {
+        return $this->getModelClass()::factory()->create();
     }
 }
