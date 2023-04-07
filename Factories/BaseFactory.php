@@ -164,20 +164,11 @@ abstract class BaseFactory extends Factory
                         $reflectionClass = new \ReflectionClass($model_f);
                         if ($reflectionClass->isSubclassOf(BaseModel::class)) {
                             $table_model[$model_f::table()] = $model_f;
-                            continue;
                         }
-                        ds("$model_f N eh subclasse de BaseModel {$reflectionClass->getParentClass()}");
                     }
-                    continue;
                 }
-                ds('não é diretorio:' . $module_path);
             }
-            if (count($table_model) == 0) {
-                ds($modules);
-                ds('table model is empty');
-                dd('table model is empty');
-                return $this->getTableModels();
-            }
+
             if (!isset($table_model['users'])) {
                 $table_model['users'] = User::class;
             }
