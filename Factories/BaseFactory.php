@@ -53,7 +53,7 @@ abstract class BaseFactory extends Factory
             ->replace(['Dr.', 'Dra.', 'Sr.', 'Sra.', 'Srta.', 'Jr.', ' da', ' de'], '')->trim();
     }
 
-    protected function getValue()
+    protected function getValues(): array
     {
         //preciso saber se a propriedade é uma chave estrangeira
         //se for, gerar um id a partir do modelo
@@ -61,18 +61,16 @@ abstract class BaseFactory extends Factory
         $model = $this->model;
         $entity = (new $model)->modelEntity()::props();
         //1 define os campos obrigatorios
-        $columns = \Schema::getConnection()
+        $tableColumns = \Schema::getConnection()
             ->getDoctrineSchemaManager()
             ->listTableColumns($entity->table);
-        $required_columns = [];
-        foreach ($columns as $column) {
+        $columns = [];
+        foreach ($tableColumns as $column) {
             if ($column->getName() == 'id') {
                 continue;
             }
-            if (!$column->getNotnull()) {
-                continue;
-            }
-            $required_columns[$column->getName()]['obj'] = $column;
+
+            $columns[$column->getName()]['obj'] = $column;
         }
 
         //2 define valores para campos de chave estrangeira
@@ -83,7 +81,7 @@ abstract class BaseFactory extends Factory
         foreach ($fks as $fk) {
             $column = $fk->getLocalColumns()[0];
 
-            if (collect($required_columns)->contains(function ($col) use ($column) {
+            if (collect($columns)->contains(function ($col) use ($column) {
                 /**@var Column $obj*/
                 $obj = $col['obj'];
                 return $obj->getName() == $column;
@@ -93,21 +91,21 @@ abstract class BaseFactory extends Factory
                 //deve verificar se a tabela é a mesma
                 $foreignTableName = $fk->getForeignTableName();
                 if ($foreignTableName == $entity->table) {
-                    $required_columns[$column]['value'] = $model::query()->inRandomOrder()->first()->id;
+                    $columns[$column]['value'] = $model::query()->inRandomOrder()->first()->id;
                     continue;
                 }
                 $model = $table_models[$foreignTableName];
-                $required_columns[$column]['value'] = $model::factory()->create()->id;
+                $columns[$column]['value'] = $model::factory()->create()->id;
             }
         }
 
         //define valores para os campos opcionais
-        $required_columns_without_value = collect($required_columns)->filter(fn($c) => empty($c['value']))->toArray();
-        foreach ($required_columns_without_value as $key => $item) {
+        $optional_columns = collect($columns)->filter(fn($c) => empty($c['value']))->toArray();
+        foreach ($optional_columns as $key => $item) {
             /**@var Column $obj*/
             $obj = $item['obj'];
-            $type = (new \ReflectionObject($obj->getType()))->getNamespaceName();
-            $required_columns_without_value[$key]['value'] = match ($type) {
+            $type = (new \ReflectionObject($obj->getType()))->getName();
+            $optional_columns[$key]['value'] = match ($type) {
                 DateTimeType::class => now(),
                 TextType::class => $this->faker->sentence(),
                 StringType::class => $this->faker->sentence(3),
@@ -118,12 +116,12 @@ abstract class BaseFactory extends Factory
             };
         }
 
-        $result = array_merge($required_columns, $required_columns_without_value);
-        $return = [];
-        foreach ($result as $key => $item) {
-            $return[$key] = $item['value'];
+        $merge = array_merge($columns, $optional_columns);
+        $columns = [];
+        foreach ($merge as $key => $item) {
+            $columns[$key] = $item['value'];
         }
-        return $return;
+        return $columns;
     }
 
     /**
