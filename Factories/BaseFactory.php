@@ -2,8 +2,18 @@
 
 namespace Modules\Base\Factories;
 
-use Modules\Base\Models\BaseModel;
+use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Types\BigIntType;
+use Doctrine\DBAL\Types\BooleanType;
+use Doctrine\DBAL\Types\DateTimeType;
+use Doctrine\DBAL\Types\DecimalType;
+use Doctrine\DBAL\Types\IntegerType;
+use Doctrine\DBAL\Types\SmallIntType;
+use Doctrine\DBAL\Types\StringType;
+use Doctrine\DBAL\Types\TextType;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Modules\Base\Models\BaseModel;
+use Nwidart\Modules\Facades\Module;
 
 abstract class BaseFactory extends Factory
 {
@@ -41,5 +51,111 @@ abstract class BaseFactory extends Factory
     {
         return str($str)
             ->replace(['Dr.', 'Dra.', 'Sr.', 'Sra.', 'Srta.', 'Jr.', ' da', ' de'], '')->trim();
+    }
+
+    protected function getValue()
+    {
+        //preciso saber se a propriedade é uma chave estrangeira
+        //se for, gerar um id a partir do modelo
+        /**@var BaseModel $model */
+        $model = $this->model;
+        $entity = (new $model)->modelEntity()::props();
+        //1 define os campos obrigatorios
+        $columns = \Schema::getConnection()
+            ->getDoctrineSchemaManager()
+            ->listTableColumns($entity->table);
+        $required_columns = [];
+        foreach ($columns as $column) {
+            if ($column->getName() == 'id') {
+                continue;
+            }
+            if (!$column->getNotnull()) {
+                continue;
+            }
+            $required_columns[$column->getName()]['obj'] = $column;
+        }
+
+        //2 define valores para campos de chave estrangeira
+        $table_models = $this->getTableModels();
+        $fks = \Schema::getConnection()
+            ->getDoctrineSchemaManager()
+            ->listTableForeignKeys($entity->table);
+        foreach ($fks as $fk) {
+            $column = $fk->getLocalColumns()[0];
+
+            if (collect($required_columns)->contains(function ($col) use ($column) {
+                /**@var Column $obj*/
+                $obj = $col['obj'];
+                return $obj->getName() == $column;
+            })){
+                //se houver uma chave estrangeira para msm tabela o que eh comum em
+                //campos ex. parent_id, irá causar um loop infinito
+                //deve verificar se a tabela é a mesma
+                $foreignTableName = $fk->getForeignTableName();
+                if ($foreignTableName == $entity->table) {
+                    $required_columns[$column]['value'] = $model::query()->inRandomOrder()->first()->id;
+                    continue;
+                }
+                $model = $table_models[$foreignTableName];
+                $required_columns[$column]['value'] = $model::factory()->create()->id;
+            }
+        }
+
+        //define valores para os campos opcionais
+        $required_columns_without_value = collect($required_columns)->filter(fn($c) => empty($c['value']))->toArray();
+        foreach ($required_columns_without_value as $key => $item) {
+            /**@var Column $obj*/
+            $obj = $item['obj'];
+            $type = (new \ReflectionObject($obj->getType()))->getNamespaceName();
+            $required_columns_without_value[$key]['value'] = match ($type) {
+                DateTimeType::class => now(),
+                TextType::class => $this->faker->sentence(),
+                StringType::class => $this->faker->sentence(3),
+                BooleanType::class => $this->faker->boolean,
+                DecimalType::class => $this->faker->randomFloat(2),
+                SmallIntType::class, IntegerType::class, BigIntType::class => $this->faker->numberBetween(1, 90),
+                default => 1
+            };
+        }
+
+        $result = array_merge($required_columns, $required_columns_without_value);
+        $return = [];
+        foreach ($result as $key => $item) {
+            $return[$key] = $item['value'];
+        }
+        return $return;
+    }
+
+    /**
+     * @return array
+     * @throws \ReflectionException
+     */
+    protected function getTableModels(): array
+    {
+        $fn = function () {
+            $modules = Module::allEnabled();
+
+            $table_model = [];
+            /**@var \Nwidart\Modules\Laravel\Module $module */
+            foreach ($modules as $module) {
+                if ($module->getName() == 'Base') {
+                    continue;
+                }
+                $module_path = 'Modules/' . $module->getName() . '/Models';
+                if (is_dir($module_path)) {
+                    $files = \File::files(base_path($module_path));
+                    foreach ($files as $file) {
+                        /**@var BaseModel $model_f*/
+                        $model_f = str($module_path . '/' . $file->getFilenameWithoutExtension())->replace('/', '\\')->value();
+                        if ((new \ReflectionClass($model_f))->isSubclassOf(BaseModel::class)) {
+                            $table_model[$model_f::table()] = $model_f;
+                        }
+                    }
+                }
+            }
+            return $table_model;
+        };
+
+        return cache()->rememberForever('dvi_table_models', $fn);
     }
 }
