@@ -49,10 +49,13 @@ abstract class BaseTest extends TestCase
         if (!$attributes) {
             $modelClass = $this->getModelClass();
             $model = $modelClass::factory()->create();
-            $attributes = $model->attributesToArray();
+            $attributes = $model->getAttributes();
         }
         if (isset($attributes['created_at'])) {
-            $attributes['created_at'] = (new Carbon($attributes['created_at']))->format('Y-m-d H:i:s');
+            $attributes['created_at'] = is_a($attributes['created_at'], Carbon::class)
+                ? $attributes['created_at']->format('Y-m-d H:i:s')
+//                : $attributes['created_at'];
+                : (new Carbon($attributes['created_at']))->format('Y-m-d H:i:s');
         }
         if (isset($attributes['updated_at'])) {
             $attributes['updated_at'] = (new Carbon($attributes['updated_at']))->format('Y-m-d H:i:s');
@@ -67,10 +70,12 @@ abstract class BaseTest extends TestCase
             $model = $this->create();
             $make = $this->getModelClass()::factory()->make();
             $model->update($make->attributesToArray());
-            $attributes = $model->attributesToArray();
+            $attributes = $model->getAttributes();
         }
         if (isset($attributes['created_at'])) {
-            $attributes['created_at'] = (new Carbon($attributes['created_at']))->format('Y-m-d H:i:s');
+            $attributes['created_at'] = is_a($attributes['created_at'], Carbon::class)
+                ? $attributes['created_at']->format('Y-m-d H:i:s')
+                : (new Carbon($attributes['created_at']))->format('Y-m-d H:i:s');
         }
         if (isset($attributes['updated_at'])) {
             $attributes['updated_at'] = (new Carbon($attributes['updated_at']))->format('Y-m-d H:i:s');

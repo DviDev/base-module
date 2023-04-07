@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Factories;
 
+use App\Models\User;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BooleanType;
@@ -71,6 +72,8 @@ abstract class BaseFactory extends Factory
             }
 
             $columns[$column->getName()]['obj'] = $column;
+            $columns[$column->getName()]['value'] = null;
+            $columns[$column->getName()]['required'] = $column->getNotnull();
         }
 
         //2 define valores para campos de chave estrangeira
@@ -94,18 +97,27 @@ abstract class BaseFactory extends Factory
                     $columns[$column]['value'] = $model::query()->inRandomOrder()->first()->id;
                     continue;
                 }
+                if (!isset($table_models[$foreignTableName])) {
+                    ds($table_models);
+                }
                 $model = $table_models[$foreignTableName];
                 $columns[$column]['value'] = $model::factory()->create()->id;
             }
         }
 
         //define valores para os campos opcionais
-        $optional_columns = collect($columns)->filter(fn($c) => empty($c['value']))->toArray();
-        foreach ($optional_columns as $key => $item) {
+        $another_columns = collect($columns)->filter(fn($c) => empty($c['value']))->toArray();
+        foreach ($another_columns as $key => $item) {
             /**@var Column $obj*/
             $obj = $item['obj'];
+            if ($obj->getName() == 'deleted_at') {
+                continue;
+            }
+            if (!$item['required'] && !$this->faker->boolean) {
+                continue;
+            }
             $type = (new \ReflectionObject($obj->getType()))->getName();
-            $optional_columns[$key]['value'] = match ($type) {
+            $another_columns[$key]['value'] = match ($type) {
                 DateTimeType::class => now(),
                 TextType::class => $this->faker->sentence(),
                 StringType::class => $this->faker->sentence(3),
@@ -116,7 +128,7 @@ abstract class BaseFactory extends Factory
             };
         }
 
-        $merge = array_merge($columns, $optional_columns);
+        $merge = array_merge($columns, $another_columns);
         $columns = [];
         foreach ($merge as $key => $item) {
             $columns[$key] = $item['value'];
@@ -132,7 +144,10 @@ abstract class BaseFactory extends Factory
     {
         $fn = function () {
             $modules = Module::allEnabled();
-
+            if (count($modules) == 0) {
+                ds('Não tem modulos habilitados');
+                ds(Module::allEnabled());
+            }
             $table_model = [];
             /**@var \Nwidart\Modules\Laravel\Module $module */
             foreach ($modules as $module) {
@@ -140,16 +155,31 @@ abstract class BaseFactory extends Factory
                     continue;
                 }
                 $module_path = 'Modules/' . $module->getName() . '/Models';
-                if (is_dir($module_path)) {
+                if (is_dir(base_path($module_path))) {
                     $files = \File::files(base_path($module_path));
                     foreach ($files as $file) {
                         /**@var BaseModel $model_f*/
                         $model_f = str($module_path . '/' . $file->getFilenameWithoutExtension())->replace('/', '\\')->value();
-                        if ((new \ReflectionClass($model_f))->isSubclassOf(BaseModel::class)) {
+
+                        $reflectionClass = new \ReflectionClass($model_f);
+                        if ($reflectionClass->isSubclassOf(BaseModel::class)) {
                             $table_model[$model_f::table()] = $model_f;
+                            continue;
                         }
+                        ds("$model_f N eh subclasse de BaseModel {$reflectionClass->getParentClass()}");
                     }
+                    continue;
                 }
+                ds('não é diretorio:' . $module_path);
+            }
+            if (count($table_model) == 0) {
+                ds($modules);
+                ds('table model is empty');
+                dd('table model is empty');
+                return $this->getTableModels();
+            }
+            if (!isset($table_model['users'])) {
+                $table_model['users'] = User::class;
             }
             return $table_model;
         };
