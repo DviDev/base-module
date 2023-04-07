@@ -122,7 +122,7 @@ abstract class BaseFactory extends Factory
                 TextType::class => $this->faker->sentence(),
                 StringType::class => $this->faker->sentence(3),
                 BooleanType::class => $this->faker->boolean,
-                DecimalType::class => $this->faker->randomFloat(2),
+                DecimalType::class => $this->faker->randomFloat(2, 1, 999999),
                 SmallIntType::class, IntegerType::class, BigIntType::class => $this->faker->numberBetween(1, 90),
                 default => 1
             };
