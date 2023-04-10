@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Contracts\BaseModelImplementation;
 use Modules\Base\Contracts\BaseModelInterface;
 use Modules\Base\Entities\BaseEntityModel;
+use Modules\Base\Factories\BaseFactory;
 
 /**
  * @note Não use o modelo fora do repositório
@@ -14,6 +15,7 @@ use Modules\Base\Entities\BaseEntityModel;
  * @see https://github.com/DaviMenezes
  * @method BaseEntityModel toEntity()
  * @method self|static first()
+ * @method BaseFactory factory()
  */
 abstract class BaseModel extends Model implements BaseModelInterface
 {
