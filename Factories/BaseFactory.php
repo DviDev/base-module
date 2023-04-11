@@ -94,10 +94,10 @@ abstract class BaseFactory extends Factory
                 //deve verificar se a tabela é a mesma
                 $foreignTableName = $fk->getForeignTableName();
                 if ($foreignTableName == $entity->table) {
-                    $columns[$column]['value'] = $model::query()->inRandomOrder()->first()->id;
+                    $columns[$column]['value'] = $model::query()->inRandomOrder()->first()->id ?? null;
                     continue;
                 }
-                if (!isset($table_models[$foreignTableName])) {
+                if (!isset($table_models[$foreignTableName]) && config('app.env') == 'local') {
                     ds($table_models);
                 }
                 $model = $table_models[$foreignTableName];
