@@ -20,4 +20,12 @@ use Modules\Base\Factories\BaseFactory;
 abstract class BaseModel extends Model implements BaseModelInterface
 {
     use BaseModelImplementation;
+
+    public function getGuarded()
+    {
+        $p = $this->modelEntity()::props();
+        return collect($p->toArray())->except([
+            'id', 'created_at', 'updated_at', 'deleted-at'
+        ])->toArray();
+    }
 }
