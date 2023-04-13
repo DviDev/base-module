@@ -7,11 +7,14 @@ use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BooleanType;
 use Doctrine\DBAL\Types\DateTimeType;
+use Doctrine\DBAL\Types\DateType;
 use Doctrine\DBAL\Types\DecimalType;
+use Doctrine\DBAL\Types\FloatType;
 use Doctrine\DBAL\Types\IntegerType;
 use Doctrine\DBAL\Types\SmallIntType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\TimeType;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Modules\Base\Models\BaseModel;
 use Nwidart\Modules\Facades\Module;
@@ -113,16 +116,19 @@ abstract class BaseFactory extends Factory
             if ($obj->getName() == 'deleted_at') {
                 continue;
             }
-            if (!$item['required'] && !$this->faker->boolean) {
+            if (!$item['required'] && !$this->faker->boolean()) {
                 continue;
             }
             $type = (new \ReflectionObject($obj->getType()))->getName();
             $another_columns[$key]['value'] = match ($type) {
                 DateTimeType::class => now(),
+                DateType::class => now(),
+                TimeType::class => now(),
                 TextType::class => $this->faker->sentence(),
-                StringType::class => $this->faker->sentence(3),
-                BooleanType::class => $this->faker->boolean,
+                StringType::class => str($this->faker->sentence(3))->substr(0, $obj->getLength()),
+                BooleanType::class => $this->faker->boolean(),
                 DecimalType::class => $this->faker->randomFloat(2, 1, 999999),
+                FloatType::class => $this->faker->randomFloat(2, 1, 999999),
                 SmallIntType::class, IntegerType::class, BigIntType::class => $this->faker->numberBetween(1, 90),
                 default => 1
             };
@@ -146,7 +152,6 @@ abstract class BaseFactory extends Factory
             $modules = Module::allEnabled();
             if (count($modules) == 0) {
                 ds('Não tem modulos habilitados');
-                ds(Module::allEnabled());
             }
             $table_model = [];
             /**@var \Nwidart\Modules\Laravel\Module $module */
