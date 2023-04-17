@@ -103,6 +103,9 @@ abstract class BaseFactory extends Factory
                 if (!isset($table_models[$foreignTableName]) && config('app.env') == 'local') {
                     ds($table_models);
                 }
+                if (!isset($table_models[$foreignTableName])) {
+                    dd("analisar foreignTableName $foreignTableName em {$fk->getName()} ");
+                }
                 $model = $table_models[$foreignTableName];
                 $columns[$column]['value'] = $model::factory()->create()->id;
             }
@@ -151,7 +154,7 @@ abstract class BaseFactory extends Factory
         $fn = function () {
             $modules = Module::allEnabled();
             if (count($modules) == 0) {
-                ds('Não tem modulos habilitados');
+                dd('Não tem módulos habilitados');
             }
             $table_model = [];
             /**@var \Nwidart\Modules\Laravel\Module $module */
@@ -179,7 +182,7 @@ abstract class BaseFactory extends Factory
             }
             return $table_model;
         };
-
-        return cache()->rememberForever('dvi_table_models', $fn);
+        return $fn();
+//        return cache()->rememberForever('dvi_table_models', $fn);
     }
 }
