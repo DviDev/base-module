@@ -114,7 +114,7 @@ abstract class BaseRepository
         return $this->modelClass()::query()->first();
     }
 
-    public function find($id)
+    public function find($id):BaseModel
     {
         $class = get_called_class();
         $obj = new $class();
