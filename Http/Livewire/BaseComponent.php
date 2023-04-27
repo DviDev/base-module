@@ -2,29 +2,39 @@
 
 namespace Modules\Base\Http\Livewire;
 
+use Exception;
 use Livewire\Component;
 use Modules\Base\Models\BaseModel;
 use Modules\LaravelProgram\Commands\DviRequestMakeCommand;
-use Modules\LaravelProgram\Domains\ViewPage;
-use Modules\LaravelProgram\Models\ViewPageModel;
+use Modules\LaravelProgram\Models\ModuleTableModel;
+use Modules\ViewStructure\Models\ViewPageModel;
 use Modules\ViewStructure\Models\ViewStructureColumnComponentModel;
 use Modules\ViewStructure\Models\ViewStructureRowModel;
 
-abstract class BaseComponent extends Component
+class BaseComponent extends Component
 {
     public BaseModel $model;
     public ViewPageModel $page;
 
     protected $visible_rows;
 
+    public function mount($model)
+    {
+        $this->model = $model;
+    }
+
     public function render()
     {
         $this->getRows();
+
+        return view('viewstructure::components.form.base-form');
     }
 
     public function getRows()
     {
-        $this->page = (new ViewPage)->repository()->page(1);
+        /**@var ModuleTableModel $table*/
+        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
+        $this->page = $table->pages()->first();
 
         $fn = function() {
             $visible_rows = [];
@@ -70,13 +80,22 @@ abstract class BaseComponent extends Component
         $this->model->save();
         session()->flash('success', __('the data has been saved'));
 
-        return redirect()->to($this->getCurrentRoute());
+        return redirect()
+            ->to(url()->previous());
     }
 
     public function getReferencedTableData(ViewStructureColumnComponentModel $component): array
     {
-        return \DB::table($component->attribute->referenced_table_name)
-            ->get(['id', 'name as value'])
-            ->all();
+        try {
+            if ($component->attribute->type == 6 && $component->attribute->items) {
+                return str($component->attribute->items)->explode(',')->all();
+            }
+            return \DB::table($component->attribute->referenced_table_name)
+                ->get(['id', 'name as value'])
+                ->all();
+
+        } catch (Exception $e) {
+            throw new Exception("Está faltando fk ao atributo ".$component->attribute->name);
+        }
     }
 }
