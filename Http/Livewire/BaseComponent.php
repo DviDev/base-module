@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Http\Livewire;
 
+use Carbon\Carbon;
 use Exception;
 use Livewire\Component;
 use Modules\Base\Models\BaseModel;
@@ -24,7 +25,9 @@ class BaseComponent extends Component
     {
         $this->model = $model;
         foreach ($model->attributesToArray() as $attribute => $value) {
-            $this->values[$attribute] = ['old' => $value, 'new' => $value];
+            if (is_a($model->{$attribute}, Carbon::class)) {
+                $this->values['dates'][$attribute] = ['date' => $value, 'time' => $value];
+            }
         }
     }
 
@@ -82,6 +85,9 @@ class BaseComponent extends Component
     public function save()
     {
         $this->validate();
+        foreach ($this->values['dates'] as $property => $values) {
+            $this->model->{$property} = $values['date'].' '.$values['time'];
+        }
         $this->model->save();
         session()->flash('success', __('the data has been saved'));
 
@@ -104,8 +110,8 @@ class BaseComponent extends Component
         }
     }
 
-    public function updatePropertyValue($property, $key, $value): void
+    public function updatePropertyValue($type, $property, $key, $value): void
     {
-        $this->values[$property][$key] = $value;
+        $this->values[$type][$property][$key] = $value;
     }
 }
