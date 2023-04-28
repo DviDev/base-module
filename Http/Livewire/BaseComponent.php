@@ -14,13 +14,18 @@ use Modules\ViewStructure\Models\ViewStructureRowModel;
 class BaseComponent extends Component
 {
     public BaseModel $model;
+    public array $values = [];
+
     public ViewPageModel $page;
 
     protected $visible_rows;
 
-    public function mount($model)
+    public function mount(BaseModel $model)
     {
         $this->model = $model;
+        foreach ($model->attributesToArray() as $attribute => $value) {
+            $this->values[$attribute] = ['old' => $value, 'new' => $value];
+        }
     }
 
     public function render()
@@ -30,11 +35,11 @@ class BaseComponent extends Component
         return view('viewstructure::components.form.base-form');
     }
 
-    public function getRows()
+    public function getRows(): array
     {
         /**@var ModuleTableModel $table*/
         $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-        $this->page = $table->pages()->first();
+        $this->page = $table->pages->first();
 
         $fn = function() {
             $visible_rows = [];
@@ -97,5 +102,10 @@ class BaseComponent extends Component
         } catch (Exception $e) {
             throw new Exception("Está faltando fk ao atributo ".$component->attribute->name);
         }
+    }
+
+    public function updatePropertyValue($property, $key, $value): void
+    {
+        $this->values[$property][$key] = $value;
     }
 }
