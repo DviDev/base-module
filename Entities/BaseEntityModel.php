@@ -32,11 +32,11 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
 
     abstract protected function repositoryClass(): string;
 
-    public function repository(): BaseRepository
+    public function repository(BaseModel $model = null): BaseRepository
     {
         $class = $this->repositoryClass();
         /**@var BaseRepository $repository */
-        $repository = new $class();
+        $repository = new $class($model);
         $repository->setEntity($this);
         if (!is_a($repository, BaseRepository::class)) {
             ExceptionBaseResponse::throw(BaseTypeErrors::ENTITY_TYPE_ERROR, 'A classe '.$class.' deve ser do tipo ' .

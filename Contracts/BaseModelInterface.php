@@ -6,7 +6,7 @@ use Modules\Base\Entities\BaseEntityModel;
 
 interface BaseModelInterface
 {
-    /**@return BaseEntityModel|EntityInterface */
+    /**@return string|BaseEntityModel|EntityInterface */
     public function modelEntity();
 
     public function toEntity();

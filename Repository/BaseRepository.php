@@ -9,20 +9,25 @@ use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Models\BaseModel;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
+use Modules\ViewStructure\Models\ViewStructureColumnModel;
+use phpDocumentor\Reflection\Types\This;
 
 /**
  * @author     Davi Menezes
  * @copyright  Copyright (c) 2020. (davimenezes.dev@gmail.com)
  * @see https://github.com/DaviMenezes
+ * @property-read $this $model
  * @method  BaseModel findOrFail($id)
  * @method-red  static BaseModel find($id)
  */
 abstract class BaseRepository
 {
-    /**@var BaseModel */
-    public $model;
     /**@var BaseEntityModel */
     protected $entity;
+
+    public function __construct(public ?BaseModel $model = null)
+    {
+    }
 
     public function model()
     {

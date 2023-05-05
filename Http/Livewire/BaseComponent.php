@@ -24,9 +24,12 @@ class BaseComponent extends Component
     public function mount(BaseModel $model)
     {
         $this->model = $model;
+        $this->values['dates'] = [];
         foreach ($model->attributesToArray() as $attribute => $value) {
             if (is_a($model->{$attribute}, Carbon::class)) {
-                $this->values['dates'][$attribute] = ['date' => $value, 'time' => $value];
+                /**@var Carbon $value*/
+                $value = $model->{$attribute};
+                $this->values['dates'][$attribute] = ['date' => $value->format('Y-m-d'), 'time' => $value->format('H:i')];
             }
         }
     }
