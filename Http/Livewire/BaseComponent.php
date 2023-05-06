@@ -55,6 +55,9 @@ class BaseComponent extends Component
                 foreach ($row->columns as $column) {
                     /**@var ViewStructureColumnComponentModel $component */
                     $component = $column->components->first();
+                    if (!$component->attribute) {
+                        continue;
+                    }
                     $contain = collect([
                         'id',
                         'created_at',
