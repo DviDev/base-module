@@ -53,11 +53,9 @@ class BaseComponent extends Component
             $visible_rows = [];
             /**@var ViewPageStructureModel $structure */
             $structure = $this->page->structures()->whereNotNull('active')->first();
-//            dd($structure->rows);
             /**@var ViewStructureRowModel $row */
             foreach ($structure->rows as $row) {
                 $contain = false;
-//                dd($row->columns);
                 foreach ($row->columns as $column) {
                     /**@var ViewStructureColumnComponentModel $component */
                     $component = $column->components->first();
