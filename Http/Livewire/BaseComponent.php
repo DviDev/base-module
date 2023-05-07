@@ -6,10 +6,12 @@ use Carbon\Carbon;
 use Exception;
 use Livewire\Component;
 use Modules\Base\Models\BaseModel;
-use Modules\LaravelProgram\Commands\DviRequestMakeCommand;
-use Modules\LaravelProgram\Models\ModuleTableModel;
+use Modules\DBMap\Commands\DviRequestMakeCommand;
+use Modules\DBMap\Models\ModuleTableModel;
 use Modules\ViewStructure\Models\ViewPageModel;
+use Modules\ViewStructure\Models\ViewPageStructureModel;
 use Modules\ViewStructure\Models\ViewStructureColumnComponentModel;
+use Modules\ViewStructure\Models\ViewStructureModel;
 use Modules\ViewStructure\Models\ViewStructureRowModel;
 
 class BaseComponent extends Component
@@ -49,9 +51,13 @@ class BaseComponent extends Component
 
         $fn = function() {
             $visible_rows = [];
+            /**@var ViewPageStructureModel $structure */
+            $structure = $this->page->structures()->whereNotNull('active')->first();
+//            dd($structure->rows);
             /**@var ViewStructureRowModel $row */
-            foreach ($this->page->rows as $row) {
+            foreach ($structure->rows as $row) {
                 $contain = false;
+//                dd($row->columns);
                 foreach ($row->columns as $column) {
                     /**@var ViewStructureColumnComponentModel $component */
                     $component = $column->components->first();
