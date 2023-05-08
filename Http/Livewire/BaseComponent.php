@@ -4,14 +4,16 @@ namespace Modules\Base\Http\Livewire;
 
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Commands\DviRequestMakeCommand;
+use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\DBMap\Models\ModuleTableModel;
+use Modules\ViewStructure\Models\ElementModel;
 use Modules\ViewStructure\Models\ViewPageModel;
 use Modules\ViewStructure\Models\ViewPageStructureModel;
 use Modules\ViewStructure\Models\ViewStructureColumnComponentModel;
-use Modules\ViewStructure\Models\ViewStructureModel;
 use Modules\ViewStructure\Models\ViewStructureRowModel;
 
 class BaseComponent extends Component
@@ -29,7 +31,7 @@ class BaseComponent extends Component
         $this->values['dates'] = [];
         foreach ($model->attributesToArray() as $attribute => $value) {
             if (is_a($model->{$attribute}, Carbon::class)) {
-                /**@var Carbon $value*/
+                /**@var Carbon $value */
                 $value = $model->{$attribute};
                 $this->values['dates'][$attribute] = ['date' => $value->format('Y-m-d'), 'time' => $value->format('H:i')];
             }
@@ -45,16 +47,17 @@ class BaseComponent extends Component
 
     public function getRows(): array
     {
-        /**@var ModuleTableModel $table*/
+        /**@var ModuleTableModel $table */
         $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
         $this->page = $table->pages->first();
 
-        $fn = function() {
+        $fn = function () {
             $visible_rows = [];
             /**@var ViewPageStructureModel $structure */
             $structure = $this->page->structures()->whereNotNull('active')->first();
+            $rows = $structure->rows;
             /**@var ViewStructureRowModel $row */
-            foreach ($structure->rows as $row) {
+            foreach ($rows as $row) {
                 $contain = false;
                 foreach ($row->columns as $column) {
                     /**@var ViewStructureColumnComponentModel $component */
@@ -71,7 +74,6 @@ class BaseComponent extends Component
                     if ($contain) {
                         break;
                     }
-
                 }
                 if ($contain) {
                     continue;
@@ -87,6 +89,19 @@ class BaseComponent extends Component
         return $this->visible_rows;
     }
 
+    /**@return ElementModel[]|Collection */
+    public function elements(): Collection|array
+    {
+        /**@var ModuleTableModel $table */
+        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
+        $this->page = $table->pages->first();
+        /**@var ViewPageStructureModel $structure */
+        $structure = $this->page->structures()->whereNotNull('active')->first();
+        return $structure->elements()->with(['children', 'properties', 'attribute'])->get()->filter(function (ElementModel $e) {
+            return !$e->attribute || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
+        });
+    }
+
     public function getRules()
     {
         return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
@@ -96,7 +111,7 @@ class BaseComponent extends Component
     {
         $this->validate();
         foreach ($this->values['dates'] as $property => $values) {
-            $this->model->{$property} = $values['date'].' '.$values['time'];
+            $this->model->{$property} = $values['date'] . ' ' . $values['time'];
         }
         $this->model->save();
         session()->flash('success', __('the data has been saved'));
@@ -105,10 +120,10 @@ class BaseComponent extends Component
             ->to(url()->previous());
     }
 
-    public function getReferencedTableData(ViewStructureColumnComponentModel $component): array
+    public function getReferencedTableData(ViewStructureColumnComponentModel|ElementModel $component): array
     {
         try {
-            if ($component->attribute->type == 6 && $component->attribute->items) {
+            if ($component->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $component->attribute->items) {
                 return str($component->attribute->items)->explode(',')->all();
             }
             return \DB::table($component->attribute->referenced_table_name)
@@ -116,7 +131,7 @@ class BaseComponent extends Component
                 ->all();
 
         } catch (Exception $e) {
-            throw new Exception("Está faltando fk ao atributo ".$component->attribute->name);
+            throw new Exception("Está faltando fk ao atributo " . $component->attribute->name);
         }
     }
 
