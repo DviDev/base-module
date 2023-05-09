@@ -4,7 +4,6 @@ namespace Modules\Base\Http\Livewire;
 
 use Carbon\Carbon;
 use Exception;
-use Illuminate\Database\Eloquent\Collection;
 use Livewire\Component;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Commands\DviRequestMakeCommand;
@@ -40,8 +39,6 @@ class BaseComponent extends Component
 
     public function render()
     {
-        $this->getRows();
-
         return view('viewstructure::components.form.base-form');
     }
 
@@ -89,22 +86,43 @@ class BaseComponent extends Component
         return $this->visible_rows;
     }
 
-    /**@return ElementModel[]|Collection */
-    public function elements(): Collection|array
+    /**@return ElementModel[] */
+    public function elements()
     {
-        /**@var ModuleTableModel $table */
-        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-        $this->page = $table->pages->first();
-        /**@var ViewPageStructureModel $structure */
-        $structure = $this->page->structures()->whereNotNull('active')->first();
-        return $structure->elements()->with(['children', 'properties', 'attribute'])->get()->filter(function (ElementModel $e) {
-            return !$e->attribute || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
-        });
+//        cache()->delete('elements');
+        $fn = function () {
+            /**@var ModuleTableModel $table */
+            $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
+            $this->page = $table->pages->first();
+            /**@var ViewPageStructureModel $structure */
+            $structure = $this->page->structures()->whereNotNull('active')->first();
+            $elements = $structure->elements()->get()->filter(function (ElementModel $e) {
+                return !$e->attribute || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
+            });
+            $children = collect($elements);
+            foreach ($elements as $element) {
+                $element_children = $element->allChildren->filter(function (ElementModel $e) {
+                    return !$e->attribute || !in_array($e->attribute->name, [
+                            'id',
+                            'created_at',
+                            'updated_at',
+                            'deleted_at'
+                        ]);
+                })->all();
+                $children->merge($element_children);
+            }
+            return $children;
+        };
+        return cache()->rememberForever('elements', $fn);
     }
 
     public function getRules()
     {
-        return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
+        $cache_key = 'model-' . $this->model->id . '-' . auth()->user()->id;
+
+        return cache()->remember($cache_key, now()->addMinutes(30), function () {
+            return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
+        });
     }
 
     public function save()
