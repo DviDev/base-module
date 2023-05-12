@@ -90,10 +90,10 @@ class BaseComponent extends Component
     public function elements()
     {
 //        cache()->delete('elements');
+        /**@var ModuleTableModel $table */
+        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
+        $this->page = $table->pages->first();
         $fn = function () {
-            /**@var ModuleTableModel $table */
-            $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-            $this->page = $table->pages->first();
             /**@var ViewPageStructureModel $structure */
             $structure = $this->page->structures()->whereNotNull('active')->first();
             $elements = $structure->elements()->get()->filter(function (ElementModel $e) {
