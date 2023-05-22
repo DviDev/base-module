@@ -20,9 +20,11 @@ class BaseDatabaseSeeder extends Seeder
     {
         Model::unguard();
 
+        cache()->clear();
+
         $modules = Module::allEnabled();
 
-        /**@var \Nwidart\Modules\Laravel\Module $module*/
+        /**@var \Nwidart\Modules\Laravel\Module $module */
         foreach ($modules as $module) {
             if ($module->getName() == 'Base') {
                 continue;

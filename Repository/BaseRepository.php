@@ -9,8 +9,6 @@ use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Models\BaseModel;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
-use Modules\ViewStructure\Models\ViewStructureColumnModel;
-use phpDocumentor\Reflection\Types\This;
 
 /**
  * @author     Davi Menezes
