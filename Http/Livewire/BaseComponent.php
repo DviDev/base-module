@@ -12,8 +12,6 @@ use Modules\DBMap\Models\ModuleTableModel;
 use Modules\ViewStructure\Models\ElementModel;
 use Modules\ViewStructure\Models\ViewPageModel;
 use Modules\ViewStructure\Models\ViewPageStructureModel;
-use Modules\ViewStructure\Models\ViewStructureColumnComponentModel;
-use Modules\ViewStructure\Models\ViewStructureRowModel;
 
 class BaseComponent extends Component
 {
@@ -42,7 +40,7 @@ class BaseComponent extends Component
         return view('viewstructure::components.form.base-form');
     }
 
-    public function getRows(): array
+    public function getElements(): array
     {
         /**@var ModuleTableModel $table */
         $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
@@ -52,30 +50,37 @@ class BaseComponent extends Component
             $visible_rows = [];
             /**@var ViewPageStructureModel $structure */
             $structure = $this->page->structures()->whereNotNull('active')->first();
-            $rows = $structure->rows;
-            /**@var ViewStructureRowModel $row */
-            foreach ($rows as $row) {
+            $elements = $structure->elements;
+            /**@var ElementModel $element */
+            foreach ($elements as $element) {
                 $contain = false;
-                foreach ($row->columns as $column) {
-                    /**@var ViewStructureColumnComponentModel $component */
-                    $component = $column->components->first();
-                    if (!$component->attribute) {
-                        continue;
-                    }
-                    $contain = collect([
-                        'id',
-                        'created_at',
-                        'updated_at',
-                        'deleted_at'
-                    ])->some($component->attribute->name);
-                    if ($contain) {
-                        break;
-                    }
-                }
+//                foreach ($element->columns as $column) {
+//                    /**@var ViewStructureColumnComponentModel $component */
+//                    $component = $column->components->first();
+//                    if (!$component->attribute) {
+//                        continue;
+//                    }
+//                    $contain = collect([
+//                        'id',
+//                        'created_at',
+//                        'updated_at',
+//                        'deleted_at'
+//                    ])->some($component->attribute->name);
+//                    if ($contain) {
+//                        break;
+//                    }
+//                }
                 if ($contain) {
                     continue;
                 }
-                $visible_rows[$row->id] = $row;
+                //avoid this attributes
+                /*[
+                    'id',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at'
+                ]*/
+                $visible_rows[$element->id] = $element;
             }
 
             return $visible_rows;
@@ -138,18 +143,18 @@ class BaseComponent extends Component
             ->to(url()->previous());
     }
 
-    public function getReferencedTableData(ViewStructureColumnComponentModel|ElementModel $component): array
+    public function getReferencedTableData(ElementModel $element): array
     {
         try {
-            if ($component->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $component->attribute->items) {
-                return str($component->attribute->items)->explode(',')->all();
+            if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $element->attribute->items) {
+                return str($element->attribute->items)->explode(',')->all();
             }
-            return \DB::table($component->attribute->referenced_table_name)
+            return \DB::table($element->attribute->referenced_table_name)
                 ->get(['id', 'name as value'])
                 ->all();
 
         } catch (Exception $e) {
-            throw new Exception("Está faltando fk ao atributo " . $component->attribute->name);
+            throw new Exception("Está faltando fk ao atributo " . $element->attribute->name);
         }
     }
 
