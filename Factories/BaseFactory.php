@@ -106,8 +106,9 @@ abstract class BaseFactory extends Factory
                 if (!isset($table_models[$foreignTableName])) {
                     dd("analisar foreignTableName $foreignTableName em {$fk->getName()} ");
                 }
+                /**@var BaseModel $model */
                 $model = $table_models[$foreignTableName];
-                $columns[$column]['value'] = $model::factory()->create()->id;
+                $columns[$column]['value'] = $model::query()->inRandomOrder()->first()->id ?? $model::factory()->create()->id;
             }
         }
 
