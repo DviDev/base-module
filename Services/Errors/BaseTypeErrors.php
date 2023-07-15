@@ -19,6 +19,7 @@ abstract class BaseTypeErrors
     const TOKEN_EXPIRED = 1012;
     const INVALID_TOKEN = 1013;
     const INTERNAL_ERROR = 1014;
+    const REPOSITORY_CLASS_UNINFORMED = 1015;
 
     public static function errorMessages(): array
     {
@@ -37,7 +38,8 @@ abstract class BaseTypeErrors
             self::TOKEN_MINUTE_LIMIT_EXCEEDED => 'A quantidade de token emitido nos últimos minutos foram excedidos',
             self::TOKEN_EXPIRED => 'Token expirado',
             self::INVALID_TOKEN => 'Token inválido',
-            self::INTERNAL_ERROR => 'Erro interno, já estamos averiguando.'
+            self::INTERNAL_ERROR => 'Erro interno, já estamos averiguando.',
+            self::REPOSITORY_CLASS_UNINFORMED => 'Classe de repositório não informada.'
         ];
     }
 }

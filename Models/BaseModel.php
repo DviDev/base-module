@@ -15,7 +15,7 @@ use Modules\Base\Factories\BaseFactory;
  * @see https://github.com/DaviMenezes
  * @method BaseEntityModel toEntity()
  * @method self|static first()
- * @method BaseFactory factory()
+ * @method self factory($count = null, $state = [])
  */
 abstract class BaseModel extends Model implements BaseModelInterface
 {
