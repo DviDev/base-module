@@ -7,7 +7,6 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Modules\Base\Entities\BaseEntity;
-use Modules\App\Entities\TokenEntity;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
 use Modules\Base\Services\Response\BaseResponse;
