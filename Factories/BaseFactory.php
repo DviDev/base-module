@@ -15,8 +15,11 @@ use Doctrine\DBAL\Types\SmallIntType;
 use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\TimeType;
+use Illuminate\Database\Eloquent\Factories\BelongsToRelationship;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use Modules\Base\Models\BaseModel;
 use Nwidart\Modules\Facades\Module;
 
@@ -24,41 +27,82 @@ abstract class BaseFactory extends Factory
 {
     public function createFn(\Closure $fn)
     {
-        /**@var BaseModel $model*/
+        /**@var BaseModel $model */
         $model = new $this->model;
         $entity_class = $model->modelEntity();
         $entity = new $entity_class;
         return parent::create($fn($entity->props()));
     }
 
-    /**
-     * @return string
-     */
+    public function for($factory, $relationship = null)
+    {
+        $related = $factory;
+        if ($factory instanceof Factory) {
+            $related = $factory->modelName();
+        }
+        if ($factory instanceof Model) {
+            $related = class_basename($factory);
+        }
+
+        $relationship = $relationship ?? $this->guessRelationship($related);
+
+        return $this->newInstance([
+            'for' => $this->for->concat([new BelongsToRelationship($factory, $relationship)])
+        ]);
+    }
+
+    protected function guessRelationship(string $related)
+    {
+        $class_basename = class_basename($related);
+        $singular = Str::camel($class_basename);
+        $plural = Str::plural($singular);
+        $collection = str($class_basename)->snake()->explode('_');
+
+        $possibilities[] = $plural;
+        $possibilities[] = $singular;
+
+        $collection->pop();
+        $pop_singular = Str::camel($collection->join('_'));
+        $possibilities[] = Str::plural($pop_singular);
+        $possibilities[] = $pop_singular;
+
+        $collection->shift();
+        $shift_singular = Str::camel($collection->join(''));
+        $possibilities[] = Str::plural($shift_singular);
+        $possibilities[] = $shift_singular;
+
+        foreach ($collection as $item) {
+            $camel = Str::camel($item);
+            $possibilities[] = Str::plural($camel);
+            $possibilities[] = $camel;
+        }
+
+        foreach ($possibilities as $possibility) {
+            if (method_exists($this->modelName(), $possibility)) {
+                return $possibility;
+            }
+        }
+        return parent::guessRelationship($related);
+    }
+
     protected function createName(): string
     {
-        return $this->removeAbreviations($this->faker->name())->trim()->value();
+        return $this->removeAbbreviations($this->faker->name())->trim()->value();
     }
 
-    /**
-     * @param string $name
-     * @return string
-     */
-    protected function getEmail(string $name): string
-    {
-        return str(iconv('UTF-8', 'ASCII//TRANSLIT', $this->removeAbreviations($name)))
-                ->lower()->explode(' ')->shift(3)->join('_') . '@gmail.com';
-    }
-
-    /**
-     * @return \Illuminate\Support\Stringable
-     */
-    protected function removeAbreviations(string $str)
+    protected function removeAbbreviations(string $str): Stringable
     {
         return str($str)
             ->replace(['Dr.', 'Dra.', 'Sr.', 'Sra.', 'Srta.', 'Jr.', ' da', ' de'], '')->trim();
     }
 
-    protected function getValues(): array
+    protected function getEmail(string $name): string
+    {
+        return str(iconv('UTF-8', 'ASCII//TRANSLIT', $this->removeAbbreviations($name)))
+                ->lower()->explode(' ')->shift(3)->join('_') . '@gmail.com';
+    }
+
+    protected function getValues($fixed_values = []): array
     {
         //preciso saber se a propriedade é uma chave estrangeira
         //se for, gerar um id a partir do modelo
@@ -71,13 +115,14 @@ abstract class BaseFactory extends Factory
             ->listTableColumns($entity->table);
         $columns = [];
         foreach ($tableColumns as $column) {
-            if ($column->getName() == 'id') {
+            $column_name = $column->getName();
+            if ($column_name == 'id') {
                 continue;
             }
 
-            $columns[$column->getName()]['obj'] = $column;
-            $columns[$column->getName()]['value'] = null;
-            $columns[$column->getName()]['required'] = $column->getNotnull();
+            $columns[$column_name]['obj'] = $column;
+            $columns[$column_name]['value'] = null;
+            $columns[$column_name]['required'] = $column->getNotnull();
         }
 
         //2 define valores para campos de chave estrangeira
@@ -89,10 +134,10 @@ abstract class BaseFactory extends Factory
             $column = $fk->getLocalColumns()[0];
 
             if (collect($columns)->contains(function ($col) use ($column) {
-                /**@var Column $obj*/
+                /**@var Column $obj */
                 $obj = $col['obj'];
                 return $obj->getName() == $column;
-            })){
+            })) {
                 //se houver uma chave estrangeira para msm tabela o que eh comum em
                 //campos ex. parent_id, irá causar um loop infinito
                 //deve verificar se a tabela é a mesma
@@ -116,7 +161,7 @@ abstract class BaseFactory extends Factory
         //define valores para os campos opcionais
         $another_columns = collect($columns)->filter(fn($c) => empty($c['value']))->toArray();
         foreach ($another_columns as $key => $item) {
-            /**@var Column $obj*/
+            /**@var Column $obj */
             $obj = $item['obj'];
             if ($obj->getName() == 'deleted_at') {
                 continue;
@@ -124,6 +169,11 @@ abstract class BaseFactory extends Factory
             if (!$item['required'] && !$this->faker->boolean()) {
                 continue;
             }
+            if (isset($fixed_values[$key])) {
+                $another_columns[$key]['value'] = $fixed_values[$key];
+                continue;
+            }
+
             $type = (new \ReflectionObject($obj->getType()))->getName();
             $another_columns[$key]['value'] = match ($type) {
                 DateTimeType::class => now(),
@@ -172,7 +222,7 @@ abstract class BaseFactory extends Factory
                         /*if ($file->getExtension() !== '.php') {
                             continue;
                         }*/
-                        /**@var BaseModel $model_f*/
+                        /**@var BaseModel $model_f */
                         $model_f = str($module_model_path . '/' . $file->getFilenameWithoutExtension())->replace('/', '\\')->value();
 
                         $reflectionClass = new \ReflectionClass($model_f);
@@ -190,33 +240,5 @@ abstract class BaseFactory extends Factory
         };
         return $fn();
 //        return cache()->rememberForever('dvi_table_models', $fn);
-    }
-
-    protected function guessRelationship(string $related)
-    {
-        $class_basename = class_basename($related);
-        $singular = Str::camel($class_basename);
-        $plural = Str::plural($singular);
-        $collection = str($class_basename)->snake()->explode('_');
-
-        $possibilities[] = $plural;
-        $possibilities[] = $singular;
-
-        $collection->pop();
-        $pop_singular = Str::camel($collection->join('_'));
-        $possibilities[] = Str::plural($pop_singular);
-        $possibilities[] = $pop_singular;
-
-        $collection->shift();
-        $shift_singular = Str::camel($collection->join(''));
-        $possibilities[] = Str::plural($shift_singular);
-        $possibilities[] = $shift_singular;
-
-        foreach ($possibilities as $possibility) {
-            if (method_exists($this->modelName(), $possibility)) {
-                return $possibility;
-            }
-        }
-        return parent::guessRelationship($related);
     }
 }
