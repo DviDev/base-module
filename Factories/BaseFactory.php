@@ -16,6 +16,7 @@ use Doctrine\DBAL\Types\StringType;
 use Doctrine\DBAL\Types\TextType;
 use Doctrine\DBAL\Types\TimeType;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 use Modules\Base\Models\BaseModel;
 use Nwidart\Modules\Facades\Module;
 
@@ -155,7 +156,7 @@ abstract class BaseFactory extends Factory
         $fn = function () {
             $modules = Module::allEnabled();
             if (count($modules) == 0) {
-                dd('Não tem módulos habilitados');
+                throw new \Exception('Não tem módulos habilitados');
             }
             $table_model = [];
             /**@var \Nwidart\Modules\Laravel\Module $module */
@@ -163,12 +164,16 @@ abstract class BaseFactory extends Factory
                 if ($module->getName() == 'Base') {
                     continue;
                 }
-                $module_path = 'Modules/' . $module->getName() . '/Models';
-                if (is_dir(base_path($module_path))) {
-                    $files = \File::files(base_path($module_path));
+                $module_model_path = 'Modules/' . $module->getName() . '/Models';
+                if (is_dir(base_path($module_model_path))) {
+
+                    $files = \File::files($module_model_path);
                     foreach ($files as $file) {
+                        /*if ($file->getExtension() !== '.php') {
+                            continue;
+                        }*/
                         /**@var BaseModel $model_f*/
-                        $model_f = str($module_path . '/' . $file->getFilenameWithoutExtension())->replace('/', '\\')->value();
+                        $model_f = str($module_model_path . '/' . $file->getFilenameWithoutExtension())->replace('/', '\\')->value();
 
                         $reflectionClass = new \ReflectionClass($model_f);
                         if ($reflectionClass->isSubclassOf(BaseModel::class)) {
@@ -185,5 +190,33 @@ abstract class BaseFactory extends Factory
         };
         return $fn();
 //        return cache()->rememberForever('dvi_table_models', $fn);
+    }
+
+    protected function guessRelationship(string $related)
+    {
+        $class_basename = class_basename($related);
+        $singular = Str::camel($class_basename);
+        $plural = Str::plural($singular);
+        $collection = str($class_basename)->snake()->explode('_');
+
+        $possibilities[] = $plural;
+        $possibilities[] = $singular;
+
+        $collection->pop();
+        $pop_singular = Str::camel($collection->join('_'));
+        $possibilities[] = Str::plural($pop_singular);
+        $possibilities[] = $pop_singular;
+
+        $collection->shift();
+        $shift_singular = Str::camel($collection->join(''));
+        $possibilities[] = Str::plural($shift_singular);
+        $possibilities[] = $shift_singular;
+
+        foreach ($possibilities as $possibility) {
+            if (method_exists($this->modelName(), $possibility)) {
+                return $possibility;
+            }
+        }
+        return parent::guessRelationship($related);
     }
 }

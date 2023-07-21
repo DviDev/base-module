@@ -30,11 +30,16 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
         return $table . ($alias ? ' as ' . $alias : '');
     }
 
-    abstract protected function repositoryClass(): string;
+    protected function repositoryClass(): ?string
+    {
+        return null;
+    }
 
     public function repository(BaseModel $model = null): BaseRepository
     {
-        $class = $this->repositoryClass();
+        if (!$class = $this->repositoryClass()) {
+            throw new \Exception(BaseTypeErrors::errorMessages()[BaseTypeErrors::REPOSITORY_CLASS_UNINFORMED]. '('.get_called_class().')');
+        }
         /**@var BaseRepository $repository */
         $repository = new $class($model);
         $repository->setEntity($this);
@@ -55,7 +60,19 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
 
     public function table(): string
     {
-        $table = $this->repository()->modelClass()::table();
+        if ($this->repositoryClass()) {
+            $repository = $this->repository();
+            $table = $repository->modelClass()::table();
+            return !$this->table_alias ? $table : $table.' as ' .$this->table_alias;
+        }
+        $vars = str(get_called_class())->explode('\\');
+        $entity = $vars[3];
+        $vars[2] = 'Models';
+        $vars[3] = $entity . 'Model';
+        unset($vars[4]);
+        /**@var BaseModel $model_class*/
+        $model_class = $vars->join('\\');
+        $table = $model_class::table();
         return !$this->table_alias ? $table : $table.' as ' .$this->table_alias;
     }
 }

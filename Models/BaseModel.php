@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Contracts\BaseModelImplementation;
 use Modules\Base\Contracts\BaseModelInterface;
 use Modules\Base\Entities\BaseEntityModel;
-use Modules\Base\Factories\BaseFactory;
 
 /**
- * @note Não use o modelo fora do repositório
- * @author     Davi Menezes
- * @copyright  Copyright (c) 2020. (davimenezes.dev@gmail.com)
+ * @note Try not to create queries outside the repository
+ * @author Davi Menezes
+ * @copyright Copyright (c) 2020. (davimenezes.dev@gmail.com)
  * @see https://github.com/DaviMenezes
  * @method BaseEntityModel toEntity()
  * @method self|static first()
@@ -27,5 +26,10 @@ abstract class BaseModel extends Model implements BaseModelInterface
         return collect($p->toArray())->except([
             'id', 'created_at', 'updated_at', 'deleted-at'
         ])->toArray();
+    }
+
+    public function getTable(): string
+    {
+        return $this->table();
     }
 }
