@@ -13,7 +13,7 @@ use Modules\ViewStructure\Models\ElementModel;
 use Modules\ViewStructure\Models\ViewPageModel;
 use Modules\ViewStructure\Models\ViewPageStructureModel;
 
-class BaseComponent extends Component
+abstract class BaseComponent extends Component
 {
     public BaseModel $model;
     public array $values = [];
