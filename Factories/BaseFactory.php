@@ -187,6 +187,9 @@ abstract class BaseFactory extends Factory
                 SmallIntType::class, IntegerType::class, BigIntType::class => $this->faker->numberBetween(1, 90),
                 default => 1
             };
+            if ($key == 'parent_id') {
+                $another_columns[$key]['value'] = null;
+            }
         }
 
         $merge = array_merge($columns, $another_columns);
