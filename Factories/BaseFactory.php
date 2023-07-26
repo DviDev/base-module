@@ -3,6 +3,7 @@
 namespace Modules\Base\Factories;
 
 use App\Models\User;
+use BadMethodCallException;
 use Doctrine\DBAL\Schema\Column;
 use Doctrine\DBAL\Types\BigIntType;
 use Doctrine\DBAL\Types\BooleanType;
@@ -53,6 +54,17 @@ abstract class BaseFactory extends Factory
 
     protected function guessRelationship(string $related)
     {
+        $available_methods = $this->availableMethods($related);
+        foreach ($available_methods as $possibility) {
+            if (method_exists($this->modelName(), $possibility)) {
+                return $possibility;
+            }
+        }
+        return parent::guessRelationship($related);
+    }
+
+    protected function availableMethods(string $related): array
+    {
         $class_basename = class_basename($related);
         $singular = Str::camel($class_basename);
         $plural = Str::plural($singular);
@@ -76,13 +88,7 @@ abstract class BaseFactory extends Factory
             $possibilities[] = Str::plural($camel);
             $possibilities[] = $camel;
         }
-
-        foreach ($possibilities as $possibility) {
-            if (method_exists($this->modelName(), $possibility)) {
-                return $possibility;
-            }
-        }
-        return parent::guessRelationship($related);
+        return $possibilities;
     }
 
     protected function createName(): string
@@ -180,7 +186,7 @@ abstract class BaseFactory extends Factory
                 DateType::class => now(),
                 TimeType::class => now(),
                 TextType::class => $this->faker->sentence(),
-                StringType::class => str($this->faker->sentence(3))->substr(0, $obj->getLength()),
+                StringType::class => $key == 'name' ? $this->faker->words(3, true) : str($this->faker->sentence(3))->substr(0, $obj->getLength()),
                 BooleanType::class => $this->faker->boolean(),
                 DecimalType::class => $this->faker->randomFloat(2, 1, 999999),
                 FloatType::class => $this->faker->randomFloat(2, 1, 999999),
@@ -243,5 +249,13 @@ abstract class BaseFactory extends Factory
         };
         return $fn();
 //        return cache()->rememberForever('dvi_table_models', $fn);
+    }
+
+    protected function throwBadMethod(string $related, array $available_methods)
+    {
+        $str = sprintf('Call to undefined method %s::%s()', static::class, $related);
+        $str .= ". Available methods: " . json_encode($available_methods);
+
+        throw new BadMethodCallException($str);
     }
 }

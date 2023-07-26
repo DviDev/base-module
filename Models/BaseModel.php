@@ -14,7 +14,7 @@ use Modules\Base\Entities\BaseEntityModel;
  * @see https://github.com/DaviMenezes
  * @method BaseEntityModel toEntity()
  * @method self|static first()
- * @method self factory($count = null, $state = [])
+ * @method static self factory($count = null, $state = [])
  */
 abstract class BaseModel extends Model implements BaseModelInterface
 {
