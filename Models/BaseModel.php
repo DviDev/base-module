@@ -13,7 +13,6 @@ use Modules\Post\Models\PostCommentModel;
  * @author Davi Menezes
  * @copyright Copyright (c) 2020. (davimenezes.dev@gmail.com)
  * @see https://github.com/DaviMenezes
- * @property $entity_item_id
  * @method BaseEntityModel toEntity()
  * @method self|static first()
  * @method static self factory($count = null, $state = [])
