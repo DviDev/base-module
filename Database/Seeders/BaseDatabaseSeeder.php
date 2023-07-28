@@ -10,6 +10,7 @@ use Modules\App\Database\Seeders\ConfigTableSeeder;
 use Modules\App\Entities\User\UserType;
 use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
 use Modules\Permission\Database\Seeders\PermissionTeamsTableSeeder;
+use Modules\Project\Models\ProjectModel;
 use Modules\ViewStructure\Database\Seeders\ViewStructureDatabaseSeeder;
 use Modules\Workspace\Database\Seeders\WorkspaceTableSeeder;
 use Nwidart\Modules\Facades\Module;
@@ -38,6 +39,12 @@ class BaseDatabaseSeeder extends Seeder
         }
         $this->call(PermissionTeamsTableSeeder::class);
         $this->call(ConfigTableSeeder::class);
+
+        $superAdmin = User::query()->where('type', UserType::SUPER_ADMIN->value)->first();
+        ProjectModel::factory()
+            ->for($superAdmin)
+            ->create(['name' => config('app.name')]);
+
         $this->call(WorkspaceTableSeeder::class);
 
         /**@var \Nwidart\Modules\Laravel\Module $module */

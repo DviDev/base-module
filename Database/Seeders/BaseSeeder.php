@@ -17,7 +17,6 @@ abstract class BaseSeeder extends Seeder
         $this->createFaker();
     }
 
-    abstract public function run();
 
     protected function withProgressBar(int|Collection $amount, Closure $createCollectionOfOne): \Illuminate\Database\Eloquent\Collection
     {
