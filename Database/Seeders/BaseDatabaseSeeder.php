@@ -10,7 +10,7 @@ use Modules\App\Database\Seeders\ConfigTableSeeder;
 use Modules\App\Entities\User\UserType;
 use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
 use Modules\Permission\Database\Seeders\PermissionTeamsTableSeeder;
-use Modules\Post\Models\PostCommentModel;
+use Modules\App\Models\CommentModel;
 use Modules\Post\Models\PostModel;
 use Modules\Project\Models\ProjectModel;
 use Modules\ViewStructure\Database\Seeders\ViewStructureDatabaseSeeder;

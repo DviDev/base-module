@@ -21,6 +21,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
+use Mockery\Exception;
 use Modules\Base\Models\BaseModel;
 use Nwidart\Modules\Facades\Module;
 
@@ -119,6 +120,7 @@ abstract class BaseFactory extends Factory
         $tableColumns = \Schema::getConnection()
             ->getDoctrineSchemaManager()
             ->listTableColumns($entity->table);
+
         $columns = [];
         foreach ($tableColumns as $column) {
             $column_name = $column->getName();
@@ -133,6 +135,7 @@ abstract class BaseFactory extends Factory
 
         //2 define valores para campos de chave estrangeira
         $table_models = $this->getTableModels();
+
         $fks = \Schema::getConnection()
             ->getDoctrineSchemaManager()
             ->listTableForeignKeys($entity->table);
@@ -156,7 +159,7 @@ abstract class BaseFactory extends Factory
                     ds($table_models);
                 }
                 if (!isset($table_models[$foreignTableName])) {
-                    dd("analisar foreignTableName $foreignTableName em {$fk->getName()} ");
+                    throw new Exception("analisar foreignTableName $entity->table. ' '. $foreignTableName em {$fk->getName()} ");
                 }
                 /**@var BaseModel $model */
                 $model = $table_models[$foreignTableName];
