@@ -3,20 +3,20 @@
 namespace Modules\Base\Database\Factories;
 
 use Modules\Base\Factories\BaseFactory;
-use Modules\App\Models\CommentModel;
+use Modules\App\Models\MessageModel;
 
 /**
- * @method CommentModel create(array $attributes = [])
- * @method CommentModel make(array $attributes = [])
+ * @method MessageModel create(array $attributes = [])
+ * @method MessageModel make(array $attributes = [])
  */
-class CommentFactory extends BaseFactory
+class MessageFactory extends BaseFactory
 {
     /**
      * The name of the factory's corresponding model.
      *
      * @var string
      */
-    protected $model = CommentModel::class;
+    protected $model = MessageModel::class;
 
     /**
      * Define the model's default state.

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Contracts\BaseModelImplementation;
 use Modules\Base\Contracts\BaseModelInterface;
 use Modules\Base\Entities\BaseEntityModel;
-use Modules\App\Models\CommentModel;
+use Modules\App\Models\MessageModel;
 
 /**
  * @note Try not to create queries outside the repository
