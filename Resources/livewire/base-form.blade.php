@@ -1,7 +1,7 @@
 @php
-    use Modules\ViewStructure\Models\ElementModel;
-    use Modules\ViewStructure\Models\ElementPropertyModel;
-    use Modules\ViewStructure\Domains\ViewStructureComponentType;
+    use Modules\View\Models\ElementModel;
+    use Modules\View\Models\ElementPropertyModel;
+    use Modules\View\Domains\ViewStructureComponentType;
 @endphp
 <x-dvui::card>
     <x-slot:heading class="flex">

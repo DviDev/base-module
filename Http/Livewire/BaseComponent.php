@@ -9,9 +9,9 @@ use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Commands\DviRequestMakeCommand;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\DBMap\Models\ModuleTableModel;
-use Modules\ViewStructure\Models\ElementModel;
-use Modules\ViewStructure\Models\ViewPageModel;
-use Modules\ViewStructure\Models\ViewPageStructureModel;
+use Modules\View\Models\ElementModel;
+use Modules\View\Models\ViewPageModel;
+use Modules\View\Models\ViewPageStructureModel;
 
 abstract class BaseComponent extends Component
 {

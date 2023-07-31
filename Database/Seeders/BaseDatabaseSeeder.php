@@ -10,12 +10,9 @@ use Modules\App\Database\Seeders\ConfigTableSeeder;
 use Modules\App\Entities\User\UserType;
 use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
 use Modules\Permission\Database\Seeders\PermissionTeamsTableSeeder;
-use Modules\App\Models\MessageModel;
-use Modules\Post\Models\PostModel;
 use Modules\Project\Models\ProjectModel;
-use Modules\ViewStructure\Database\Seeders\ViewStructureDatabaseSeeder;
+use Modules\View\Database\Seeders\ViewStructureDatabaseSeeder;
 use Modules\Workspace\Database\Seeders\WorkspaceTableSeeder;
-use Modules\Workspace\Models\WorkspaceModel;
 use Nwidart\Modules\Facades\Module;
 
 class BaseDatabaseSeeder extends Seeder
@@ -38,7 +35,7 @@ class BaseDatabaseSeeder extends Seeder
         if ($modules->contains('DBMap')) {
             $this->call(DBMapDatabaseSeeder::class);
         }
-        if ($modules->contains('ViewStructure')) {
+        if ($modules->contains('View')) {
             $this->call(ViewStructureDatabaseSeeder::class);
         }
         $this->call(PermissionTeamsTableSeeder::class);
