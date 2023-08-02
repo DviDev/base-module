@@ -10,7 +10,7 @@ use Modules\DBMap\Commands\DviRequestMakeCommand;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\DBMap\Models\ModuleTableModel;
 use Modules\View\Models\ElementModel;
-use Modules\View\Models\ViewPageModel;
+use Modules\View\Models\ModuleEntityPageModel;
 use Modules\View\Models\ViewPageStructureModel;
 
 abstract class BaseComponent extends Component
@@ -18,7 +18,7 @@ abstract class BaseComponent extends Component
     public BaseModel $model;
     public array $values = [];
 
-    public ViewPageModel $page;
+    public ModuleEntityPageModel $page;
 
     protected $visible_rows;
 
