@@ -44,7 +44,7 @@ abstract class BaseRepository
     /**@return BaseModel | string */
     abstract public function modelClass();
 
-    public function save(BaseEntityModel &$entityModel = null)
+    public function save(BaseEntityModel &$entityModel = null): Model
     {
         $this->entity = $entityModel ?? $this->entity;
         if (!$this->entity) {
