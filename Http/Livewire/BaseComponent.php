@@ -37,7 +37,7 @@ abstract class BaseComponent extends Component
 
     public function render()
     {
-        return view('viewstructure::components.form.base-form');
+        return view('view::components.form.base-form');
     }
 
     public function getElements(): array
