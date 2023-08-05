@@ -261,4 +261,13 @@ abstract class BaseFactory extends Factory
 
         throw new BadMethodCallException($str);
     }
+
+    public function definition()
+    {
+        try {
+            return $this->getValues();
+        } catch (\Exception $exception) {
+            throw new \Exception('Não foi possível resolver a Fabrica do modelo ' . $this->model);
+        }
+    }
 }
