@@ -16,7 +16,7 @@
             <x-dvui::toast :success="true" title="Success" title2="{{now()->diffForHumans()}}"
                            :label="session('success')"/>
         @endif
-        <form wire:submit.prevent="save">
+        <form wire:submit="save">
             <div class="space-y-3">
 
                 @php
@@ -53,7 +53,7 @@
                                         <x-dvui::form.input :attr="$properties"/>
                                     @else
                                         <x-dvui::form.input :attr="$properties"
-                                                            wire:model.defer="model.{{$properties['id']}}"/>
+                                                            wire:model="model.{{$properties['id']}}"/>
                                     @endif
                                 @endif
                                 @if($component_->type->enum() == ViewStructureComponentType::combo)
@@ -61,7 +61,7 @@
                                         $combo = "select";
                                     @endphp
                                     <x-dvui::form.select :label="$properties['label']"
-                                                         wire:model.defer="model.{{$properties['id']}}">
+                                                         wire:model="model.{{$properties['id']}}">
                                         @foreach($this->getReferencedTableData($component_) as $item)
                                             <x-dvui::form.select.item :value="$item->id"
                                                                       :selected="$model->{$properties['id']} == $item->id"
