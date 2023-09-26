@@ -111,6 +111,8 @@ abstract class BaseFactory extends Factory
 
     protected function getValues($fixed_values = []): array
     {
+        //Todo Se campos de kf constam na lista de unique, devem criar um novo. (incluir esta logica dentro de getValues)
+
         //preciso saber se a propriedade é uma chave estrangeira
         //se for, gerar um id a partir do modelo
         /**@var BaseModel $model */
@@ -185,13 +187,15 @@ abstract class BaseFactory extends Factory
 
             $type = (new \ReflectionObject($obj->getType()))->getName();
             $another_columns[$key]['value'] = match ($type) {
-                DateTimeType::class => now(),
-                DateType::class => now(),
-                TimeType::class => now(),
+                DateTimeType::class, DateType::class, TimeType::class => now(),
                 TextType::class => $this->faker->sentence(),
-                StringType::class => $key == 'name' ? $this->faker->words(3, true) : str($this->faker->sentence(3))->substr(0, $obj->getLength()),
+                StringType::class => $key == 'name'
+                    ? $this->faker->words(3, true)
+                    : ($key == 'uuid'
+                        ? $this->faker->uuid()
+                        : str($this->faker->sentence(3))->substr(0, $obj->getLength())),
                 BooleanType::class => $this->faker->boolean(),
-                DecimalType::class => $this->faker->randomFloat(2, 1, 999999),
+                DecimalType::class => $this->faker->randomFloat($obj->getScale(), 1, str_pad(9, $obj->getPrecision()-$obj->getScale(), 9)),
                 FloatType::class => $this->faker->randomFloat(2, 1, 999999),
                 SmallIntType::class, IntegerType::class, BigIntType::class => $this->faker->numberBetween(1, 90),
                 default => 1
@@ -267,7 +271,11 @@ abstract class BaseFactory extends Factory
         try {
             return $this->getValues();
         } catch (\Exception $exception) {
-            throw new \Exception('Não foi possível resolver a Fabrica do modelo ' . $this->model);
+            $str = 'Não foi possível resolver a Fabrica do modelo '. $this->model;
+            if (config('app.env') == 'local') {
+                $str .= ' Erro: '.$exception->getMessage();
+            }
+            throw new \Exception($str );
         }
     }
 }

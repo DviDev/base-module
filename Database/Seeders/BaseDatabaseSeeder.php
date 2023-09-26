@@ -38,15 +38,24 @@ class BaseDatabaseSeeder extends Seeder
         if ($modules->contains('View')) {
             $this->call(ViewDatabaseSeeder::class);
         }
-        $this->call(PermissionTeamsTableSeeder::class);
-        $this->call(ConfigTableSeeder::class);
+        if ($modules->contains('Permission')) {
+            $this->call(PermissionTeamsTableSeeder::class);
+        }
 
-        $superAdmin = User::query()->where('type', UserType::SUPER_ADMIN->value)->first();
-        ProjectModel::factory()
-            ->for($superAdmin)
-            ->create(['name' => config('app.name')]);
+        if ($modules->contains('App')) {
+            $this->call(ConfigTableSeeder::class);
+        }
 
-        $this->call(WorkspaceTableSeeder::class);
+        if ($modules->contains('Project')) {
+            $superAdmin = User::query()->where('type', UserType::SUPER_ADMIN->value)->first();
+            ProjectModel::factory()
+                ->for($superAdmin)
+                ->create(['name' => config('app.name')]);
+        }
+
+        if ($modules->contains('Workspaces')) {
+            $this->call(WorkspaceTableSeeder::class);
+        }
 
         /**@var \Nwidart\Modules\Laravel\Module $module */
         foreach ($modules as $module) {
