@@ -19,6 +19,7 @@ use Doctrine\DBAL\Types\TimeType;
 use Illuminate\Database\Eloquent\Factories\BelongsToRelationship;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 use Mockery\Exception;
@@ -138,9 +139,9 @@ abstract class BaseFactory extends Factory
         //2 define valores para campos de chave estrangeira
         $table_models = $this->getTableModels();
 
-        $fks = \Schema::getConnection()
-            ->getDoctrineSchemaManager()
-            ->listTableForeignKeys($entity->table);
+        $indexes = Schema::getConnection()->getDoctrineSchemaManager()->listTableIndexes($entity->table);
+        $fks = Schema::getConnection()->getDoctrineSchemaManager()->listTableForeignKeys($entity->table);
+
         foreach ($fks as $fk) {
             $column = $fk->getLocalColumns()[0];
 
@@ -165,7 +166,23 @@ abstract class BaseFactory extends Factory
                 }
                 /**@var BaseModel $model */
                 $model = $table_models[$foreignTableName];
-                $columns[$column]['value'] = $model::query()->inRandomOrder()->first()->id ?? $model::factory()->create()->id;
+
+                //check if index contain in unique columns
+                $contain_in_index_unique = false;
+                foreach($indexes as $i) {
+                    if (!$i->isUnique()) {
+                        continue;
+                    }
+                    foreach ($i->getColumns() as $_column) {
+                        if ($_column == $column) {
+                            $contain_in_index_unique = true;
+                        }
+                    }
+                }
+
+                $columns[$column]['value'] = !$contain_in_index_unique
+                    ? ($model::query()->inRandomOrder()->first()->id ?? $model::factory()->create()->id)
+                    : $model::factory()->create()->id;
             }
         }
 
@@ -174,6 +191,7 @@ abstract class BaseFactory extends Factory
         foreach ($another_columns as $key => $item) {
             /**@var Column $obj */
             $obj = $item['obj'];
+
             if ($obj->getName() == 'deleted_at') {
                 continue;
             }
@@ -189,17 +207,14 @@ abstract class BaseFactory extends Factory
             $another_columns[$key]['value'] = match ($type) {
                 DateTimeType::class, DateType::class, TimeType::class => now(),
                 TextType::class => $this->faker->sentence(),
-                StringType::class => $key == 'name'
-                    ? $this->faker->words(3, true)
-                    : ($key == 'uuid'
-                        ? $this->faker->uuid()
-                        : str($this->faker->sentence(3))->substr(0, $obj->getLength())),
-                BooleanType::class => $this->faker->boolean(),
+                StringType::class => $this->getFakeValue($key, $obj),
+                BooleanType::class => $obj->getDefault() ?? $this->faker->boolean(),
                 DecimalType::class => $this->faker->randomFloat($obj->getScale(), 1, str_pad(9, $obj->getPrecision()-$obj->getScale(), 9)),
                 FloatType::class => $this->faker->randomFloat(2, 1, 999999),
                 SmallIntType::class, IntegerType::class, BigIntType::class => $this->faker->numberBetween(1, 90),
                 default => 1
             };
+
             if ($key == 'parent_id') {
                 $another_columns[$key]['value'] = null;
             }
@@ -273,9 +288,24 @@ abstract class BaseFactory extends Factory
         } catch (\Exception $exception) {
             $str = 'Não foi possível resolver a Fabrica do modelo '. $this->model;
             if (config('app.env') == 'local') {
-                $str .= ' Erro: '.$exception->getMessage();
+                $str .= ' Erro: '.$exception->getMessage().$exception->getFile().':'.$exception->getLine();
             }
             throw new \Exception($str );
         }
+    }
+
+    protected function getFakeValue(int|string $key, Column $obj)
+    {
+        if ($key == 'name') {
+            return $this->faker->words(3, true);
+        }
+        if ($key == 'uuid') {
+            return $this->faker->uuid();
+        }
+        if (in_array($key, ['telefone', 'phone'])) {
+            return '1199'.random_int(100,999).random_int(10,99).random_int(10,99);
+        }
+
+        return str($this->faker->sentence(3))->substr(0, $obj->getLength());
     }
 }
