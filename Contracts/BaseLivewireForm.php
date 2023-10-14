@@ -35,7 +35,7 @@ abstract class BaseLivewireForm extends Component
             $this->model = $this->model ?? new $class();
             $this->saveAction();
             DB::commit();
-            Toastr::instance($this)->success('Item salvo')->dispatch();
+            Toastr::instance($this)->success('Item salvo');
         } catch (\Exception $exception) {
             DB::rollBack();
             $msg = config('app.env') == 'local'
