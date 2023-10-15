@@ -27,8 +27,8 @@ abstract class BaseLivewireForm extends Component
 
     public function save()
     {
-        $this->validate();
         try {
+            $this->validate();
             DB::beginTransaction();
 
             $class = $this->getClass();
