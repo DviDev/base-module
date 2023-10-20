@@ -206,12 +206,12 @@ abstract class BaseFactory extends Factory
             $type = (new \ReflectionObject($obj->getType()))->getName();
             $another_columns[$key]['value'] = match ($type) {
                 DateTimeType::class, DateType::class, TimeType::class => now(),
-                TextType::class => $this->faker->sentence(),
-                StringType::class => $this->getFakeValue($key, $obj),
+                TextType::class => $obj->getDefault() ?? $this->faker->sentence(),
+                StringType::class => $obj->getDefault() ?? $this->getFakeValue($key, $obj),
                 BooleanType::class => $obj->getDefault() ?? $this->faker->boolean(),
-                DecimalType::class => $this->faker->randomFloat($obj->getScale(), 1, str_pad(9, $obj->getPrecision()-$obj->getScale(), 9)),
-                FloatType::class => $this->faker->randomFloat(2, 1, 999999),
-                SmallIntType::class, IntegerType::class, BigIntType::class => $this->faker->numberBetween(1, 90),
+                DecimalType::class => $obj->getDefault() ?? $this->faker->randomFloat($obj->getScale(), 1, str_pad(9, $obj->getPrecision()-$obj->getScale(), 9)),
+                FloatType::class => $obj->getDefault() ?? $this->faker->randomFloat(2, 1, 999999),
+                SmallIntType::class, IntegerType::class, BigIntType::class => $obj->getDefault() ?? $this->faker->numberBetween(1, 90),
                 default => 1
             };
 
