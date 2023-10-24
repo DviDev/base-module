@@ -302,6 +302,9 @@ abstract class BaseFactory extends Factory
         if ($key == 'uuid') {
             return $this->faker->uuid();
         }
+        if ($key == 'cpf') {
+            return fake('pt_BR')->cpf();
+        }
         if (in_array($key, ['telefone', 'phone'])) {
             return '1199'.random_int(100,999).random_int(10,99).random_int(10,99);
         }
