@@ -2,7 +2,9 @@
 
 namespace Modules\Base\Providers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 
 class BaseServiceProvider extends ServiceProvider implements BaseServiceProviderInterface
@@ -31,6 +33,9 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
         $this->loadMigrationsFrom(module_path($this->moduleName, 'Database/Migrations'));
 
         $this->registerCommands();
+
+        //real time check many queries ex. in post list using post->author suggest use post::with('user')->all()
+        Model::preventLazyLoading(! $this->app->isProduction());
     }
 
     /**
@@ -128,6 +133,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
 
     private function registerCommands()
     {
+        $this->commands(FeatureFlushCommand::class);
     }
 
     public static function errorTypeClass()

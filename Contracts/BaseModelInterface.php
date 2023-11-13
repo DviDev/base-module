@@ -2,9 +2,11 @@
 
 namespace Modules\Base\Contracts;
 
+use Modules\Base\Entities\BaseEntityModel;
+
 interface BaseModelInterface
 {
-    /**@return EntityInterface */
+    /**@return string|BaseEntityModel|EntityInterface */
     public function modelEntity();
 
     public function toEntity();

@@ -14,15 +14,18 @@ use Modules\Base\Services\Errors\ExceptionBaseResponse;
  * @author     Davi Menezes
  * @copyright  Copyright (c) 2020. (davimenezes.dev@gmail.com)
  * @see https://github.com/DaviMenezes
+ * @property-read $this $model
  * @method  BaseModel findOrFail($id)
  * @method-red  static BaseModel find($id)
  */
 abstract class BaseRepository
 {
-    /**@var BaseModel */
-    public $model;
     /**@var BaseEntityModel */
     protected $entity;
+
+    public function __construct(public ?BaseModel $model = null)
+    {
+    }
 
     public function model()
     {
@@ -41,7 +44,7 @@ abstract class BaseRepository
     /**@return BaseModel | string */
     abstract public function modelClass();
 
-    public function save(BaseEntityModel &$entityModel = null)
+    public function save(BaseEntityModel &$entityModel = null): Model
     {
         $this->entity = $entityModel ?? $this->entity;
         if (!$this->entity) {
@@ -114,7 +117,7 @@ abstract class BaseRepository
         return $this->modelClass()::query()->first();
     }
 
-    public function find($id)
+    public function find($id):BaseModel|null
     {
         $class = get_called_class();
         $obj = new $class();

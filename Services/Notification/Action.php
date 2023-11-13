@@ -6,8 +6,8 @@ class Action
 {
     public function __construct(
         public ?string $text = 'Visualizar',
-        public string  $url = '!#',
-        public string  $type = 'info',
+        public ?string  $url = '!#',
+        public ?string  $type = 'info',
         public bool    $btn = false,
         public ?string $icon = null,
     )

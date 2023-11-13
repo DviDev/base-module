@@ -71,7 +71,7 @@ trait BaseModelImplementation
     public function repository()
     {
         $entity = $this->modelEntity();
-        return (new $entity)->repository();
+        return (new $entity)->repository($this);
     }
 
     public function props($alias = null, $refresh = false): object

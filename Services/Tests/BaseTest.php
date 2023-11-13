@@ -14,14 +14,14 @@ abstract class BaseTest extends TestCase
 
     abstract public function getModelClass(): string|BaseModel;
 
-    public function testTableMustExist()
+    public function tableMustExist(): void
     {
         $this->assertTrue(
             Schema::hasTable($this->getModelClass()::table())
         );
     }
 
-    public function testTableHasExpectedColumns()
+    public function tableHasExpectedColumns()
     {
         $this->assertTrue(
             Schema::hasColumns($this->getModelClass()::table(),
@@ -30,21 +30,21 @@ abstract class BaseTest extends TestCase
         );
     }
 
-    public function testCanCreateInstanceOfEntity()
+    public function canCreateInstanceOfEntity(): void
     {
         $entity_class = $this->getEntityClass();
         $entity = new $entity_class();
         $this->assertInstanceOf($entity_class, $entity);
     }
 
-    public function testCanCreateInstanceOfModel()
+    public function canCreateInstanceOfModel(): void
     {
         $model_class = $this->getModelClass();
         $model = new $model_class();
         $this->assertInstanceOf($model_class, $model);
     }
 
-    public function testShouldSave($attributes = null)
+    public function shouldSave($attributes = null): void
     {
         if (!$attributes) {
             $modelClass = $this->getModelClass();
@@ -64,7 +64,7 @@ abstract class BaseTest extends TestCase
         $this->assertDatabaseHas($this->getModelClass()::table(), $attributes);
     }
 
-    public function testShouldUpdate($attributes = null)
+    public function shouldUpdate($attributes = null): void
     {
         if (!$attributes) {
             $model = $this->create();
@@ -83,7 +83,7 @@ abstract class BaseTest extends TestCase
         $this->assertDatabaseHas($this->getModelClass()::table(), $attributes);
     }
 
-    public function testShouldDelete()
+    public function shouldDelete(): void
     {
         $model = $this->create();
         $model->delete();
