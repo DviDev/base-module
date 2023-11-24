@@ -159,7 +159,7 @@ abstract class BaseFactory extends Factory
                     continue;
                 }
                 if (!isset($table_models[$foreignTableName]) && config('app.env') == 'local') {
-                    ds($table_models);
+                    \Log::info(collect($table_models)->toJson());
                 }
                 if (!isset($table_models[$foreignTableName])) {
                     throw new Exception("analisar foreignTableName $entity->table. ' '. $foreignTableName em {$fk->getName()} ");
@@ -304,6 +304,9 @@ abstract class BaseFactory extends Factory
         }
         if ($key == 'cpf') {
             return fake('pt_BR')->cpf();
+        }
+        if ($key == 'rg') {
+            return fake('pt_BR')->rg();
         }
         if (in_array($key, ['telefone', 'phone'])) {
             return '1199'.random_int(100,999).random_int(10,99).random_int(10,99);
