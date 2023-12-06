@@ -4,6 +4,7 @@ namespace Modules\Base\Contracts;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 use Modules\Seguros\Models\RepresentanteModel;
@@ -25,10 +26,13 @@ abstract class BaseLivewireForm extends Component
     abstract protected function modelClass():string;
     abstract protected function getModel();
 
+    abstract public function validationAttributes();
+
     public function save()
     {
-        $this->validate();
         try {
+            $this->validate();
+
             DB::beginTransaction();
 
             $class = $this->getClass();
@@ -36,12 +40,15 @@ abstract class BaseLivewireForm extends Component
             $this->saveAction();
             DB::commit();
             Toastr::instance($this)->success('Item salvo');
+        } catch (ValidationException $exception) {
+            Toastr::instance($this)->error($exception->getMessage())->dispatch();
+            throw $exception;
         } catch (\Exception $exception) {
             DB::rollBack();
-            $msg = config('app.env') == 'local'
-                ? $exception->getMessage()
-                : 'Não foi possível salvar o item. Tente novamente mais tarde';
-            Toastr::instance($this)->error($msg)->dispatch();
+            if (config('app.env') == 'local') {
+                throw $exception;
+            }
+            Toastr::instance($this)->error('Não foi possível salvar o item. Tente novamente mais tarde')->dispatch();
         }
     }
 
