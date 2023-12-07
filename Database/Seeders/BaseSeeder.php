@@ -5,16 +5,15 @@ namespace Modules\Base\Database\Seeders;
 use Closure;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
-use Modules\Base\Database\Seeders\Traits\CreateFakerTrait;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 abstract class BaseSeeder extends Seeder
 {
-    use CreateFakerTrait;
+//    use CreateFakerTrait;
 
     public function __construct()
     {
-        $this->createFaker();
+//        $this->createFaker();
     }
 
 
