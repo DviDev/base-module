@@ -9,14 +9,6 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 abstract class BaseSeeder extends Seeder
 {
-//    use CreateFakerTrait;
-
-    public function __construct()
-    {
-//        $this->createFaker();
-    }
-
-
     protected function withProgressBar(int|Collection $amount, Closure $createCollectionOfOne): \Illuminate\Database\Eloquent\Collection
     {
         $collection = is_int($amount) ? range(1, $amount) : $amount;
