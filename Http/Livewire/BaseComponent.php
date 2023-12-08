@@ -94,6 +94,7 @@ abstract class BaseComponent extends Component
     /**@return ElementModel[] */
     public function elements()
     {
+
 //        cache()->delete('elements');
         /**@var ModuleTableModel $table */
         $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
