@@ -3,17 +3,19 @@
     use Modules\View\Domains\ViewStructureComponentType;
     use Modules\View\Models\ElementModel;
 @endphp
-<div class="text-neutral-300">
+<div>
     @if(session()->has('success'))
         {{--
                 <x-dvui::toast :success="true" title="Post" title2="{{now()->diffForHumans()}}"
                                :label="session('success')"/>
         --}}
     @endif
+    <div class="border flex justify-end">
+        <a href="{{route('builder.page', $page->id)}}">builder</a>
+    </div>
     @foreach($this->elements() as $element)
         @if($element->type() == ViewStructureComponentType::page_card)
             <form wire:submit="save">
-                {{--                    @dd($element->properties->pluck('value', 'name')->all())--}}
                 {{--                <x-dvui::card :attr="$element->properties->pluck('value', 'name')->all()">--}}
                 <x-lte::card :attr="$element->properties->pluck('value', 'name')->all()">
                     <x-lte::card.body>

@@ -9,6 +9,7 @@ use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Commands\DviRequestMakeCommand;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\DBMap\Models\ModuleTableModel;
+use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 use Modules\View\Models\ElementModel;
 use Modules\View\Models\ModuleEntityPageModel;
 use Modules\View\Models\ViewPageStructureModel;
@@ -138,10 +139,15 @@ abstract class BaseComponent extends Component
             $this->model->{$property} = $values['date'] . ' ' . $values['time'];
         }
         $this->model->save();
-        session()->flash('success', __('the data has been saved'));
 
-        return redirect()
-            ->to(url()->previous());
+        if ($this->model->wasRecentlyCreated) {
+            session()->flash('success', __('the data has been saved'));
+
+            $this->redirect(url()->previous(), navigate: true);
+            return;
+        }
+
+        Toastr::instance($this)->success(__('the data has been saved'));
     }
 
     public function getReferencedTableData(ElementModel $element): array
