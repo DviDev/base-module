@@ -4,6 +4,7 @@ namespace Modules\Base\Http\Livewire;
 
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Commands\DviRequestMakeCommand;
@@ -26,6 +27,11 @@ abstract class BaseComponent extends Component
     public function mount(BaseModel $model)
     {
         $this->model = $model;
+
+        /**@var ModuleTableModel $table */
+        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
+        $this->page = $table->pages->first();
+
         $this->values['dates'] = [];
         foreach ($model->attributesToArray() as $attribute => $value) {
             if (is_a($model->{$attribute}, Carbon::class)) {
@@ -38,7 +44,8 @@ abstract class BaseComponent extends Component
 
     public function render()
     {
-        return view('view::components.form.base-form');
+        return view('base::livewire.base-form');
+//        return view('view::components.form.base-form');
     }
 
     public function getElements(): array
@@ -95,14 +102,11 @@ abstract class BaseComponent extends Component
     /**@return ElementModel[] */
     public function elements()
     {
+        /**@var ViewPageStructureModel $structure */
+        $structure = $this->page->structures()->whereNotNull('active')->first();
 
-//        cache()->delete('elements');
-        /**@var ModuleTableModel $table */
-        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-        $this->page = $table->pages->first();
-        $fn = function () {
-            /**@var ViewPageStructureModel $structure */
-            $structure = $this->page->structures()->whereNotNull('active')->first();
+        $cache_key = 'structure.' . $structure->id . '.elements';
+        return cache()->rememberForever($cache_key, function () use ($structure) {
             $elements = $structure->elements()->get()->filter(function (ElementModel $e) {
                 return !$e->attribute || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
             });
@@ -119,35 +123,49 @@ abstract class BaseComponent extends Component
                 $children->merge($element_children);
             }
             return $children;
-        };
-        return cache()->rememberForever('elements', $fn);
+        });
     }
 
     public function getRules()
     {
         $cache_key = 'model-' . $this->model->id . '-' . auth()->user()->id;
 
-        return cache()->remember($cache_key, now()->addMinutes(30), function () {
+        $ttl = now()->addMinutes(30);
+        return cache()->remember($cache_key, $ttl, function () {
             return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
         });
     }
 
     public function save()
     {
-        $this->validate();
-        foreach ($this->values['dates'] as $property => $values) {
-            $this->model->{$property} = $values['date'] . ' ' . $values['time'];
+        try {
+            $this->validate();
+            foreach ($this->values['dates'] as $property => $values) {
+                $this->model->{$property} = $values['date'] . ' ' . $values['time'];
+            }
+            $this->model->save();
+
+            if ($this->model->wasRecentlyCreated) {
+                session()->flash('success', __('the data has been saved'));
+                session()->flash('only_toastr');
+
+                $route = route($this->page->route, $this->model->id);
+                $this->redirect($route, navigate: true);
+                return;
+            }
+
+            Toastr::instance($this)->success(__('the data has been saved'));
+        } catch (ValidationException $exception) {
+            Toastr::instance($this)->error($exception->getMessage())->dispatch();
+
+            throw $exception;
+        } catch (Exception $exception) {
+            if (config('app.env') == 'local') {
+                throw $exception;
+            }
+            Toastr::instance($this)->error('Não foi possível salvar o item')->dispatch();
         }
-        $this->model->save();
 
-        if ($this->model->wasRecentlyCreated) {
-            session()->flash('success', __('the data has been saved'));
-
-            $this->redirect(url()->previous(), navigate: true);
-            return;
-        }
-
-        Toastr::instance($this)->success(__('the data has been saved'));
     }
 
     public function getReferencedTableData(ElementModel $element): array
@@ -168,5 +186,10 @@ abstract class BaseComponent extends Component
     public function updatePropertyValue($type, $property, $key, $value): void
     {
         $this->values[$type][$property][$key] = $value;
+    }
+
+    public function updateStructureCache(): void
+    {
+        cache()->delete('elements');
     }
 }
