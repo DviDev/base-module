@@ -18,7 +18,7 @@
                         <div class="flex grow justify-between pb-2">
                             <div class="grow">{{$element->properties->pluck('value', 'name')->get('title')}}</div>
                             <div class="flex justify-end my-auto">
-                                <a href="{{route('builder.page', $page->id)}}" wire:navigate
+                                <a href="{{route('builder.page', $page->id)}}"
                                    class="bg-blue-400 hover:bg-blue-500 text-white rounded-l px-2 py-1">
                                     <i class="fas fa-cogs"></i>
                                     builder
