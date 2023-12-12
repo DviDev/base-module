@@ -2,17 +2,14 @@
 
 namespace Modules\Base\Contracts;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
-use Modules\Seguros\Models\RepresentanteModel;
-use Modules\Seguros\Models\SeguradoraModel;
 
 abstract class BaseLivewireForm extends Component
 {
-    public ?RepresentanteModel $model = null;
+    public $model = null;
 
     public array $modelAttributes = [];
 
@@ -52,11 +49,6 @@ abstract class BaseLivewireForm extends Component
         }
     }
 
-    /**@return SeguradoraModel[]|Collection*/
-    public function seguradoras(): Collection|array
-    {
-        return SeguradoraModel::all();
-    }
 
     /**
      * @return string
