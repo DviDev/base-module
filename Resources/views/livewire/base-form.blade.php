@@ -5,10 +5,8 @@
 @endphp
 <div>
     @if(session()->has('success'))
-        {{--
                 <x-dvui::toast :success="true" title="Post" title2="{{now()->diffForHumans()}}"
                                :label="session('success')"/>
-        --}}
     @endif
 
     @foreach($this->elements() as $element)
