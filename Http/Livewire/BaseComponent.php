@@ -30,7 +30,7 @@ abstract class BaseComponent extends Component
 
         /**@var ModuleTableModel $table */
         $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-        $this->page = $table->pages->first();
+        $this->page = $table->pages()->where('route', 'like', '%.form')->get()->first();
 
         $this->values['dates'] = [];
         foreach ($model->attributesToArray() as $attribute => $value) {
@@ -48,56 +48,56 @@ abstract class BaseComponent extends Component
 //        return view('view::components.form.base-form');
     }
 
-    public function getElements(): array
-    {
-        /**@var ModuleTableModel $table */
-        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-        $this->page = $table->pages->first();
-
-        $fn = function () {
-            $visible_rows = [];
-            /**@var ViewPageStructureModel $structure */
-            $structure = $this->page->structures()->whereNotNull('active')->first();
-            $elements = $structure->elements;
-            /**@var ElementModel $element */
-            foreach ($elements as $element) {
-                $contain = false;
-//                foreach ($element->columns as $column) {
-//                    /**@var ViewStructureColumnComponentModel $component */
-//                    $component = $column->components->first();
-//                    if (!$component->attribute) {
-//                        continue;
-//                    }
-//                    $contain = collect([
-//                        'id',
-//                        'created_at',
-//                        'updated_at',
-//                        'deleted_at'
-//                    ])->some($component->attribute->name);
-//                    if ($contain) {
-//                        break;
-//                    }
+//    public function getElements(): array
+//    {
+//        /**@var ModuleTableModel $table */
+//        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
+//        $this->page = $table->pages->first();
+//
+//        $fn = function () {
+//            $visible_rows = [];
+//            /**@var ViewPageStructureModel $structure */
+//            $structure = $this->page->structures()->whereNotNull('active')->first();
+//            $elements = $structure->elements;
+//            /**@var ElementModel $element */
+//            foreach ($elements as $element) {
+//                $contain = false;
+////                foreach ($element->columns as $column) {
+////                    /**@var ViewStructureColumnComponentModel $component */
+////                    $component = $column->components->first();
+////                    if (!$component->attribute) {
+////                        continue;
+////                    }
+////                    $contain = collect([
+////                        'id',
+////                        'created_at',
+////                        'updated_at',
+////                        'deleted_at'
+////                    ])->some($component->attribute->name);
+////                    if ($contain) {
+////                        break;
+////                    }
+////                }
+//                if ($contain) {
+//                    continue;
 //                }
-                if ($contain) {
-                    continue;
-                }
-                //avoid this attributes
-                /*[
-                    'id',
-                    'created_at',
-                    'updated_at',
-                    'deleted_at'
-                ]*/
-                $visible_rows[$element->id] = $element;
-            }
-
-            return $visible_rows;
-        };
-
-        $this->visible_rows = $this->visible_rows ?: $fn();
-
-        return $this->visible_rows;
-    }
+//                //avoid this attributes
+//                /*[
+//                    'id',
+//                    'created_at',
+//                    'updated_at',
+//                    'deleted_at'
+//                ]*/
+//                $visible_rows[$element->id] = $element;
+//            }
+//
+//            return $visible_rows;
+//        };
+//
+//        $this->visible_rows = $this->visible_rows ?: $fn();
+//
+//        return $this->visible_rows;
+//    }
 
     /**@return ElementModel[] */
     public function elements()
@@ -106,8 +106,8 @@ abstract class BaseComponent extends Component
         $structure = $this->page->structures()->whereNotNull('active')->first();
 
         $cache_key = 'structure.' . $structure->id . '.elements';
-        return cache()->rememberForever($cache_key, function () use ($structure) {
-            $elements = $structure->elements()->get()->filter(function (ElementModel $e) {
+        $elements = cache()->rememberForever($cache_key, function () use ($structure) {
+            $elements = $structure->elements()->with('allChildren')->get()->filter(function (ElementModel $e) {
                 return !$e->attribute || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
             });
             $children = collect($elements);
@@ -124,6 +124,7 @@ abstract class BaseComponent extends Component
             }
             return $children;
         });
+        return $elements;
     }
 
     public function getRules()
