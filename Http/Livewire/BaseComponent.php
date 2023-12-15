@@ -19,17 +19,15 @@ use phpDocumentor\Reflection\Types\Callable_;
 
 abstract class BaseComponent extends Component
 {
-    public BaseModel $model;
+    public ?BaseModel $model;
     public array $values = [];
 
     public ModuleEntityPageModel $page;
 
     protected $visible_rows;
 
-    public function mount(BaseModel $model)
+    public function mount()
     {
-        $this->model = $model;
-
         /**@var ModuleTableModel $table */
         $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
         $this->page = $table->pages()->where('route', 'like', '%.form')->get()->first();
@@ -38,10 +36,10 @@ abstract class BaseComponent extends Component
         $this->transformValues($fn);
 
         $this->values['dates'] = [];
-        foreach ($model->attributesToArray() as $attribute => $value) {
-            if (is_a($model->{$attribute}, Carbon::class)) {
+        foreach ($this->model->attributesToArray() as $attribute => $value) {
+            if (is_a($this->model->{$attribute}, Carbon::class)) {
                 /**@var Carbon $value */
-                $value = $model->{$attribute};
+                $value = $this->model->{$attribute};
                 $this->values['dates'][$attribute] = ['date' => $value->format('Y-m-d'), 'time' => $value->format('H:i')];
             }
         }
