@@ -4,6 +4,7 @@ namespace Modules\Base\Http\Livewire;
 
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Modules\Base\Models\BaseModel;
@@ -14,6 +15,7 @@ use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 use Modules\View\Models\ElementModel;
 use Modules\View\Models\ModuleEntityPageModel;
 use Modules\View\Models\ViewPageStructureModel;
+use phpDocumentor\Reflection\Types\Callable_;
 
 abstract class BaseComponent extends Component
 {
@@ -32,6 +34,9 @@ abstract class BaseComponent extends Component
         $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
         $this->page = $table->pages()->where('route', 'like', '%.form')->get()->first();
 
+        $fn = fn($value) => toBRL($value);
+        $this->transformValues($fn);
+
         $this->values['dates'] = [];
         foreach ($model->attributesToArray() as $attribute => $value) {
             if (is_a($model->{$attribute}, Carbon::class)) {
@@ -45,59 +50,61 @@ abstract class BaseComponent extends Component
     public function render()
     {
         return view('base::livewire.base-form');
-//        return view('view::components.form.base-form');
     }
 
-//    public function getElements(): array
-//    {
-//        /**@var ModuleTableModel $table */
-//        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-//        $this->page = $table->pages->first();
-//
-//        $fn = function () {
-//            $visible_rows = [];
-//            /**@var ViewPageStructureModel $structure */
-//            $structure = $this->page->structures()->whereNotNull('active')->first();
-//            $elements = $structure->elements;
-//            /**@var ElementModel $element */
-//            foreach ($elements as $element) {
-//                $contain = false;
-////                foreach ($element->columns as $column) {
-////                    /**@var ViewStructureColumnComponentModel $component */
-////                    $component = $column->components->first();
-////                    if (!$component->attribute) {
-////                        continue;
-////                    }
-////                    $contain = collect([
-////                        'id',
-////                        'created_at',
-////                        'updated_at',
-////                        'deleted_at'
-////                    ])->some($component->attribute->name);
-////                    if ($contain) {
-////                        break;
-////                    }
-////                }
-//                if ($contain) {
-//                    continue;
+    public function getElements(): array
+    {
+        //Todo verificar onde eh usado e se ainda é util
+        dd('analisar');
+
+        /**@var ModuleTableModel $table */
+        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
+        $this->page = $table->pages->first();
+
+        $fn = function () {
+            $visible_rows = [];
+            /**@var ViewPageStructureModel $structure */
+            $structure = $this->page->structures()->whereNotNull('active')->first();
+            $elements = $structure->elements;
+            /**@var ElementModel $element */
+            foreach ($elements as $element) {
+                $contain = false;
+//                foreach ($element->columns as $column) {
+//                    /**@var ViewStructureColumnComponentModel $component */
+//                    $component = $column->components->first();
+//                    if (!$component->attribute) {
+//                        continue;
+//                    }
+//                    $contain = collect([
+//                        'id',
+//                        'created_at',
+//                        'updated_at',
+//                        'deleted_at'
+//                    ])->some($component->attribute->name);
+//                    if ($contain) {
+//                        break;
+//                    }
 //                }
-//                //avoid this attributes
-//                /*[
-//                    'id',
-//                    'created_at',
-//                    'updated_at',
-//                    'deleted_at'
-//                ]*/
-//                $visible_rows[$element->id] = $element;
-//            }
-//
-//            return $visible_rows;
-//        };
-//
-//        $this->visible_rows = $this->visible_rows ?: $fn();
-//
-//        return $this->visible_rows;
-//    }
+                if ($contain) {
+                    continue;
+                }
+                //avoid this attributes
+                /*[
+                    'id',
+                    'created_at',
+                    'updated_at',
+                    'deleted_at'
+                ]*/
+                $visible_rows[$element->id] = $element;
+            }
+
+            return $visible_rows;
+        };
+
+        $this->visible_rows = $this->visible_rows ?: $fn();
+
+        return $this->visible_rows;
+    }
 
     /**@return ElementModel[] */
     public function elements()
@@ -141,6 +148,10 @@ abstract class BaseComponent extends Component
     {
         try {
             $this->validate();
+
+            $fn = fn($value) => toUS($value);
+            $this->transformValues($fn);
+
             foreach ($this->values['dates'] as $property => $values) {
                 $this->model->{$property} = $values['date'] . ' ' . $values['time'];
             }
@@ -154,6 +165,8 @@ abstract class BaseComponent extends Component
                 $this->redirect($route, navigate: true);
                 return;
             }
+            $fn = fn($value) => toBRL($value);
+            $this->transformValues($fn);
 
             Toastr::instance($this)->success(__('the data has been saved'));
         } catch (ValidationException $exception) {
@@ -175,12 +188,19 @@ abstract class BaseComponent extends Component
             if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $element->attribute->items) {
                 return str($element->attribute->items)->explode(',')->all();
             }
+            $columns = ['id'];
+            $table = ModuleTableModel::query()->where('name', $element->attribute->referenced_table_name)->first();
+            $exists = $table->attributes()->where('name', 'name')->exists();
+            $columns[] = $exists
+                ? 'name as value'
+                : 'id as value';
+
             return \DB::table($element->attribute->referenced_table_name)
-                ->get(['id', 'name as value'])
+                ->get($columns)
                 ->all();
 
-        } catch (Exception $e) {
-            throw new Exception("Está faltando fk ao atributo " . $element->attribute->name);
+        } catch (Exception $exception) {
+            throw $exception;
         }
     }
 
@@ -192,5 +212,19 @@ abstract class BaseComponent extends Component
     public function updateStructureCache(): void
     {
         cache()->delete('elements');
+    }
+
+    protected function transformValues($fn)
+    {
+        /**@var ViewPageStructureModel $structure */
+        $structure = $this->page->structures()->whereNotNull('active')->first();
+        $attributes = $structure->elements()->whereNotNull('attribute_id')->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
+            ->whereHas('attribute', function (Builder $query) {
+                $query->where('type', 4);
+            })
+            ->pluck('attribute.name')->all();
+        foreach ($attributes as $attribute) {
+            $this->model->{$attribute} = $fn($this->model->{$attribute});
+        }
     }
 }
