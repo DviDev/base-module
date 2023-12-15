@@ -140,17 +140,16 @@ abstract class BaseComponent extends Component
 
         $ttl = now()->addMinutes(30);
         return cache()->remember($cache_key, $ttl, function () {
-            return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
+             return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
         });
     }
 
     public function save()
     {
         try {
-            $this->validate();
-
             $fn = fn($value) => toUS($value);
             $this->transformValues($fn);
+            $this->validate();
 
             foreach ($this->values['dates'] as $property => $values) {
                 $this->model->{$property} = $values['date'] . ' ' . $values['time'];
@@ -170,6 +169,9 @@ abstract class BaseComponent extends Component
 
             Toastr::instance($this)->success(__('the data has been saved'));
         } catch (ValidationException $exception) {
+            $fn = fn($value) => toBRL($value);
+            $this->transformValues($fn);
+
             Toastr::instance($this)->error($exception->getMessage())->dispatch();
 
             throw $exception;
