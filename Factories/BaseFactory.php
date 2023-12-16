@@ -302,10 +302,13 @@ abstract class BaseFactory extends Factory
         if ($key == 'uuid') {
             return $this->faker->uuid();
         }
-        if ($key == 'cpf') {
+        if (str($key)->contains('cpf')) {
             return fake('pt_BR')->cpf();
         }
-        if ($key == 'rg') {
+        if (str($key)->contains('cnpj')) {
+            return fake('pt_BR')->cnpj();
+        }
+        if (str($key)->contains('rg')) {
             return fake('pt_BR')->rg();
         }
         if (in_array($key, ['telefone', 'phone'])) {

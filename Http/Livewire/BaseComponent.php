@@ -4,6 +4,7 @@ namespace Modules\Base\Http\Livewire;
 
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Modules\Base\Models\BaseModel;
@@ -14,29 +15,31 @@ use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 use Modules\View\Models\ElementModel;
 use Modules\View\Models\ModuleEntityPageModel;
 use Modules\View\Models\ViewPageStructureModel;
+use phpDocumentor\Reflection\Types\Callable_;
 
 abstract class BaseComponent extends Component
 {
-    public BaseModel $model;
+    public ?BaseModel $model;
     public array $values = [];
 
     public ModuleEntityPageModel $page;
 
     protected $visible_rows;
 
-    public function mount(BaseModel $model)
+    public function mount()
     {
-        $this->model = $model;
-
         /**@var ModuleTableModel $table */
         $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-        $this->page = $table->pages->first();
+        $this->page = $table->pages()->where('route', 'like', '%.form')->get()->first();
+
+        $fn = fn($value) => toBRL($value);
+        $this->transformValues($fn);
 
         $this->values['dates'] = [];
-        foreach ($model->attributesToArray() as $attribute => $value) {
-            if (is_a($model->{$attribute}, Carbon::class)) {
+        foreach ($this->model->attributesToArray() as $attribute => $value) {
+            if (is_a($this->model->{$attribute}, Carbon::class)) {
                 /**@var Carbon $value */
-                $value = $model->{$attribute};
+                $value = $this->model->{$attribute};
                 $this->values['dates'][$attribute] = ['date' => $value->format('Y-m-d'), 'time' => $value->format('H:i')];
             }
         }
@@ -45,11 +48,13 @@ abstract class BaseComponent extends Component
     public function render()
     {
         return view('base::livewire.base-form');
-//        return view('view::components.form.base-form');
     }
 
     public function getElements(): array
     {
+        //Todo verificar onde eh usado e se ainda é util
+        dd('analisar');
+
         /**@var ModuleTableModel $table */
         $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
         $this->page = $table->pages->first();
@@ -106,8 +111,8 @@ abstract class BaseComponent extends Component
         $structure = $this->page->structures()->whereNotNull('active')->first();
 
         $cache_key = 'structure.' . $structure->id . '.elements';
-        return cache()->rememberForever($cache_key, function () use ($structure) {
-            $elements = $structure->elements()->get()->filter(function (ElementModel $e) {
+        $elements = cache()->rememberForever($cache_key, function () use ($structure) {
+            $elements = $structure->elements()->with('allChildren')->get()->filter(function (ElementModel $e) {
                 return !$e->attribute || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
             });
             $children = collect($elements);
@@ -124,6 +129,7 @@ abstract class BaseComponent extends Component
             }
             return $children;
         });
+        return $elements;
     }
 
     public function getRules()
@@ -132,14 +138,17 @@ abstract class BaseComponent extends Component
 
         $ttl = now()->addMinutes(30);
         return cache()->remember($cache_key, $ttl, function () {
-            return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
+             return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
         });
     }
 
     public function save()
     {
         try {
+            $fn = fn($value) => toUS($value);
+            $this->transformValues($fn);
             $this->validate();
+
             foreach ($this->values['dates'] as $property => $values) {
                 $this->model->{$property} = $values['date'] . ' ' . $values['time'];
             }
@@ -153,9 +162,14 @@ abstract class BaseComponent extends Component
                 $this->redirect($route, navigate: true);
                 return;
             }
+            $fn = fn($value) => toBRL($value);
+            $this->transformValues($fn);
 
             Toastr::instance($this)->success(__('the data has been saved'));
         } catch (ValidationException $exception) {
+            $fn = fn($value) => toBRL($value);
+            $this->transformValues($fn);
+
             Toastr::instance($this)->error($exception->getMessage())->dispatch();
 
             throw $exception;
@@ -174,12 +188,19 @@ abstract class BaseComponent extends Component
             if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $element->attribute->items) {
                 return str($element->attribute->items)->explode(',')->all();
             }
+            $columns = ['id'];
+            $table = ModuleTableModel::query()->where('name', $element->attribute->referenced_table_name)->first();
+            $exists = $table->attributes()->where('name', 'name')->exists();
+            $columns[] = $exists
+                ? 'name as value'
+                : 'id as value';
+
             return \DB::table($element->attribute->referenced_table_name)
-                ->get(['id', 'name as value'])
+                ->get($columns)
                 ->all();
 
-        } catch (Exception $e) {
-            throw new Exception("Está faltando fk ao atributo " . $element->attribute->name);
+        } catch (Exception $exception) {
+            throw $exception;
         }
     }
 
@@ -191,5 +212,19 @@ abstract class BaseComponent extends Component
     public function updateStructureCache(): void
     {
         cache()->delete('elements');
+    }
+
+    protected function transformValues($fn)
+    {
+        /**@var ViewPageStructureModel $structure */
+        $structure = $this->page->structures()->whereNotNull('active')->first();
+        $attributes = $structure->elements()->whereNotNull('attribute_id')->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
+            ->whereHas('attribute', function (Builder $query) {
+                $query->where('type', 4);
+            })
+            ->pluck('attribute.name')->all();
+        foreach ($attributes as $attribute) {
+            $this->model->{$attribute} = $fn($this->model->{$attribute});
+        }
     }
 }
