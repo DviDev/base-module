@@ -224,6 +224,9 @@ abstract class BaseComponent extends Component
             })
             ->pluck('attribute.name')->all();
         foreach ($attributes as $attribute) {
+            if (empty($this->model->{$attribute})) {
+                continue;
+            }
             $this->model->{$attribute} = $fn($this->model->{$attribute});
         }
     }
