@@ -155,7 +155,7 @@ abstract class BaseComponent extends Component
             $this->model->save();
 
             if ($this->model->wasRecentlyCreated) {
-                session()->flash('success', __('the data has been saved'));
+                session()->flash('success', str(__('base.the data has been saved'))->ucfirst());
                 session()->flash('only_toastr');
 
                 $route = route($this->page->route, $this->model->id);
@@ -165,7 +165,7 @@ abstract class BaseComponent extends Component
             $fn = fn($value) => toBRL($value);
             $this->transformValues($fn);
 
-            Toastr::instance($this)->success(__('the data has been saved'));
+            Toastr::instance($this)->success(str(__('base.the data has been saved'))->ucfirst());
         } catch (ValidationException $exception) {
             $fn = fn($value) => toBRL($value);
             $this->transformValues($fn);
