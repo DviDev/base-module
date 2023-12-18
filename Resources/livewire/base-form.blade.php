@@ -23,7 +23,7 @@
                     /**@var ElementModel $row*/
                     /**@var ElementModel $columnD*/
                 @endphp
-                @foreach($this->getElements() as $row)
+                @foreach($this->elements() as $row)
                     <div class="flex">
                         @foreach($row->columns as $columnD)
                             @php

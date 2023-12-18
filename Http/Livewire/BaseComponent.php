@@ -5,6 +5,7 @@ namespace Modules\Base\Http\Livewire;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Modules\Base\Models\BaseModel;
@@ -50,68 +51,14 @@ abstract class BaseComponent extends Component
         return view('base::livewire.base-form');
     }
 
-    public function getElements(): array
-    {
-        //Todo verificar onde eh usado e se ainda é util
-        dd('analisar');
-
-        /**@var ModuleTableModel $table */
-        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-        $this->page = $table->pages->first();
-
-        $fn = function () {
-            $visible_rows = [];
-            /**@var ViewPageStructureModel $structure */
-            $structure = $this->page->structures()->whereNotNull('active')->first();
-            $elements = $structure->elements;
-            /**@var ElementModel $element */
-            foreach ($elements as $element) {
-                $contain = false;
-//                foreach ($element->columns as $column) {
-//                    /**@var ViewStructureColumnComponentModel $component */
-//                    $component = $column->components->first();
-//                    if (!$component->attribute) {
-//                        continue;
-//                    }
-//                    $contain = collect([
-//                        'id',
-//                        'created_at',
-//                        'updated_at',
-//                        'deleted_at'
-//                    ])->some($component->attribute->name);
-//                    if ($contain) {
-//                        break;
-//                    }
-//                }
-                if ($contain) {
-                    continue;
-                }
-                //avoid this attributes
-                /*[
-                    'id',
-                    'created_at',
-                    'updated_at',
-                    'deleted_at'
-                ]*/
-                $visible_rows[$element->id] = $element;
-            }
-
-            return $visible_rows;
-        };
-
-        $this->visible_rows = $this->visible_rows ?: $fn();
-
-        return $this->visible_rows;
-    }
-
-    /**@return ElementModel[] */
-    public function elements()
+    /**@return ElementModel[]|Collection */
+    public function elements(): Collection|array
     {
         /**@var ViewPageStructureModel $structure */
         $structure = $this->page->structures()->whereNotNull('active')->first();
 
         $cache_key = 'structure.' . $structure->id . '.elements';
-        $elements = cache()->rememberForever($cache_key, function () use ($structure) {
+        return cache()->rememberForever($cache_key, function () use ($structure) {
             $elements = $structure->elements()->with('allChildren')->get()->filter(function (ElementModel $e) {
                 return !$e->attribute || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
             });
@@ -129,7 +76,6 @@ abstract class BaseComponent extends Component
             }
             return $children;
         });
-        return $elements;
     }
 
     public function getRules()

@@ -1,12 +1,10 @@
 @php
-    use Modules\View\Models\ElementPropertyModel;
-    use Modules\View\Domains\ViewStructureComponentType;
-    use Modules\View\Models\ElementModel;
+    use Modules\Base\Entities\Actions\Actions;use Modules\Base\Entities\Actions\Builder;use Modules\View\Domains\ViewStructureComponentType;
 @endphp
 <div>
     @if(session()->has('success'))
-                <x-dvui::toast :success="true" title="Post" title2="{{now()->diffForHumans()}}"
-                               :label="session('success')"/>
+        <x-dvui::toast :success="true" title="Post" title2="{{now()->diffForHumans()}}"
+                       :label="session('success')"/>
     @endif
 
     @foreach($this->elements() as $element)
@@ -17,28 +15,40 @@
                     <x-lte::card.header>
                         <div class="flex grow justify-between pb-2">
                             <div class="grow flex ml-2">
-                                <span class="font-bold my-auto text-gray-700">{{$element->properties->pluck('value', 'name')->get('title')}}</span>
+                                <span class="font-bold my-auto text-gray-700">
+                                    {{$element->properties->pluck('value', 'name')->get('title')}}
+                                </span>
                             </div>
-                            <div class="flex justify-end my-auto">
-                                <a href="{{route('builder.page', $page->id)}}"
-                                   class="bg-blue-400 hover:bg-blue-500 text-white rounded-l px-2 py-1">
-                                    <i class="fas fa-cogs"></i>
-                                    builder
-                                </a>
-                                <x-dvui::button @class(["flex space-x-2", "rounded-r" => !$model->id,"border-gray-100"]) info
-                                                sm
-                                                wire:click="updateStructureCache">
-                                    <i class="fas fa-sync my-auto" wire:loading.class="animate-spin"
-                                       wire:target="updateStructureCache"></i>
-                                    <span class="my-auto">cache</span>
-                                </x-dvui::button>
-                                @if($model->id)
-                                    <a href="{{route($page->route)}}" wire:navigate
-                                       class="bg-blue-500 hover:bg-blue-600 text-white rounded-r px-2 py-1">
-                                        <i class="fas fa-plus"></i>
+                            @if(Builder::can()::builder(Actions::view) || config('app.env') == 'local')
+                                <div class="flex justify-end my-auto">
+                                    {{--<a href="{{route('builder.page', $page->id)}}"
+                                       class="bg-blue-400 hover:bg-blue-500 text-white rounded-l px-2 py-1">
+                                        <i class="fas fa-cogs"></i>
+                                        builder
+                                    </a>--}}
+                                    <a href="{{route('builder.page', $page->id)}}"
+                                       class="bg-gray-100 border border-gray-200 rounded-l px-2 py-1">
+                                        <i class="fas fa-cogs"></i>
+                                        builder
                                     </a>
-                                @endif
-                            </div>
+                                    <div
+                                        @class([
+                                            "bg-gray-100 border border-l-0 border-gray-200 text-blue-500 hover:text-blue-700 px-2 py-1 cursor-pointer",
+                                            "flex space-x-2", "rounded-r" => !$model->id,
+                                        ]) wire:click="updateStructureCache">
+                                        <i class="fas fa-sync my-auto" wire:loading.class="animate-spin"
+                                           wire:target="updateStructureCache"></i>
+                                        <span class="my-auto">cache</span>
+                                    </div>
+                                    @if($model->id)
+                                        <a href="{{route($page->route)}}" wire:navigate
+                                           class="bg-blue-500 hover:bg-blue-600 text-white rounded-r px-2 py-1">
+                                            <i class="fas fa-plus"></i>
+                                        </a>
+                                    @endif
+                                </div>
+                            @endcan()
+
                         </div>
 
                     </x-lte::card.header>
