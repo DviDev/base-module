@@ -10,6 +10,7 @@ use Modules\App\Database\Seeders\ConfigTableSeeder;
 use Modules\App\Entities\User\UserType;
 use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
 use Modules\Permission\Database\Seeders\PermissionTeamsTableSeeder;
+use Modules\Project\Models\ElementTypeModel;
 use Modules\Project\Models\ProjectModel;
 use Modules\View\Database\Seeders\ViewDatabaseSeeder;
 use Modules\Workspace\Database\Seeders\WorkspaceTableSeeder;
@@ -31,6 +32,10 @@ class BaseDatabaseSeeder extends Seeder
         cache()->clear();
 
         $modules = collect(Module::allEnabled());
+
+        $this->command->info('Creating Element Type Model');
+        ElementTypeModel::query()->create(['name' => 'user type']);
+        ElementTypeModel::query()->create(['name' => 'attribute']);
 
         if ($modules->contains('DBMap')) {
             $this->call(DBMapDatabaseSeeder::class);
