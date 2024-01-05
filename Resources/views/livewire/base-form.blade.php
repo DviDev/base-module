@@ -26,14 +26,19 @@
                                         <i class="fas fa-cogs"></i>
                                         builder
                                     </a>--}}
-                                    <a href="{{route('builder.page', $page->id)}}"
-                                       class="bg-gray-100 border border-gray-200 rounded-l px-2 py-1">
-                                        <i class="fas fa-cogs"></i>
-                                        builder
-                                    </a>
+                                    @if(auth()->user()->isDeveloper())
+                                        <a href="{{route('builder.page', $page->id)}}"
+                                           class="bg-gray-100 border border-gray-200 rounded-l px-2 py-1">
+                                            <i class="fas fa-cogs"></i>
+                                            builder
+                                        </a>
+                                    @endif
                                     <div
                                         @class([
-                                            "bg-gray-100 border border-l-0 border-gray-200 text-blue-500 hover:text-blue-700 px-2 py-1 cursor-pointer",
+                                            "bg-gray-100 border border-gray-200",
+                                            "border-l-0" => auth()->user()->isDeveloper(),
+                                            "rounded-l" => !auth()->user()->isDeveloper(),
+                                             "text-blue-500 hover:text-blue-700 px-2 py-1 cursor-pointer",
                                             "flex space-x-2", "rounded-r" => !$model->id,
                                         ]) wire:click="updateStructureCache">
                                         <i class="fas fa-sync my-auto" wire:loading.class="animate-spin"
@@ -41,9 +46,9 @@
                                         <span class="my-auto">cache</span>
                                     </div>
                                     @if($model->id)
-                                        <a href="{{route($page->route)}}" wire:navigate
+                                        <a href="{{route($page->route)}}" wire:navigate title="{{__('base.new')}}"
                                            class="bg-blue-500 hover:bg-blue-600 text-white rounded-r px-2 py-1">
-                                            <i class="fas fa-plus"></i>
+                                            <x-dvui::icon.plus/>
                                         </a>
                                     @endif
                                 </div>
