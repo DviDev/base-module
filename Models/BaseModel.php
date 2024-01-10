@@ -15,6 +15,7 @@ use Modules\App\Models\MessageModel;
  * @see https://github.com/DaviMenezes
  * @method BaseEntityModel toEntity()
  * @method self|static first()
+ * @method self|static setAttribute(string $key, mixed $value)
  * @method static self factory($count = null, $state = [])
  */
 abstract class BaseModel extends Model implements BaseModelInterface
