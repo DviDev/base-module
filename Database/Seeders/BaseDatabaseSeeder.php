@@ -52,7 +52,7 @@ class BaseDatabaseSeeder extends Seeder
         }
 
         if ($modules->contains('Project')) {
-            $superAdmin = User::query()->where('type', UserType::SUPER_ADMIN->value)->first();
+            $superAdmin = User::query()->where('type_id', 2)->first();
             ProjectModel::factory()
                 ->for($superAdmin)
                 ->create(['name' => config('app.name')]);
