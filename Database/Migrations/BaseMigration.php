@@ -9,16 +9,13 @@ use Illuminate\Support\Facades\Schema;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\Project\Entities\ProjectEntityAttribute\ProjectEntityAttributeEntityModel;
-use Modules\Seguros\Services\SeguroRegraDeNegocios;
 
 abstract class BaseMigration extends Migration
 {
-    public function baseUp($table_name): void
+    public function baseUp($table_name, $attributes, \Closure $fn = null): void
     {
-        Schema::create($table_name, function (Blueprint $table) use ($table_name) {
-            $entity_name = str($table_name)->replace('_', ' ')->title()->value();
+        Schema::create($table_name, function (Blueprint $table) use ($table_name, $attributes) {
 
-            $attributes = collect((new SeguroRegraDeNegocios)->entityAttributes())->first(fn($attr) => $attr['title'] == $entity_name);
             foreach ($attributes['attributes'] as $attribute) {
                 /**@var ProjectEntityAttributeEntityModel $attributeEntity*/
                 $attributeEntity = $attribute['properties'];
@@ -113,7 +110,11 @@ abstract class BaseMigration extends Migration
             if (isset($attributes['unique'])) {
                 $table->unique($attributes['unique']['columns'], $attributes['unique']['name'] ?? null);
             }
+
         });
+        if ($fn) {
+            $fn();
+        }
     }
 
     protected function resolveUnsigned(ColumnDefinition $column, $unsigned): void
