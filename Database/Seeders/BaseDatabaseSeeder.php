@@ -46,18 +46,15 @@ class BaseDatabaseSeeder extends Seeder
         if ($modules->contains('Permission')) {
             $this->call(PermissionTeamsTableSeeder::class);
         }
-
         if ($modules->contains('App')) {
             $this->call(ConfigTableSeeder::class);
         }
-
         if ($modules->contains('Project')) {
             $superAdmin = User::query()->where('type_id', 2)->first();
             ProjectModel::factory()
                 ->for($superAdmin)
                 ->create(['name' => config('app.name')]);
         }
-
         if ($modules->contains('Workspaces')) {
             $this->call(WorkspaceTableSeeder::class);
         }

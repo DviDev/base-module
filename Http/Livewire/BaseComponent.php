@@ -29,9 +29,13 @@ abstract class BaseComponent extends Component
 
     public function mount()
     {
-        /**@var ModuleTableModel $table */
-        $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-        $this->page = $table->pages()->where('route', 'like', '%.form')->get()->first();
+        if (\Request::routeIs('view.entity.page.form')) {
+            $this->page = $this->model;
+        } else {
+            /**@var ModuleTableModel $table */
+            $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
+            $this->page = $table->pages()->where('route', 'like', '%.form')->get()->first();
+        }
 
         $fn = fn($value) => toBRL($value);
         $this->transformValues($fn);
