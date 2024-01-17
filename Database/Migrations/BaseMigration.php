@@ -16,7 +16,7 @@ abstract class BaseMigration extends Migration
     {
         Schema::create($table_name, function (Blueprint $table) use ($table_name, $attributes) {
 
-            foreach ($attributes['attributes'] as $attribute) {
+            foreach ($attributes['attributes']??[] as $attribute) {
                 /**@var ProjectEntityAttributeEntityModel $attributeEntity*/
                 $attributeEntity = $attribute['properties'];
                 if ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::CHAR->value) {
