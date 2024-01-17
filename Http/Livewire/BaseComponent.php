@@ -13,6 +13,8 @@ use Modules\DBMap\Commands\DviRequestMakeCommand;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\DBMap\Models\ModuleTableModel;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
+use Modules\Seguro\Models\ApoliceModel;
+use Modules\Seguro\Models\PropostaModel;
 use Modules\View\Models\ElementModel;
 use Modules\View\Models\ModuleEntityPageModel;
 use Modules\View\Models\ViewPageStructureModel;
@@ -132,26 +134,31 @@ abstract class BaseComponent extends Component
 
     }
 
-    public function getReferencedTableData(ElementModel $element): array
+    public function getReferencedTableData(ElementModel $element): Builder|array
     {
-        try {
-            if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $element->attribute->items) {
-                return str($element->attribute->items)->explode(',')->all();
-            }
-            $columns = ['id'];
-            $table = ModuleTableModel::query()->where('name', $element->attribute->referenced_table_name)->first();
-            $exists = $table->attributes()->where('name', 'name')->exists();
-            $columns[] = $exists
-                ? 'name as value'
-                : 'id as value';
-
-            return \DB::table($element->attribute->referenced_table_name)
-                ->get($columns)
-                ->all();
-
-        } catch (Exception $exception) {
-            throw $exception;
+        if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $element->attribute->items) {
+            return str($element->attribute->items)->explode(',')->all();
         }
+        $columns = ['id'];
+        $referenced_table_name = $element->attribute->referenced_table_name;
+        $table = ModuleTableModel::query()->where('name', $referenced_table_name)->first();
+        $exists = $table->attributes()->where('name', 'name')->exists();
+        $columns[] = $exists
+            ? 'name as value'
+            : 'id as value';
+
+        $entity_name = str($table->entityObj->name);
+        $module = $entity_name->explode(' ')->first();
+        $entity_name = $entity_name->explode(' ')->filter(fn($i) => $i !== $module)->join('\\');
+        $entity_name = str($entity_name)->singular()->value();
+        $model_class = "Modules\\$module\\Models\\$entity_name".'Model';
+        if (class_exists($model_class)) {
+            /**@var BaseModel $model_class*/
+            return $model_class::query()->select($columns);
+        }
+        return \DB::table($referenced_table_name)
+            ->get($columns)
+            ->all();
     }
 
     public function updatePropertyValue($type, $property, $key, $value): void

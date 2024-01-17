@@ -60,6 +60,7 @@
                     <x-lte::card.body>
                         @foreach($element->allChildren as $child)
                             <x-view::elements :child="$child" :model="$model"/>
+{{--                            <livewire:view::form.elements :child="$child" :model="$model" wire:key="{{$child->id}}"/>--}}
                         @endforeach
                     </x-lte::card.body>
                     <x-lte::card.footer>
