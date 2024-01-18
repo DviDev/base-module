@@ -1,12 +1,18 @@
 @php
-    use Modules\Base\Entities\Actions\Actions;use Modules\Base\Entities\Actions\Builder;use Modules\View\Domains\ViewStructureComponentType;
+    use Modules\Base\Entities\Actions\Actions;
+    use Modules\Base\Entities\Actions\Builder;
+    use Modules\View\Domains\ViewStructureComponentType;
+    use Modules\Project\Models\ProjectModuleEntityDBModel;
+    use \Modules\Project\Models\ProjectModuleEntityActionModel;
 @endphp
 <div>
     @if(session()->has('success'))
-        <x-dvui::toast :success="true" title="Post" title2="{{now()->diffForHumans()}}"
-                       :label="session('success')"/>
+        <x-dvui::toast :success="true" title="Post" title2="{{now()->diffForHumans()}}" :label="session('success')"/>
     @endif
 
+    @php
+        /**@var \Modules\View\Models\ElementModel $element*/
+    @endphp
     @foreach($this->elements() as $element)
         @if($element->type() == ViewStructureComponentType::page_card)
             <form wire:submit="save">
@@ -60,11 +66,25 @@
                     <x-lte::card.body>
                         @foreach($element->allChildren as $child)
                             <x-view::elements :child="$child" :model="$model"/>
-{{--                            <livewire:view::form.elements :child="$child" :model="$model" wire:key="{{$child->id}}"/>--}}
+                            {{--                            <livewire:view::form.elements :child="$child" :model="$model" wire:key="{{$child->id}}"/>--}}
                         @endforeach
                     </x-lte::card.body>
+                    @php
+                        /**@var ProjectModuleEntityDBModel $entity*/
+                        $entity = $element->structure()->with('page.entity')->first()->page->entity;
+                        /**@var ProjectModuleEntityActionModel $save*/
+                        $save = $entity->actions()->where('name', 'save')->get()->first();
+                        $delete = $entity->actions()->where('name', 'delete')->get()->first();
+                    @endphp
                     <x-lte::card.footer>
-                        <x-dvui::button type="submit" info rounded label="Salvar"/>
+                        <div class="flex justify-between">
+                            @if($save->checkConditions())
+                                <x-dvui::button type="submit" info rounded label="Salvar"/>
+                            @endif
+                            @if($delete->checkConditions())
+                                <x-dvui::button danger rounded label="Remover" wire:click="delete"/>
+                            @endif
+                        </div>
                     </x-lte::card.footer>
                 </x-lte::card>
                 {{--                </x-dvui::card>--}}

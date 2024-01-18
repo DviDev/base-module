@@ -29,6 +29,8 @@ abstract class BaseComponent extends Component
 
     protected $visible_rows;
 
+    protected $listeners = ['refresh' => '$refresh'];
+
     public function mount()
     {
         if (\Request::routeIs('view.entity.page.form')) {
@@ -185,6 +187,18 @@ abstract class BaseComponent extends Component
                 continue;
             }
             $this->model->{$attribute} = $fn($this->model->{$attribute});
+        }
+    }
+
+    public function delete()
+    {
+        try {
+            $this->model->delete();
+            Toastr::instance($this)->success('Item removido');
+            $this->redirect('/');
+        } catch (Exception $exception) {
+            Toastr::instance($this)->error('O Item não pôde ser removido')->dispatch();
+            throw $exception;
         }
     }
 }
