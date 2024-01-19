@@ -9,16 +9,19 @@ use Illuminate\Support\Facades\Schema;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\Project\Entities\ProjectEntityAttribute\ProjectEntityAttributeEntityModel;
+use Modules\Project\Models\ProjectEntityAttributeModel;
+use Modules\Project\Models\ProjectModuleEntityDBModel;
 
 abstract class BaseMigration extends Migration
 {
-    public function baseUp($table_name, $attributes, \Closure $fn = null): void
+    public function baseUp($table_name, array $attributes, \Closure $fn = null): void
     {
         Schema::create($table_name, function (Blueprint $table) use ($table_name, $attributes) {
-
-            foreach ($attributes['attributes']??[] as $attribute) {
-                /**@var ProjectEntityAttributeEntityModel $attributeEntity*/
-                $attributeEntity = $attribute['properties'];
+            /**@var ProjectModuleEntityDBModel $entity*/
+            $entity = $attributes['entity'];
+            foreach ($entity->entityAttributes as $attribute) {
+                /**@var ProjectEntityAttributeModel $attributeEntity*/
+                $attributeEntity = $attribute;//$attribute['properties'];
                 if ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::CHAR->value) {
                     $t = $table->char($attributeEntity->name, $attributeEntity->size);
                 } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::DATE->value) {
@@ -69,19 +72,20 @@ abstract class BaseMigration extends Migration
                         $table->id();
                         continue;
                     }
-                    if (count($attribute['relations']) > 0) {
-                        foreach ($attribute['relations'] as $relation) {
+//                    if (count($attribute['relations']) > 0) {
+                    if (count($attributeEntity->relationship) > 0) {
+                        foreach ($attributeEntity->relationship as $relation) {
                             /**@var BaseModel $model */
-                            $class = $relation['entity'];
-                            $second_model_table_name = $class::table();
+//                            $class = $relation['entity'];
+//                            $second_model_table_name = $class::table();
                             $t = $table->foreignId($attributeEntity->name);
-                            $fk = $t->unsigned()->references('id')->on($second_model_table_name);
-                            if (!isset($relation['on_update']) || $relation['on_update'] == 'restrict') {
+                            $fk = $t->unsigned()->references('id')->on($relation->secondModelEntity->name);
+                            if (!isset($relation->on_update) || $relation->on_update == 'restrict') {
                                 $fk->restrictOnUpdate();
                             } else {
                                 $fk->cascadeOnUpdate();
                             }
-                            if (!isset($relation['on_delete']) || $relation['on_delete'] == 'cascade') {
+                            if (!isset($relation->on_delete) || $relation->on_delete == 'cascade') {
                                 $fk->cascadeOnDelete();
                             } else {
                                 $fk->restrictOnDelete();
@@ -101,9 +105,7 @@ abstract class BaseMigration extends Migration
                 if (!isset($t)) {
                     dd('🤖 Missing '.ModuleTableAttributeTypeEnum::from($attributeEntity->type_id)->name.' type');
                 }
-                if ($attributeEntity->name == 'plano_id') {
-//                    dd($attributeEntity);
-                }
+
                 $t->default($attributeEntity->default)->nullable(!$attributeEntity->required)->comment($attributeEntity->comments);
             }
 
