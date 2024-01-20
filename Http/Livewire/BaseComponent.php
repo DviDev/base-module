@@ -149,7 +149,7 @@ abstract class BaseComponent extends Component
             ? 'name as value'
             : 'id as value';
 
-        $entity_name = str($table->entityObj->name);
+        $entity_name = str($table->entityObj->title);
         $module = $entity_name->explode(' ')->first();
         $entity_name = $entity_name->explode(' ')->filter(fn($i) => $i !== $module)->join('\\');
         $entity_name = str($entity_name)->singular()->value();
