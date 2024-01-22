@@ -24,6 +24,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 use Mockery\Exception;
 use Modules\Base\Models\BaseModel;
+use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
+use Modules\View\Domains\ViewStructureComponentType;
 use Nwidart\Modules\Facades\Module;
 
 abstract class BaseFactory extends Factory
@@ -204,16 +206,8 @@ abstract class BaseFactory extends Factory
             }
 
             $type = (new \ReflectionObject($obj->getType()))->getName();
-            $another_columns[$key]['value'] = match ($type) {
-                DateTimeType::class, DateType::class, TimeType::class => now(),
-                TextType::class => $obj->getDefault() ?? $this->faker->sentence(),
-                StringType::class => $obj->getDefault() ?? $this->getFakeValue($key, $obj),
-                BooleanType::class => $obj->getDefault() ?? $this->faker->boolean(),
-                DecimalType::class => $obj->getDefault() ?? $this->faker->randomFloat($obj->getScale(), 1, str_pad(9, $obj->getPrecision()-$obj->getScale(), 9)),
-                FloatType::class => $obj->getDefault() ?? $this->faker->randomFloat(2, 1, 999999),
-                SmallIntType::class, IntegerType::class, BigIntType::class => $obj->getDefault() ?? $this->faker->numberBetween(1, 90),
-                default => 1
-            };
+            $type = ViewStructureComponentType::fromDBType($type);
+            $another_columns[$key]['value'] = self::getFakeDataViaTableAttributeType($type, $obj->getLength(), $key, $obj->getDefault(), $obj->getScale(), $obj->getPrecision());
 
             if ($key == 'parent_id') {
                 $another_columns[$key]['value'] = null;
@@ -294,13 +288,13 @@ abstract class BaseFactory extends Factory
         }
     }
 
-    protected function getFakeValue(int|string $key, Column $obj)
+    public static function getFakeValue(int|string $key, $length)
     {
         if ($key == 'name') {
-            return $this->faker->words(3, true);
+            return fake()->words(3, true);
         }
         if ($key == 'uuid') {
-            return $this->faker->uuid();
+            return fake()->uuid();
         }
         if (str($key)->contains('cpf')) {
             return fake('pt_BR')->cpf();
@@ -315,6 +309,34 @@ abstract class BaseFactory extends Factory
             return '1199'.random_int(100,999).random_int(10,99).random_int(10,99);
         }
 
-        return str($this->faker->sentence(3))->substr(0, $obj->getLength());
+        return str(fake()->sentence(3))->substr(0, $length);
+    }
+
+    public static function getFakeDataViaTableAttributeType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
+    {
+        return match ($type) {
+            ViewStructureComponentType::datetime, ViewStructureComponentType::date, ViewStructureComponentType::time => now(),
+            ViewStructureComponentType::text_multiline => $value_default ?? fake()->sentence(),
+            ViewStructureComponentType::text => $value_default ?? self::getFakeValue($key, $length),
+            ViewStructureComponentType::checkbox_unique => $value_default ?? fake()->boolean(),
+            ViewStructureComponentType::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
+            ViewStructureComponentType::float => $value_default ?? fake()->randomFloat(2, 1, 999999),
+            ViewStructureComponentType::number => $value_default ?? fake()->numberBetween(1, 90),
+            default => 1
+        };
+    }
+
+    public static function getFakeDataViaViewStructureElementType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
+    {
+        return match ($type) {
+            ModuleTableAttributeTypeEnum::DATETIME, ModuleTableAttributeTypeEnum::DATE, ModuleTableAttributeTypeEnum::TIME => now(),
+            ModuleTableAttributeTypeEnum::TEXT => $value_default ?? fake()->sentence(),
+            ModuleTableAttributeTypeEnum::VARCHAR => $value_default ?? self::getFakeValue($key, $length),
+            ModuleTableAttributeTypeEnum::BOOLEAN => $value_default ?? fake()->boolean(),
+            ModuleTableAttributeTypeEnum::DECIMAL => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
+            ModuleTableAttributeTypeEnum::FLOAT => $value_default ?? fake()->randomFloat(2, 1, 999999),
+            ModuleTableAttributeTypeEnum::SMALLINT, ModuleTableAttributeTypeEnum::INT, ModuleTableAttributeTypeEnum::BIGINT => $value_default ?? fake()->numberBetween(1, 90),
+            default => 1
+        };
     }
 }
