@@ -19,9 +19,11 @@ abstract class BaseMigration extends Migration
             foreach ($entity->entityAttributes()->orderBy('id')->get()->all() as $attribute) {
                 $this->createAttribute($attribute, $table);
             }
-
-            if ($colums = $entity->getAttributeUniques()->get()->pluck('name')->all()) {
-                $table->unique(columns: $colums, name: collect($colums)->join('_'));
+            if ($columns = $entity->getAttributeUniques()->get()->pluck('name')->all()) {
+                $table->unique(columns: $columns, name: collect($columns)->join('_'));
+                if ($entity->name == 'seguro_naturezas') {
+//                    dd($columns);
+                }
             }
 
         });

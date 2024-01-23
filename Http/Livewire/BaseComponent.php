@@ -99,9 +99,10 @@ abstract class BaseComponent extends Component
     {
         $cache_key = 'model-' . $this->model->id . '-' . auth()->user()->id;
         $ttl = now()->addMinutes(30);
-        return cache()->remember($cache_key, $ttl, function () {
+        $rules = cache()->remember($cache_key, $ttl, function () {
             return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
         });
+        return $rules;
     }
 
     public function save()

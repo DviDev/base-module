@@ -82,7 +82,7 @@
                                 <x-dvui::button type="submit" info rounded label="Salvar"/>
                             @endif
                             @if($delete->checkConditions())
-                                <x-dvui::button danger rounded label="Remover" wire:click="delete"/>
+                                <x-dvui::button danger rounded label="Remover" confirm action="delete"/>
                             @endif
                         </div>
                     </x-lte::card.footer>

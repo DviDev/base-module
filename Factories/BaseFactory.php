@@ -25,6 +25,8 @@ use Illuminate\Support\Stringable;
 use Mockery\Exception;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
+use Modules\Seguro\Models\CoberturaModel;
+use Modules\Seguro\Models\CoberturaTaxaModel;
 use Modules\View\Domains\ViewStructureComponentType;
 use Nwidart\Modules\Facades\Module;
 
@@ -182,9 +184,17 @@ abstract class BaseFactory extends Factory
                     }
                 }
 
-                $columns[$column]['value'] = !$contain_in_index_unique
-                    ? ($model::query()->inRandomOrder()->first()->id ?? $model::factory()->create()->id)
-                    : $model::factory()->create()->id;
+                if ($model == CoberturaTaxaModel::class) {
+                    dd($model::query()->inRandomOrder()->first()->id);
+                }
+                try {
+                    $columns[$column]['value'] = !$contain_in_index_unique
+                        ? $model::query()->inRandomOrder()->first()->id ?? $model::factory()->create()->id
+                        : $model::factory()->create()->id;
+                } catch (\Exception $exception) {
+//                    throw new \Exception($model);
+                    throw new \Exception($model.' '. PHP_EOL. 'Erro: '.$entity->table_alias.' - '. $exception->getMessage());
+                }
             }
         }
 
@@ -280,11 +290,11 @@ abstract class BaseFactory extends Factory
         try {
             return $this->getValues();
         } catch (\Exception $exception) {
-            $str = 'Não foi possível resolver a Fabrica do modelo '. $this->model;
+            $str = PHP_EOL.'Não foi possível resolver a Fabrica do modelo '. $this->model;
             if (config('app.env') == 'local') {
                 $str .= ' Erro: '.$exception->getMessage().$exception->getFile().':'.$exception->getLine();
             }
-            throw new \Exception($str );
+            throw new \Exception($str);
         }
     }
 
