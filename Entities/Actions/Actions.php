@@ -9,5 +9,6 @@ enum Actions
     case create;
     case update;
     case delete;
+    case save;
     case manage;
 }
