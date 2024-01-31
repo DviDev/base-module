@@ -6,8 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
-use Modules\App\Database\Seeders\ConfigTableSeeder;
-use Modules\App\Entities\User\UserType;
+use Modules\App\Database\Seeders\AppDatabaseSeeder;
 use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
 use Modules\Permission\Database\Seeders\PermissionTeamsTableSeeder;
 use Modules\Project\Models\ElementTypeModel;
@@ -47,7 +46,7 @@ class BaseDatabaseSeeder extends Seeder
             $this->call(PermissionTeamsTableSeeder::class);
         }
         if ($modules->contains('App')) {
-            $this->call(ConfigTableSeeder::class);
+            $this->call(AppDatabaseSeeder::class);
         }
         if ($modules->contains('Project')) {
             $developer = User::query()->where('type_id', 1)->first();
@@ -59,7 +58,7 @@ class BaseDatabaseSeeder extends Seeder
 
         /**@var \Nwidart\Modules\Laravel\Module $module */
         foreach ($modules as $module) {
-            if (in_array($module->getName(), ['Base', 'DBMap'])) {
+            if (in_array($module->getName(), ['Base', 'App', 'DBMap'])) {
                 continue;
             }
             $this->call('Modules\\' . $module->getName() . '\\Database\\Seeders\\' . $module->getName() . 'DatabaseSeeder');
