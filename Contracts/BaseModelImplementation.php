@@ -12,12 +12,45 @@ use Modules\Base\Models\BaseModel;
  */
 trait BaseModelImplementation
 {
+    public function __construct(array $attributes = [])
+    {
+        $this->table = static::table();
+        $this->timestamps = false;
+        parent::__construct($attributes);
+    }
+
+    /**@return self */
+    public static function createFn(\Closure $fn)
+    {
+        $entity_class = (new static())->modelEntity();
+        $attributes = $fn($entity_class::props());
+        return self::query()->create($attributes);
+    }
+
+    public static function whereFn(\Closure $fn): Builder
+    {
+        $entity_class = (new static())->modelEntity();
+        $arrays = $fn($entity_class::props());
+        $builder = self::query();
+
+        foreach ($arrays as $array) {
+            $item1 = $array[0];
+            $item2 = !isset($array[2]) ? '=' : $array[1];
+            $item3 = $array[2] ?? $array[1];
+            $builder->where($item1, $item2, $item3);
+        }
+        return $builder;
+    }
+
     protected static function booted()
     {
         static::saving(function (Model $model) {
             $props = $model->props()->toArray();
             if (in_array('created_at', $props) && !isset($model->created_at)) {
                 $model->created_at = now();
+            }
+            if (in_array('updated_at', $props) && !isset($model->updated_at)) {
+                $model->updated_at = now();
             }
         });
         static::creating(function (Model $model) {
@@ -35,11 +68,14 @@ trait BaseModelImplementation
         parent::booted();
     }
 
-    public function __construct(array $attributes = [])
+    public function props($alias = null, $refresh = false): object
     {
-        $this->table = static::table();
-        $this->timestamps = false;
-        parent::__construct($attributes);
+        return $this->modelEntity()::props($alias, $refresh);
+    }
+
+    protected static function dbTable($table, $alias = null): string
+    {
+        return $table . ($alias ? ' as ' . $alias : '');
     }
 
     /** @template T
@@ -63,46 +99,14 @@ trait BaseModelImplementation
         return $entity;
     }
 
-    protected static function dbTable($table, $alias = null): string
-    {
-        return $table . ($alias ? ' as ' . $alias : '');
-    }
-
     public function repository()
     {
         $entity = $this->modelEntity();
         return (new $entity)->repository($this);
     }
 
-    public function props($alias = null, $refresh = false): object
-    {
-        return $this->modelEntity()::props($alias, $refresh);
-    }
-
-    /**@return self*/
-    public static function createFn(\Closure $fn)
-    {
-        $entity_class = (new static())->modelEntity();
-        $attributes = $fn($entity_class::props());
-        return self::query()->create($attributes);
-    }
-
-    public static function whereFn(\Closure $fn): Builder
-    {
-        $entity_class = (new static())->modelEntity();
-        $arrays = $fn($entity_class::props());
-        $builder = self::query();
-
-        foreach ($arrays as $array) {
-            $item1 = $array[0];
-            $item2 = !isset($array[2]) ? '=' : $array[1];
-            $item3 = $array[2] ?? $array[1];
-            $builder->where($item1, $item2, $item3);
-        }
-        return $builder;
-    }
-
-    public function save(array $options = []): bool
+    //Todo test (uncomment in production)
+    /*public function save(array $options = []): bool
     {
         $props = self::props();
         if (in_array('created_at', $props->toArray())) {
@@ -112,7 +116,7 @@ trait BaseModelImplementation
             $this->updated_at = $this->updated_at ?? now();
         }
         return parent::save($options);
-    }
+    }*/
 
     public function delete(): ?bool
     {

@@ -21,9 +21,6 @@ abstract class BaseMigration extends Migration
             }
             if ($columns = $entity->getAttributeUniques()->get()->pluck('name')->all()) {
                 $table->unique(columns: $columns, name: collect($columns)->join('_'));
-                if ($entity->name == 'seguro_naturezas') {
-//                    dd($columns);
-                }
             }
 
         });
@@ -42,7 +39,6 @@ abstract class BaseMigration extends Migration
 
     protected function createAttribute(ProjectEntityAttributeModel $attributeEntity, Blueprint $table)
     {
-//        $attributeEntity = $attribute;//$attribute['properties'];
         if ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::CHAR->value) {
             $t = $table->char($attributeEntity->name, $attributeEntity->size);
         } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::DATE->value) {
@@ -96,8 +92,6 @@ abstract class BaseMigration extends Migration
             if (count($attributeEntity->relationship) > 0) {
                 foreach ($attributeEntity->relationship as $relation) {
                     /**@var BaseModel $model */
-//                            $class = $relation['entity'];
-//                            $second_model_table_name = $class::table();
                     $t = $table->foreignId($attributeEntity->name);
                     $fk = $t->unsigned()->references('id')->on($relation->secondModelEntity->name);
                     if (!isset($relation->on_update) || $relation->on_update == 'restrict') {

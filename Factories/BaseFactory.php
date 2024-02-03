@@ -5,19 +5,9 @@ namespace Modules\Base\Factories;
 use App\Models\User;
 use BadMethodCallException;
 use Doctrine\DBAL\Schema\Column;
-use Doctrine\DBAL\Types\BigIntType;
-use Doctrine\DBAL\Types\BooleanType;
-use Doctrine\DBAL\Types\DateTimeType;
-use Doctrine\DBAL\Types\DateType;
-use Doctrine\DBAL\Types\DecimalType;
-use Doctrine\DBAL\Types\FloatType;
-use Doctrine\DBAL\Types\IntegerType;
-use Doctrine\DBAL\Types\SmallIntType;
-use Doctrine\DBAL\Types\StringType;
-use Doctrine\DBAL\Types\TextType;
-use Doctrine\DBAL\Types\TimeType;
 use Illuminate\Database\Eloquent\Factories\BelongsToRelationship;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -25,13 +15,51 @@ use Illuminate\Support\Stringable;
 use Mockery\Exception;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
-use Modules\Seguro\Models\CoberturaModel;
-use Modules\Seguro\Models\CoberturaTaxaModel;
 use Modules\View\Domains\ViewStructureComponentType;
 use Nwidart\Modules\Facades\Module;
 
 abstract class BaseFactory extends Factory
 {
+    public $for;
+    public $factory;
+
+    public static function getFakeDataViaViewStructureElementType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
+    {
+        return match ($type) {
+            ModuleTableAttributeTypeEnum::DATETIME, ModuleTableAttributeTypeEnum::DATE, ModuleTableAttributeTypeEnum::TIME => now(),
+            ModuleTableAttributeTypeEnum::TEXT => $value_default ?? fake()->sentence(),
+            ModuleTableAttributeTypeEnum::VARCHAR => $value_default ?? self::getFakeValue($key, $length),
+            ModuleTableAttributeTypeEnum::BOOLEAN => $value_default ?? fake()->boolean(),
+            ModuleTableAttributeTypeEnum::DECIMAL => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
+            ModuleTableAttributeTypeEnum::FLOAT => $value_default ?? fake()->randomFloat(2, 1, 999999),
+            ModuleTableAttributeTypeEnum::SMALLINT, ModuleTableAttributeTypeEnum::INT, ModuleTableAttributeTypeEnum::BIGINT => $value_default ?? fake()->numberBetween(1, 90),
+            default => 1
+        };
+    }
+
+    public static function getFakeValue(int|string $key, $length)
+    {
+        if ($key == 'name') {
+            return fake()->words(3, true);
+        }
+        if ($key == 'uuid') {
+            return fake()->uuid();
+        }
+        if (str($key)->contains('cpf')) {
+            return fake('pt_BR')->cpf();
+        }
+        if (str($key)->contains('cnpj')) {
+            return fake('pt_BR')->cnpj();
+        }
+        if (str($key)->contains('rg')) {
+            return fake('pt_BR')->rg();
+        }
+        if (in_array($key, ['telefone', 'phone'])) {
+            return '1199' . random_int(100, 999) . random_int(10, 99) . random_int(10, 99);
+        }
+        return str(fake()->sentence(3))->substr(0, $length)->value();
+    }
+
     public function createFn(\Closure $fn)
     {
         /**@var BaseModel $model */
@@ -41,20 +69,25 @@ abstract class BaseFactory extends Factory
         return parent::create($fn($entity->props()));
     }
 
+    /**@param Factory|Model $factory */
     public function for($factory, $relationship = null)
     {
         $related = $factory;
         if ($factory instanceof Factory) {
             $related = $factory->modelName();
-        }
-        if ($factory instanceof Model) {
+        } elseif ($factory instanceof Model) {
             $related = class_basename($factory);
         }
 
+        if (!$related) {
+            throw new \Exception('factory not found');
+        }
         $relationship = $relationship ?? $this->guessRelationship($related);
 
         return $this->newInstance([
-            'for' => $this->for->concat([new BelongsToRelationship($factory, $relationship)])
+            'for' => $this->for->concat([new class($factory, $relationship) extends BelongsToRelationship {
+                public $factory;
+            }]),
         ]);
     }
 
@@ -97,29 +130,17 @@ abstract class BaseFactory extends Factory
         return $possibilities;
     }
 
-    protected function createName(): string
+    public function definition()
     {
-        return $this->removeAbbreviations($this->faker->name())->trim()->value();
-    }
-
-    protected function removeAbbreviations(string $str): Stringable
-    {
-        return str($str)
-            ->replace(['Dr.', 'Dra.', 'Sr.', 'Sra.', 'Srta.', 'Jr.', ' da', ' de'], '')->trim();
-    }
-
-    protected function getEmail(string $name): string
-    {
-        return str(iconv('UTF-8', 'ASCII//TRANSLIT', $this->removeAbbreviations($name)))
-                ->lower()->explode(' ')->shift(3)->join('_') . '@gmail.com';
+        return $this->getValues();
     }
 
     protected function getValues($fixed_values = []): array
     {
-        //Todo Se campos de kf constam na lista de unique, devem criar um novo. (incluir esta logica dentro de getValues)
-
+        //Todo Se campos de fk constam na lista de unique, devem criar um novo.
         //preciso saber se a propriedade é uma chave estrangeira
         //se for, gerar um id a partir do modelo
+
         /**@var BaseModel $model */
         $model = $this->model;
         $entity = (new $model)->modelEntity()::props();
@@ -138,6 +159,7 @@ abstract class BaseFactory extends Factory
             $columns[$column_name]['obj'] = $column;
             $columns[$column_name]['value'] = null;
             $columns[$column_name]['required'] = $column->getNotnull();
+            $columns[$column_name]['fk'] = null;
         }
 
         //2 define valores para campos de chave estrangeira
@@ -148,7 +170,41 @@ abstract class BaseFactory extends Factory
 
         foreach ($fks as $fk) {
             $column = $fk->getLocalColumns()[0];
+            $columns[$column]['fk'] = true;
 
+            if (isset($columns[$column]['value'])) {
+                continue;
+            }
+
+            $contain_column = $this->states->contains(function ($i, $v) use ($column, &$columns) {
+                if (is_a($i, \Closure::class)) {
+                    $result = $i();
+                    if ($value = $result[$column] ?? null) {
+                        $columns[$column]['value'] = $value;
+                        return true;
+                    }
+                };
+                if (is_a($i, Sequence::class)) {
+                    /**@var Sequence $i*/
+                    $all = collect($i)->all();
+                    return collect($all)->contains(function($k, $v) use ($column, &$columns) {
+                        return collect($k)->contains(function($v2, $key) use ($column)  {
+                            return isset($v2[$column]);
+                        });
+                    });
+                }
+                return false;
+            });
+            if ($contain_column) {
+                continue;
+            }
+            $foreignTableName = $fk->getForeignTableName();
+            /**@var BaseModel $fk_model */
+            $fk_model = $table_models[$foreignTableName];
+            $has_for = $this->for->count() && is_a($this->for->first()->factory, $fk_model);
+            if ($has_for) {
+                continue;
+            }
             if (collect($columns)->contains(function ($col) use ($column) {
                 /**@var Column $obj */
                 $obj = $col['obj'];
@@ -157,7 +213,6 @@ abstract class BaseFactory extends Factory
                 //se houver uma chave estrangeira para msm tabela o que eh comum em
                 //campos ex. parent_id, irá causar um loop infinito
                 //deve verificar se a tabela é a mesma
-                $foreignTableName = $fk->getForeignTableName();
                 if ($foreignTableName == $entity->table) {
                     $columns[$column]['value'] = $model::query()->first()->id ?? null;
                     continue;
@@ -168,38 +223,41 @@ abstract class BaseFactory extends Factory
                 if (!isset($table_models[$foreignTableName])) {
                     throw new Exception("analisar foreignTableName $entity->table. ' '. $foreignTableName em {$fk->getName()} ");
                 }
-                /**@var BaseModel $model */
-                $model = $table_models[$foreignTableName];
-
                 //check if index contain in unique columns
                 $contain_in_index_unique = false;
-                foreach($indexes as $i) {
-                    if (!$i->isUnique()) {
+                foreach ($indexes as $index) {
+                    if (!$index->isUnique()) {
                         continue;
                     }
-                    foreach ($i->getColumns() as $_column) {
+                    foreach ($index->getColumns() as $_column) {
                         if ($_column == $column) {
                             $contain_in_index_unique = true;
                         }
                     }
-                }
-
-                if ($model == CoberturaTaxaModel::class) {
-                    dd($model::query()->inRandomOrder()->first()->id);
+//                    $contain_in_index_unique = collect($index->getColumns())->contains(fn($c) => $c == $column);
                 }
                 try {
-                    $columns[$column]['value'] = !$contain_in_index_unique
-                        ? $model::query()->inRandomOrder()->first()->id ?? $model::factory()->create()->id
-                        : $model::factory()->create()->id;
+                    //se nao tem chave unica pega do bco
+                    //se tem chave unica e nao tem no bco com a msm chave, pega do bco
+                    // se tem a chave unica e ja tem no bco, cria outra
+                    //pegar todos que tem la e que nao tem aqui,
+                    if ($contain_in_index_unique) {
+                        if ($model::query()->count() == 0) {
+                            $columns[$column]['value'] = $fk_model::query()->inRandomOrder()->first()->id ?? $fk_model::factory()->create()->id;
+                        } else {
+                            $columns[$column]['value'] = $fk_model::factory()->create()->id;
+                        }
+                    } else {
+                        $columns[$column]['value'] = $fk_model::query()->inRandomOrder()->first()->id ?? $fk_model::factory()->create()->id;
+                    }
                 } catch (\Exception $exception) {
-//                    throw new \Exception($model);
-                    throw new \Exception($model.' '. PHP_EOL. 'Erro: '.$entity->table_alias.' - '. $exception->getMessage());
+//                    throw new \Exception($fk_model);
+                    throw new \Exception($fk_model . ' ' . PHP_EOL . 'Erro: ' . $entity->table_alias . ' - ' . $exception->getMessage() . $exception->getFile() . ':' . $exception->getLine());
                 }
             }
         }
-
         //define valores para os campos opcionais
-        $another_columns = collect($columns)->filter(fn($c) => empty($c['value']))->toArray();
+        $another_columns = collect($columns)->filter(fn($c) => empty($c['value']) && empty($c['fk']))->toArray();
         foreach ($another_columns as $key => $item) {
             /**@var Column $obj */
             $obj = $item['obj'];
@@ -251,15 +309,13 @@ abstract class BaseFactory extends Factory
                 }
                 $module_model_path = 'Modules/' . $module->getName() . '/Models';
                 if (is_dir(base_path($module_model_path))) {
-
-                    $files = \File::files($module_model_path);
+                    $files = \File::files(base_path($module_model_path));
                     foreach ($files as $file) {
                         /*if ($file->getExtension() !== '.php') {
                             continue;
                         }*/
                         /**@var BaseModel $model_f */
                         $model_f = str($module_model_path . '/' . $file->getFilenameWithoutExtension())->replace('/', '\\')->value();
-
                         $reflectionClass = new \ReflectionClass($model_f);
                         if ($reflectionClass->isSubclassOf(BaseModel::class)) {
                             $table_model[$model_f::table()] = $model_f;
@@ -277,51 +333,6 @@ abstract class BaseFactory extends Factory
 //        return cache()->rememberForever('dvi_table_models', $fn);
     }
 
-    protected function throwBadMethod(string $related, array $available_methods)
-    {
-        $str = sprintf('Call to undefined method %s::%s()', static::class, $related);
-        $str .= ". Available methods: " . json_encode($available_methods);
-
-        throw new BadMethodCallException($str);
-    }
-
-    public function definition()
-    {
-        try {
-            return $this->getValues();
-        } catch (\Exception $exception) {
-            $str = PHP_EOL.'Não foi possível resolver a Fabrica do modelo '. $this->model;
-            if (config('app.env') == 'local') {
-                $str .= ' Erro: '.$exception->getMessage().$exception->getFile().':'.$exception->getLine();
-            }
-            throw new \Exception($str);
-        }
-    }
-
-    public static function getFakeValue(int|string $key, $length)
-    {
-        if ($key == 'name') {
-            return fake()->words(3, true);
-        }
-        if ($key == 'uuid') {
-            return fake()->uuid();
-        }
-        if (str($key)->contains('cpf')) {
-            return fake('pt_BR')->cpf();
-        }
-        if (str($key)->contains('cnpj')) {
-            return fake('pt_BR')->cnpj();
-        }
-        if (str($key)->contains('rg')) {
-            return fake('pt_BR')->rg();
-        }
-        if (in_array($key, ['telefone', 'phone'])) {
-            return '1199'.random_int(100,999).random_int(10,99).random_int(10,99);
-        }
-
-        return str(fake()->sentence(3))->substr(0, $length);
-    }
-
     public static function getFakeDataViaTableAttributeType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
     {
         return match ($type) {
@@ -336,17 +347,52 @@ abstract class BaseFactory extends Factory
         };
     }
 
-    public static function getFakeDataViaViewStructureElementType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
+    protected function createName(): string
     {
-        return match ($type) {
-            ModuleTableAttributeTypeEnum::DATETIME, ModuleTableAttributeTypeEnum::DATE, ModuleTableAttributeTypeEnum::TIME => now(),
-            ModuleTableAttributeTypeEnum::TEXT => $value_default ?? fake()->sentence(),
-            ModuleTableAttributeTypeEnum::VARCHAR => $value_default ?? self::getFakeValue($key, $length),
-            ModuleTableAttributeTypeEnum::BOOLEAN => $value_default ?? fake()->boolean(),
-            ModuleTableAttributeTypeEnum::DECIMAL => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
-            ModuleTableAttributeTypeEnum::FLOAT => $value_default ?? fake()->randomFloat(2, 1, 999999),
-            ModuleTableAttributeTypeEnum::SMALLINT, ModuleTableAttributeTypeEnum::INT, ModuleTableAttributeTypeEnum::BIGINT => $value_default ?? fake()->numberBetween(1, 90),
-            default => 1
-        };
+        return $this->removeAbbreviations($this->faker->name())->trim()->value();
+    }
+
+    protected function removeAbbreviations(string $str): Stringable
+    {
+        return str($str)
+            ->replace(['Dr.', 'Dra.', 'Sr.', 'Sra.', 'Srta.', 'Jr.', ' da', ' de'], '')->trim();
+    }
+
+    protected function getEmail(string $name): string
+    {
+        return str(iconv('UTF-8', 'ASCII//TRANSLIT', $this->removeAbbreviations($name)))
+                ->lower()->explode(' ')->shift(3)->join('_') . '@gmail.com';
+    }
+
+    protected function throwBadMethod(string $related, array $available_methods)
+    {
+        $str = sprintf('Call to undefined method %s::%s()', static::class, $related);
+        $str .= ". Available methods: " . json_encode($available_methods);
+        throw new BadMethodCallException($str);
+    }
+
+    protected function totalPorTabelaDeFkUnique(array $fks, array $indexes, array $table_models): array
+    {
+        $amount_table_foreign_keys = [];
+        foreach ($fks as $fk) {
+            $fk_column = $fk->getLocalColumns()[0];
+            $contain_unique = false;
+            foreach ($indexes as $index) {
+                if ($index->isUnique()) {
+                    continue;
+                }
+                if ($contain_unique = collect($index->getColumns())->contains(fn($c) => $c == $fk_column)) {
+                    break;
+                }
+            }
+            if (!$contain_unique) {
+                continue;
+            }
+            /**@var BaseModel|string $table */
+            $table = $fk->getForeignTableName();
+            $class = $table_models[$table];
+            $amount_table_foreign_keys[$table] = $class::query()->count();
+        }
+        return $amount_table_foreign_keys;
     }
 }
