@@ -2,11 +2,9 @@
 
 namespace Modules\Base\Console;
 
-use App\Features\User\ProfileTimeline;
 use Illuminate\Console\Command;
 use Laravel\Pennant\Feature;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
 
 class FeatureFlushCommand extends Command
 {
