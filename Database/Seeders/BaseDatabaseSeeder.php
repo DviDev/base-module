@@ -3,7 +3,6 @@
 namespace Modules\Base\Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Modules\App\Database\Seeders\AppDatabaseSeeder;
@@ -17,7 +16,7 @@ use Nwidart\Modules\Facades\Module;
 
 class BaseDatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
+//    use WithoutModelEvents;
 
     /**
      * Run the database seeds.

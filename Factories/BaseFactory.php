@@ -4,6 +4,7 @@ namespace Modules\Base\Factories;
 
 use App\Models\User;
 use BadMethodCallException;
+use Closure;
 use Doctrine\DBAL\Schema\Column;
 use Illuminate\Database\Eloquent\Factories\BelongsToRelationship;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -187,8 +188,12 @@ abstract class BaseFactory extends Factory
                 if (is_a($i, Sequence::class)) {
                     /**@var Sequence $i*/
                     $all = collect($i)->all();
-                    return collect($all)->contains(function($k, $v) use ($column, &$columns) {
-                        return collect($k)->contains(function($v2, $key) use ($column)  {
+                    return collect($all)->contains(function ($k, $v) use ($column, &$columns, $i) {
+                        return collect($k)->contains(function ($v2, $key) use ($column, $i, $k) {
+                            if (is_a($v2, Closure::class)) {
+                                $result = $v2($i);
+                                return isset($result[$column]);
+                            }
                             return isset($v2[$column]);
                         });
                     });
