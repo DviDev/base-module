@@ -62,5 +62,7 @@ class BaseDatabaseSeeder extends Seeder
             }
             $this->call('Modules\\' . $module->getName() . '\\Database\\Seeders\\' . $module->getName() . 'DatabaseSeeder');
         }
+
+        $this->command->info("🤖✔️ done " . __CLASS__);
     }
 }
