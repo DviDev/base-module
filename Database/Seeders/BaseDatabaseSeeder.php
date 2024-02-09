@@ -71,7 +71,12 @@ class BaseDatabaseSeeder extends Seeder
 //        }
         if ($modules->contains('Project')) {
             $developer = User::query()->where('type_id', 1)->first();
-            ProjectModel::firstOrCreate(['owner_id' => $developer->id, 'name' => config('app.name')]);
+            ProjectModel::firstOrCreate([
+                'owner_id' => $developer->id,
+                'name' => config('app.name'),
+            ], [
+                'description' => 'via ' . __CLASS__
+            ]);
         }
         if ($modules->contains('Workspaces')) {
             $this->call(WorkspaceTableSeeder::class);
