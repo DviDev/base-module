@@ -5,6 +5,7 @@ namespace Modules\Base\Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Modules\App\Database\Seeders\AppDatabaseSeeder;
 use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
 use Modules\Permission\Database\Seeders\PermissionTeamsTableSeeder;
@@ -38,15 +39,36 @@ class BaseDatabaseSeeder extends Seeder
         if ($modules->contains('DBMap')) {
             $this->call(DBMapDatabaseSeeder::class);
         }
+
         if ($modules->contains('View')) {
             $this->call(ViewDatabaseSeeder::class);
-        }
-        if ($modules->contains('Permission')) {
-            $this->call(PermissionTeamsTableSeeder::class);
         }
         if ($modules->contains('App')) {
             $this->call(AppDatabaseSeeder::class);
         }
+        try {
+            DB::beginTransaction();
+
+            $this->seed($modules);
+
+            DB::commit();
+        } catch (\Exception $exception) {
+            DB::rollBack();
+
+            $this->command->error('🤖 Error when seeding, try again.');
+            throw $exception;
+        }
+
+    }
+
+    protected function seed($modules)
+    {
+        if ($modules->contains('Permission')) {
+            $this->call(PermissionTeamsTableSeeder::class);
+        }
+//        if ($modules->contains('App')) {
+//            $this->call(AppDatabaseSeeder::class);
+//        }
         if ($modules->contains('Project')) {
             $developer = User::query()->where('type_id', 1)->first();
             ProjectModel::firstOrCreate(['owner_id' => $developer->id, 'name' => config('app.name')]);
