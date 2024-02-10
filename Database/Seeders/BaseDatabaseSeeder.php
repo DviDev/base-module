@@ -4,7 +4,6 @@ namespace Modules\Base\Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Modules\App\Database\Seeders\AppDatabaseSeeder;
 use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
@@ -15,7 +14,7 @@ use Modules\View\Database\Seeders\ViewDatabaseSeeder;
 use Modules\Workspace\Database\Seeders\WorkspaceTableSeeder;
 use Nwidart\Modules\Facades\Module;
 
-class BaseDatabaseSeeder extends Seeder
+class BaseDatabaseSeeder extends BaseSeeder
 {
 //    use WithoutModelEvents;
 
