@@ -51,6 +51,9 @@ class BaseDatabaseSeeder extends BaseSeeder
             $this->seed($modules);
 
             DB::commit();
+
+            $this->commandInfo(__CLASS__, '🟢 done');
+
         } catch (\Exception $exception) {
             DB::rollBack();
 
@@ -88,7 +91,5 @@ class BaseDatabaseSeeder extends BaseSeeder
             }
             $this->call('Modules\\' . $module->getName() . '\\Database\\Seeders\\' . $module->getName() . 'DatabaseSeeder');
         }
-
-        $this->command->info("🤖✔️ done " . __CLASS__);
     }
 }
