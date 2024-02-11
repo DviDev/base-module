@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\BelongsToRelationship;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
@@ -54,6 +55,10 @@ abstract class BaseFactory extends Factory
         }
         if (str($key)->contains('rg')) {
             return fake('pt_BR')->rg();
+        }
+        if (str($key)->contains('path')) {
+            $extension = collect(['pdf', 'png', 'jpeg', 'jpg'])->random();
+            return UploadedFile::fake()->create('test.' . $extension)->store('temp_seed_files');
         }
         if (in_array($key, ['telefone', 'phone'])) {
             return '1199' . random_int(100, 999) . random_int(10, 99) . random_int(10, 99);

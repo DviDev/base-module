@@ -5,6 +5,7 @@ namespace Modules\Base\Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Modules\App\Database\Seeders\AppDatabaseSeeder;
 use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
 use Modules\Permission\Database\Seeders\PermissionTeamsTableSeeder;
@@ -28,6 +29,9 @@ class BaseDatabaseSeeder extends BaseSeeder
         Model::unguard();
 
         cache()->clear();
+
+        $storage_path = storage_path('app/temp_seed_files');
+        File::deleteDirectory($storage_path);
 
         $modules = collect(Module::allEnabled());
 
@@ -73,7 +77,7 @@ class BaseDatabaseSeeder extends BaseSeeder
 //        }
         if ($modules->contains('Project')) {
             $developer = User::query()->where('type_id', 1)->first();
-            ProjectModel::firstOrCreate([
+            ProjectModel::query()->firstOrCreate([
                 'owner_id' => $developer->id,
                 'name' => config('app.name'),
             ], [
