@@ -72,6 +72,30 @@ abstract class BaseTest extends TestCase
             $model->update($make->attributesToArray());
             $attributes = $model->getAttributes();
         }
+        $attributes = $this->fixtimestamps($attributes);
+        $this->assertDatabaseHas($this->getModelClass()::table(), $attributes);
+    }
+
+    public function shouldDelete(): void
+    {
+        $model = $this->create();
+        $model->delete();
+        $attributes = $model->attributesToArray();
+        $attributes = $this->fixtimestamps($attributes);
+        $this->assertDatabaseMissing($this->getModelClass()::table(), $attributes);
+    }
+
+    protected function create():BaseModel
+    {
+        return $this->getModelClass()::factory()->create();
+    }
+
+    /**
+     * @param mixed $attributes
+     * @return mixed
+     */
+    protected function fixtimestamps(mixed $attributes): mixed
+    {
         if (isset($attributes['created_at'])) {
             $attributes['created_at'] = is_a($attributes['created_at'], Carbon::class)
                 ? $attributes['created_at']->format('Y-m-d H:i:s')
@@ -80,18 +104,6 @@ abstract class BaseTest extends TestCase
         if (isset($attributes['updated_at'])) {
             $attributes['updated_at'] = (new Carbon($attributes['updated_at']))->format('Y-m-d H:i:s');
         }
-        $this->assertDatabaseHas($this->getModelClass()::table(), $attributes);
-    }
-
-    public function shouldDelete(): void
-    {
-        $model = $this->create();
-        $model->delete();
-        $this->assertDatabaseMissing($this->getModelClass()::table(), $model->attributesToArray());
-    }
-
-    protected function create():BaseModel
-    {
-        return $this->getModelClass()::factory()->create();
+        return $attributes;
     }
 }
