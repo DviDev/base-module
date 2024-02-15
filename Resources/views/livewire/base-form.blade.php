@@ -3,7 +3,8 @@
     use Modules\Base\Entities\Actions\Builder;
     use Modules\View\Domains\ViewStructureComponentType;
     use Modules\Project\Models\ProjectModuleEntityDBModel;
-    use \Modules\Project\Models\ProjectModuleEntityActionModel;
+    use Modules\Project\Models\ProjectModuleEntityActionModel;
+    use Modules\App\Entities\User\UserType;
 @endphp
 <div>
     @if(session()->has('success'))
@@ -32,9 +33,9 @@
                                         <i class="fas fa-cogs"></i>
                                         builder
                                     </a>--}}
-                                    @if(auth()->user()->isDeveloper())
+                                    @if(auth()->user()->type->enum() == UserType::DEVELOPER)
                                         <a href="{{route('builder.page', $page->id)}}"
-                                           class="bg-gray-100 border border-gray-200 rounded-l px-2 py-1">
+                                           class="bg-gray-100 text-blue-500 hover:text-blue-700 border border-gray-200 rounded-l px-2 py-1">
                                             <i class="fas fa-cogs"></i>
                                             builder
                                         </a>
@@ -42,8 +43,8 @@
                                     <div
                                         @class([
                                             "bg-gray-100 border border-gray-200",
-                                            "border-l-0" => auth()->user()->isDeveloper(),
-                                            "rounded-l" => !auth()->user()->isDeveloper(),
+                                            "border-l-0" => auth()->user()->type->enum() == UserType::DEVELOPER,
+                                            "rounded-l" => !auth()->user()->type->enum() == UserType::DEVELOPER,
                                              "text-blue-500 hover:text-blue-700 px-2 py-1 cursor-pointer",
                                             "flex space-x-2", "rounded-r" => !$model->id,
                                         ]) wire:click="updateStructureCache">

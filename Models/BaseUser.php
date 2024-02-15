@@ -19,6 +19,7 @@ use Modules\Base\Contracts\HasFactory;
 
 /**
  * @method $this find($id)
+ * @property-read UserTypeModel $type
  */
 abstract class BaseUser extends Authenticatable implements BaseModelInterface
 {
@@ -82,5 +83,30 @@ abstract class BaseUser extends Authenticatable implements BaseModelInterface
     public function type(): BelongsTo
     {
         return $this->belongsTo(UserTypeModel::class, 'type_id');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->type_id == 3;
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->type_id == 2;
+    }
+
+    public function isCustomer(): bool
+    {
+        return $this->type_id == 4;
+    }
+
+    public function isDeveloper(): bool
+    {
+        return $this->type_id == 1;
+    }
+
+    public function isGuest(): bool
+    {
+        return $this->type_id == 5;
     }
 }
