@@ -138,6 +138,14 @@ abstract class BaseComponent extends Component
         }
     }
 
+    public function projectAttribute($property_name, $entity_id)
+    {
+        return ProjectEntityAttributeModel::query()
+            ->where('entity_id', $entity_id)
+            ->where('name', $property_name)
+            ->get(['reference_view_name'])->first();
+    }
+
     public function getReferencedTableData(ElementModel $element, ProjectEntityAttributeModel $projectAttribute): Builder|array
     {
         if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $element->attribute->items) {
