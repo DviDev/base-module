@@ -35,4 +35,14 @@ abstract class BaseSeeder extends Seeder
 
         return $items;
     }
+
+    protected function commandWarn(string $target, string $label = null): void
+    {
+        $this->command->warn(PHP_EOL . collect("🤖")->add($label)->add(str($target)->explode('\\')->last())->add('...')->join(' '));
+    }
+
+    protected function commandInfo(mixed $string, string $label = null): void
+    {
+        $this->command->info(PHP_EOL . collect()->add("🤖")->add($label)->add(str($string)->explode('\\')->last())->join(' '));
+    }
 }
