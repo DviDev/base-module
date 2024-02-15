@@ -359,10 +359,10 @@ abstract class BaseFactory extends Factory
 
     protected function createName(): string
     {
-        return $this->removeAbbreviations($this->faker->name())->trim()->value();
+        return $this->removeAbreviations($this->faker->name())->trim()->value();
     }
 
-    protected function removeAbbreviations(string $str): Stringable
+    protected function removeAbreviations(string $str): Stringable
     {
         return str($str)
             ->replace(['Dr.', 'Dra.', 'Sr.', 'Sra.', 'Srta.', 'Jr.', ' da', ' de'], '')->trim();
@@ -370,7 +370,7 @@ abstract class BaseFactory extends Factory
 
     protected function getEmail(string $name): string
     {
-        return str(iconv('UTF-8', 'ASCII//TRANSLIT', $this->removeAbbreviations($name)))
+        return str(iconv('UTF-8', 'ASCII//TRANSLIT', $this->removeAbreviations($name)))
                 ->lower()->explode(' ')->shift(3)->join('_') . '@gmail.com';
     }
 
