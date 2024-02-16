@@ -23,7 +23,7 @@ abstract class BaseModel extends Model implements BaseModelInterface
 
     use BaseModelImplementation;
 
-    public function getGuarded(): array
+    public function getGuarded()
     {
         $p = $this->modelEntity()::props();
         return collect($p->toArray())->filter(fn($i) => in_array($i, [
