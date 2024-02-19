@@ -18,7 +18,6 @@ use Nwidart\Modules\Facades\Module;
 class BaseDatabaseSeeder extends BaseSeeder
 {
 //    use WithoutModelEvents;
-
     /**
      * Run the database seeds.
      *
@@ -35,9 +34,11 @@ class BaseDatabaseSeeder extends BaseSeeder
 
         $modules = collect(Module::allEnabled());
 
-        $this->command->info('Creating Element Type Model');
-        ElementTypeModel::query()->create(['name' => 'user type']);
-        ElementTypeModel::query()->create(['name' => 'attribute']);
+        if ($modules->contains('Project')) {
+            $this->command->info('Creating Element Type Model');
+            ElementTypeModel::query()->create(['name' => 'user type']);
+            ElementTypeModel::query()->create(['name' => 'attribute']);
+        }
 
         if ($modules->contains('DBMap')) {
             $this->call(DBMapDatabaseSeeder::class);
@@ -57,14 +58,12 @@ class BaseDatabaseSeeder extends BaseSeeder
             DB::commit();
 
             $this->commandInfo(__CLASS__, '🟢 done');
-
         } catch (\Exception $exception) {
             DB::rollBack();
 
             $this->command->error('🤖 Error when seeding, try again.');
             throw $exception;
         }
-
     }
 
     protected function seed($modules)
@@ -72,9 +71,7 @@ class BaseDatabaseSeeder extends BaseSeeder
         if ($modules->contains('Permission')) {
             $this->call(PermissionTeamsTableSeeder::class);
         }
-//        if ($modules->contains('App')) {
-//            $this->call(AppDatabaseSeeder::class);
-//        }
+
         if ($modules->contains('Project')) {
             $developer = User::query()->where('type_id', 1)->first();
             ProjectModel::query()->firstOrCreate([
