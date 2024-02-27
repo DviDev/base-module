@@ -71,17 +71,7 @@ class BaseDatabaseSeeder extends BaseSeeder
         if ($modules->contains('Permission')) {
             $this->call(PermissionTeamsTableSeeder::class);
         }
-
-        if ($modules->contains('Project')) {
-            $developer = User::query()->where('type_id', 1)->first();
-            ProjectModel::query()->firstOrCreate([
-                'owner_id' => $developer->id,
-                'name' => config('app.name'),
-            ], [
-                'description' => 'via ' . __CLASS__
-            ]);
-        }
-        if ($modules->contains('Workspaces')) {
+        if ($modules->contains('Workspace')) {
             $this->call(WorkspaceTableSeeder::class);
         }
 
