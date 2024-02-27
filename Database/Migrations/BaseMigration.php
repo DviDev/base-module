@@ -16,7 +16,8 @@ abstract class BaseMigration extends Migration
     public function baseUp(ProjectModuleEntityDBModel $entity, \Closure $fn = null): void
     {
         Schema::create($entity->name, function (Blueprint $table) use ($entity) {
-            foreach ($entity->entityAttributes()->orderBy('id')->get()->all() as $attribute) {
+            $attributes = $entity->entityAttributes()->orderBy('id')->get()->all();
+            foreach ($attributes as $attribute) {
                 $this->createAttribute($attribute, $table);
             }
             if ($columns = $entity->getAttributeUniques()->get()->pluck('name')->all()) {
