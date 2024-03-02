@@ -17,6 +17,7 @@ use Illuminate\Support\Stringable;
 use Mockery\Exception;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
+use Modules\Seguro\Models\SeguradoraModel;
 use Modules\View\Domains\ViewStructureComponentType;
 use Nwidart\Modules\Facades\Module;
 
@@ -43,6 +44,9 @@ abstract class BaseFactory extends Factory
     {
         if ($key == 'name') {
             return fake()->words(3, true);
+        }
+        if ($key == 'email') {
+            return random_int(1000, 9999) . '_' . fake()->email();
         }
         if ($key == 'uuid') {
             return fake()->uuid();
@@ -209,9 +213,9 @@ abstract class BaseFactory extends Factory
                 continue;
             }
             $foreignTableName = $fk->getForeignTableName();
-            /**@var BaseModel $fk_model */
-            $fk_model = $table_models[$foreignTableName];
-            $has_for = $this->for->count() && is_a($this->for->first()->factory, $fk_model);
+            /**@var BaseModel $fk_model_class */
+            $fk_model_class = $table_models[$foreignTableName];
+            $has_for = $this->for->count() && is_a($this->for->first()->factory, $fk_model_class);
             if ($has_for) {
                 continue;
             }
@@ -233,64 +237,38 @@ abstract class BaseFactory extends Factory
                 if (!isset($table_models[$foreignTableName])) {
                     throw new Exception("analisar foreignTableName $entity->table. ' '. $foreignTableName em {$fk->getName()} ");
                 }
-                //check if index contain in unique columns
-                $contain_in_index_unique = false;
-                foreach ($indexes as $index) {
-                    if (!$index->isUnique()) {
-                        continue;
-                    }
-                    foreach ($index->getColumns() as $_column) {
-                        if ($_column == $column) {
-                            $contain_in_index_unique = true;
-                        }
-                    }
-//                    $contain_in_index_unique = collect($index->getColumns())->contains(fn($c) => $c == $column);
+
+                $contain_in_index_unique = $this->containInIndexUnique($indexes, $column);
+
+                if (!$contain_in_index_unique) {
+                    $columns[$column]['value'] = $this->randomOrNewRelation($fk_model_class);
+                    continue;
                 }
-                try {
-                    //se nao tem chave unica pega do bco
-                    //se tem chave unica e nao tem no bco com a msm chave, pega do bco
-                    // se tem a chave unica e ja tem no bco, cria outra
-                    //pegar todos que tem la e que nao tem aqui,
-                    if ($contain_in_index_unique) {
-                        if ($model::query()->count() == 0) {
-                            $columns[$column]['value'] = $fk_model::query()->inRandomOrder()->first()->id ?? $fk_model::factory()->create()->id;
-                        } else {
-                            $columns[$column]['value'] = $fk_model::factory()->create()->id;
-                        }
-                    } else {
-                        $columns[$column]['value'] = $fk_model::query()->inRandomOrder()->first()->id ?? $fk_model::factory()->create()->id;
-                    }
-                } catch (\Exception $exception) {
-//                    throw new \Exception($fk_model);
-                    throw new \Exception($fk_model . ' ' . PHP_EOL . 'Erro: ' . $entity->table_alias . ' - ' . $exception->getMessage() . $exception->getFile() . ':' . $exception->getLine());
+
+                if ($this->modelIsEmpty($model)) {
+                    $columns[$column]['value'] = $this->randomOrNewRelation($fk_model_class);
+                    continue;
                 }
+
+                $index_is_unique_multiple = collect($indexes)->contains(function ($index) use ($column) {
+                    return $index->isUnique() && collect($index->getColumns())->contains($column) && count($index->getColumns()) > 1;
+                });
+
+                $fk_id = $this->randomRelationId($fk_model_class);
+
+                $modelContainRandomRelation = $this->modelContainRandomRelation($model, $column, $fk_id, $indexes, $columns);
+                if ($modelContainRandomRelation) {
+                    $columns[$column]['value'] = $index_is_unique_multiple
+                        ? $fk_id
+                        : $this->createRelation($fk_model_class);
+                    continue;
+                }
+
+                $columns[$column]['value'] = $fk_id;
             }
         }
-        //define valores para os campos opcionais
-        $another_columns = collect($columns)->filter(fn($c) => empty($c['value']) && empty($c['fk']))->toArray();
-        foreach ($another_columns as $key => $item) {
-            /**@var Column $obj */
-            $obj = $item['obj'];
 
-            if ($obj->getName() == 'deleted_at') {
-                continue;
-            }
-            if (!$item['required'] && !$this->faker->boolean()) {
-                continue;
-            }
-            if (isset($fixed_values[$key])) {
-                $another_columns[$key]['value'] = $fixed_values[$key];
-                continue;
-            }
-
-            $type = (new \ReflectionObject($obj->getType()))->getName();
-            $type = ViewStructureComponentType::fromDBType($type);
-            $another_columns[$key]['value'] = self::getFakeDataViaTableAttributeType($type, $obj->getLength(), $key, $obj->getDefault(), $obj->getScale(), $obj->getPrecision());
-
-            if ($key == 'parent_id') {
-                $another_columns[$key]['value'] = null;
-            }
-        }
+        $another_columns = $this->defineValuesForOptionalFields($columns, $fixed_values);
 
         $merge = array_merge($columns, $another_columns);
         $columns = [];
@@ -298,6 +276,15 @@ abstract class BaseFactory extends Factory
             $columns[$key] = $item['value'];
         }
         return $columns;
+    }
+
+    protected function createRelation(string $model_class): int
+    {
+        if ($model_class == SeguradoraModel::class) {
+            throw new \Exception('here');
+        }
+        /**@var BaseModel $model_class */
+        return $model_class::factory()->create()->id;
     }
 
     /**
@@ -404,5 +391,101 @@ abstract class BaseFactory extends Factory
             $amount_table_foreign_keys[$table] = $class::query()->count();
         }
         return $amount_table_foreign_keys;
+    }
+
+    protected function defineValuesForOptionalFields(array $columns, mixed $fixed_values): array
+    {
+        $another_columns = collect($columns)->filter(fn($c) => empty($c['value']) && empty($c['fk']))->toArray();
+        foreach ($another_columns as $key => $item) {
+            /**@var Column $obj */
+            $obj = $item['obj'];
+
+            if ($obj->getName() == 'deleted_at') {
+                continue;
+            }
+            if (!$item['required'] && !$this->faker->boolean()) {
+                continue;
+            }
+            if (isset($fixed_values[$key])) {
+                $another_columns[$key]['value'] = $fixed_values[$key];
+                continue;
+            }
+
+            $type = (new \ReflectionObject($obj->getType()))->getName();
+            $another_columns[$key]['value'] = self::getFakeDataViaTableAttributeType(
+                ViewStructureComponentType::fromDBType($type),
+                $obj->getLength(),
+                $key,
+                $obj->getDefault(),
+                $obj->getScale(),
+                $obj->getPrecision()
+            );
+
+            if ($key == 'parent_id') {
+                $another_columns[$key]['value'] = null;
+            }
+        }
+        return $another_columns;
+    }
+
+    protected function relationIsEmpty(string $class): bool
+    {
+        /**@var BaseModel $class */
+        return $class::query()->count() == 0;
+    }
+
+    protected function randomRelationId(string $fk_model_class): int|null
+    {
+        /**@var BaseModel $fk_model_class */
+        return $fk_model_class::query()->inRandomOrder()->first()->id ?? null;
+    }
+
+    protected function randomOrNewRelation(string $model_class): int
+    {
+        /**@var BaseModel $model_class */
+        return $this->randomRelationId($model_class) ?: $this->createRelation($model_class);
+    }
+
+    protected function modelContainRandomRelation(string $model, string $column, $fk_id, $indexes, $columns): bool
+    {
+        /**@var BaseModel $model */
+        $q = $model::query();
+//        foreach ($indexes as $index) {
+//
+//        }
+//        foreach ($columns as $column_) {
+//
+//        }
+        $q->where($column, $fk_id);
+        return $q->count() > 0;
+    }
+
+    protected function modelIsEmpty(string $model): bool
+    {
+        /**@var BaseModel $model */
+        return $model::query()->count() == 0;
+    }
+
+    protected function containInIndexUnique(array $indexes, string $column): bool
+    {
+        $contain_in_index_unique = false;
+
+        foreach ($indexes as $index) {
+            if (!$index->isUnique()) {
+                continue;
+            }
+            foreach ($index->getColumns() as $_column) {
+                if ($_column == $column) {
+                    $contain_in_index_unique = true;
+                }
+            }
+            /*foreach ($index->getColumns() as $_column) {
+                if($contain_in_index_unique = ($_column == $column)) {
+                    break;
+                }
+            }*/
+//                    $contain_in_index_unique = collect($index->getColumns())->contains(fn($c) => $c == $column);
+        }
+        return $contain_in_index_unique;
     }
 }

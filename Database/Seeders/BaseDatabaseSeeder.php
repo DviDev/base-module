@@ -2,15 +2,12 @@
 
 namespace Modules\Base\Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Modules\App\Database\Seeders\AppDatabaseSeeder;
 use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
 use Modules\Permission\Database\Seeders\PermissionTeamsTableSeeder;
 use Modules\Project\Models\ElementTypeModel;
-use Modules\Project\Models\ProjectModel;
 use Modules\View\Database\Seeders\ViewDatabaseSeeder;
 use Modules\Workspace\Database\Seeders\WorkspaceTableSeeder;
 use Nwidart\Modules\Facades\Module;
@@ -51,16 +48,10 @@ class BaseDatabaseSeeder extends BaseSeeder
             $this->call(AppDatabaseSeeder::class);
         }
         try {
-            DB::beginTransaction();
-
             $this->seed($modules);
-
-            DB::commit();
 
             $this->commandInfo(__CLASS__, '🟢 done');
         } catch (\Exception $exception) {
-            DB::rollBack();
-
             $this->command->error('🤖 Error when seeding, try again.');
             throw $exception;
         }
@@ -80,6 +71,10 @@ class BaseDatabaseSeeder extends BaseSeeder
             if (in_array($module->getName(), ['Base', 'App', 'DBMap'])) {
                 continue;
             }
+            /*$scan_seeder_class = 'Modules\\' . $module->getName() . '\\Database\\Seeders\\Scan' . $module->getName() . 'ModuleSeeder';
+            if (File::exists(base_path($scan_seeder_class))) {
+                $this->call($scan_seeder_class);
+            }*/
             $this->call('Modules\\' . $module->getName() . '\\Database\\Seeders\\' . $module->getName() . 'DatabaseSeeder');
         }
     }
