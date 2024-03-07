@@ -17,7 +17,6 @@ use Illuminate\Support\Stringable;
 use Mockery\Exception;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
-use Modules\Seguro\Models\SeguradoraModel;
 use Modules\View\Domains\ViewStructureComponentType;
 use Nwidart\Modules\Facades\Module;
 
@@ -243,6 +242,9 @@ abstract class BaseFactory extends Factory
                 if (!$contain_in_index_unique) {
                     $columns[$column]['value'] = $this->randomOrNewRelation($fk_model_class);
                     continue;
+                } elseif ($fk_model_class == User::class) {
+                    $columns[$column]['value'] = $this->createRelation($fk_model_class);
+                    continue;
                 }
 
                 if ($this->modelIsEmpty($model)) {
@@ -280,9 +282,6 @@ abstract class BaseFactory extends Factory
 
     protected function createRelation(string $model_class): int
     {
-        if ($model_class == SeguradoraModel::class) {
-            throw new \Exception('here');
-        }
         /**@var BaseModel $model_class */
         return $model_class::factory()->create()->id;
     }
@@ -443,6 +442,9 @@ abstract class BaseFactory extends Factory
     protected function randomOrNewRelation(string $model_class): int
     {
         /**@var BaseModel $model_class */
+        if ($model_class == User::class) {
+            return $this->createRelation($model_class);
+        }
         return $this->randomRelationId($model_class) ?: $this->createRelation($model_class);
     }
 

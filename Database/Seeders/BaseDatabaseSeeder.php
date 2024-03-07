@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Database\Seeders;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use Modules\App\Database\Seeders\AppDatabaseSeeder;
@@ -16,11 +17,9 @@ class BaseDatabaseSeeder extends BaseSeeder
 {
 //    use WithoutModelEvents;
     /**
-     * Run the database seeds.
-     *
-     * @return void
+     * @throws Exception
      */
-    public function run()
+    public function run(): void
     {
         Model::unguard();
 
@@ -51,13 +50,13 @@ class BaseDatabaseSeeder extends BaseSeeder
             $this->seed($modules);
 
             $this->commandInfo(__CLASS__, '🟢 done');
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $this->command->error('🤖 Error when seeding, try again.');
             throw $exception;
         }
     }
 
-    protected function seed($modules)
+    protected function seed($modules): void
     {
         if ($modules->contains('Permission')) {
             $this->call(PermissionTeamsTableSeeder::class);

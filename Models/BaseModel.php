@@ -25,10 +25,7 @@ abstract class BaseModel extends Model implements BaseModelInterface
 
     public function getGuarded()
     {
-        $p = $this->modelEntity()::props();
-        return collect($p->toArray())->filter(fn($i) => in_array($i, [
-            'id', 'created_at', 'updated_at', 'deleted_at'
-        ]))->toArray();
+        return ['id'];
     }
 
     public function getTable(): string
