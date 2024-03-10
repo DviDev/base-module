@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Contracts\BaseModelImplementation;
 use Modules\Base\Contracts\BaseModelInterface;
@@ -16,6 +17,7 @@ use Modules\Base\Entities\BaseEntityModel;
  * @method self|static first()
  * @method self|static setAttribute(string $key, mixed $value)
  * @method static self factory($count = null, $state = [])
+ * @mixin Builder
  */
 abstract class BaseModel extends Model implements BaseModelInterface
 {
