@@ -60,9 +60,7 @@
                                     @endif
                                 </div>
                             @endcan()
-
                         </div>
-
                     </x-lte::card.header>
                     <x-lte::card.body>
                         @foreach($element->allChildren as $child)
