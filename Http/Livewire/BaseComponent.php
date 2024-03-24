@@ -4,6 +4,7 @@ namespace Modules\Base\Http\Livewire;
 
 use Carbon\Carbon;
 use Exception;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
@@ -64,15 +65,15 @@ abstract class BaseComponent extends Component
         }
     }
 
-    /**@return ElementModel[]|Collection */
     public function elements(): Collection|array
     {
         /**@var ViewPageStructureModel $structure */
         $structure = $this->page->structures()->whereNotNull('active')->first();
         $cache_key = 'structure.' . $structure->id . '.elements';
-        return cache()->rememberForever($cache_key, function () use ($structure) {
+        cache()->delete($cache_key);
+        return cache()->remember($cache_key, 3600, function () use ($structure) {
             $elements = $structure->elements()->with('allChildren')->get()->filter(function (ElementModel $e) {
-                return !$e->attribute || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
+                return empty($e->attribute) || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
             });
             $children = collect($elements);
             foreach ($elements as $element) {
@@ -146,7 +147,7 @@ abstract class BaseComponent extends Component
             ->get(['reference_view_name'])->first();
     }
 
-    public function getReferencedTableData(ElementModel $element, ProjectEntityAttributeModel $projectAttribute): Builder|array
+    public function getReferencedTableData(ElementModel $element, ProjectEntityAttributeModel $projectAttribute): array|LengthAwarePaginator
     {
         if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $element->attribute->items) {
             return str($element->attribute->items)->explode(',')->all();
@@ -174,13 +175,13 @@ abstract class BaseComponent extends Component
             if ($projectAttribute->reference_view_name) {
                 $str = str($projectAttribute->reference_view_name);
                 $entity = $str->explode(':')->shift();
-                $items->with($entity);
+//                $items->with($entity);
             }
-            return $items->get()->all();
+            return $items->paginate();
         }
         return \DB::table($referenced_table_name)
-            ->get($columns)
-            ->all();
+            ->select($columns)
+            ->paginate();
     }
 
     public function updatePropertyValue($type, $property, $key, $value): void

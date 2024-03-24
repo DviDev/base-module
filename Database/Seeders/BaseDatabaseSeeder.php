@@ -2,15 +2,13 @@
 
 namespace Modules\Base\Database\Seeders;
 
-use App\Models\User;
+use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Modules\App\Database\Seeders\AppDatabaseSeeder;
 use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
 use Modules\Permission\Database\Seeders\PermissionTeamsTableSeeder;
 use Modules\Project\Models\ElementTypeModel;
-use Modules\Project\Models\ProjectModel;
 use Modules\View\Database\Seeders\ViewDatabaseSeeder;
 use Modules\Workspace\Database\Seeders\WorkspaceTableSeeder;
 use Nwidart\Modules\Facades\Module;
@@ -18,13 +16,10 @@ use Nwidart\Modules\Facades\Module;
 class BaseDatabaseSeeder extends BaseSeeder
 {
 //    use WithoutModelEvents;
-
     /**
-     * Run the database seeds.
-     *
-     * @return void
+     * @throws Exception
      */
-    public function run()
+    public function run(): void
     {
         Model::unguard();
 
@@ -35,9 +30,11 @@ class BaseDatabaseSeeder extends BaseSeeder
 
         $modules = collect(Module::allEnabled());
 
-        $this->command->info('Creating Element Type Model');
-        ElementTypeModel::query()->create(['name' => 'user type']);
-        ElementTypeModel::query()->create(['name' => 'attribute']);
+        if ($modules->contains('Project')) {
+            $this->command->info('Creating Element Type Model');
+            ElementTypeModel::query()->create(['name' => 'user type']);
+            ElementTypeModel::query()->create(['name' => 'attribute']);
+        }
 
         if ($modules->contains('DBMap')) {
             $this->call(DBMapDatabaseSeeder::class);
@@ -50,41 +47,21 @@ class BaseDatabaseSeeder extends BaseSeeder
             $this->call(AppDatabaseSeeder::class);
         }
         try {
-            DB::beginTransaction();
-
             $this->seed($modules);
 
-            DB::commit();
-
             $this->commandInfo(__CLASS__, '🟢 done');
-
-        } catch (\Exception $exception) {
-            DB::rollBack();
-
+        } catch (Exception $exception) {
             $this->command->error('🤖 Error when seeding, try again.');
             throw $exception;
         }
-
     }
 
-    protected function seed($modules)
+    protected function seed($modules): void
     {
         if ($modules->contains('Permission')) {
             $this->call(PermissionTeamsTableSeeder::class);
         }
-//        if ($modules->contains('App')) {
-//            $this->call(AppDatabaseSeeder::class);
-//        }
-        if ($modules->contains('Project')) {
-            $developer = User::query()->where('type_id', 1)->first();
-            ProjectModel::query()->firstOrCreate([
-                'owner_id' => $developer->id,
-                'name' => config('app.name'),
-            ], [
-                'description' => 'via ' . __CLASS__
-            ]);
-        }
-        if ($modules->contains('Workspaces')) {
+        if ($modules->contains('Workspace')) {
             $this->call(WorkspaceTableSeeder::class);
         }
 
@@ -93,6 +70,10 @@ class BaseDatabaseSeeder extends BaseSeeder
             if (in_array($module->getName(), ['Base', 'App', 'DBMap'])) {
                 continue;
             }
+            /*$scan_seeder_class = 'Modules\\' . $module->getName() . '\\Database\\Seeders\\Scan' . $module->getName() . 'ModuleSeeder';
+            if (File::exists(base_path($scan_seeder_class))) {
+                $this->call($scan_seeder_class);
+            }*/
             $this->call('Modules\\' . $module->getName() . '\\Database\\Seeders\\' . $module->getName() . 'DatabaseSeeder');
         }
     }

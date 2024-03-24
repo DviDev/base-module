@@ -16,13 +16,11 @@ abstract class BaseMigration extends Migration
     public function baseUp(ProjectModuleEntityDBModel $entity, \Closure $fn = null): void
     {
         Schema::create($entity->name, function (Blueprint $table) use ($entity) {
-            foreach ($entity->entityAttributes()->orderBy('id')->get()->all() as $attribute) {
+            $attributes = $entity->entityAttributes()->orderBy('id')->get()->all();
+            foreach ($attributes as $attribute) {
                 $this->createAttribute($attribute, $table);
             }
-            if ($columns = $entity->getAttributeUniques()->get()->pluck('name')->all()) {
-                $table->unique(columns: $columns, name: collect($columns)->join('_'));
-            }
-
+            $this->createsUniqueCompositeKey($entity, $table);
         });
         if ($fn) {
             $fn();
@@ -37,7 +35,7 @@ abstract class BaseMigration extends Migration
         $column->unsigned();
     }
 
-    protected function createAttribute(ProjectEntityAttributeModel $attributeEntity, Blueprint $table)
+    protected function createAttribute(ProjectEntityAttributeModel $attributeEntity, Blueprint $table): void
     {
         if ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::CHAR->value) {
             $t = $table->char($attributeEntity->name, $attributeEntity->size);
@@ -119,7 +117,25 @@ abstract class BaseMigration extends Migration
         if (!isset($t)) {
             dd('🤖 Missing '.ModuleTableAttributeTypeEnum::from($attributeEntity->type_id)->name.' type');
         }
-
+        if ($attributeEntity->unique) {
+            $t->unique();
+        }
         $t->default($attributeEntity->default)->nullable(!$attributeEntity->required)->comment($attributeEntity->comments);
+    }
+
+    function createsUniqueCompositeKey(ProjectModuleEntityDBModel $entity, Blueprint $table): void
+    {
+        if ($columns = $entity->getAttributeUniques()->get()->pluck('name')->all()) {
+            $table->unique(columns: $columns, name: collect($columns)->join('_'));
+        }
+    }
+
+    function createUniqueAloneKeys(ProjectModuleEntityDBModel $entity, Blueprint $table): void
+    {
+        if ($columns = $entity->getAttributeUniques()->whereNull('multiple')->get()->pluck('name')->all()) {
+            foreach ($columns as $column) {
+                $table->unique(columns: $column, name: $column);
+            }
+        }
     }
 }
