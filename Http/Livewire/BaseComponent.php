@@ -70,7 +70,6 @@ abstract class BaseComponent extends Component
         /**@var ViewPageStructureModel $structure */
         $structure = $this->page->structures()->whereNotNull('active')->first();
         $cache_key = 'structure.' . $structure->id . '.elements';
-//        cache()->delete($cache_key);
         return cache()->remember($cache_key, 3600, function () use ($structure) {
             $elements = $structure->elements()->with(['allChildren', 'properties'])->get()->filter(function (ElementModel $e) {
                 return empty($e->attribute) || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
@@ -191,7 +190,9 @@ abstract class BaseComponent extends Component
 
     public function updateStructureCache(): void
     {
-        cache()->delete('elements');
+        $structure = $this->page->structures()->whereNotNull('active')->first();
+        $cache_key = 'structure.' . $structure->id . '.elements';
+        cache()->delete($cache_key);
     }
 
     public function delete()
