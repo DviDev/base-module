@@ -31,9 +31,7 @@ class BaseDatabaseSeeder extends BaseSeeder
         $modules = collect(Module::allEnabled());
 
         if ($modules->contains('Project')) {
-            $this->command->info('Creating Element Type Model');
-            ElementTypeModel::query()->create(['name' => 'user type']);
-            ElementTypeModel::query()->create(['name' => 'attribute']);
+            $this->createFirstProjectElementTypes();
         }
 
         if ($modules->contains('DBMap')) {
@@ -76,5 +74,12 @@ class BaseDatabaseSeeder extends BaseSeeder
             }*/
             $this->call('Modules\\' . $module->getName() . '\\Database\\Seeders\\' . $module->getName() . 'DatabaseSeeder');
         }
+    }
+
+    protected function createFirstProjectElementTypes(): void
+    {
+        $this->command->info('Creating Element Type Model');
+        ElementTypeModel::query()->create(['name' => 'user type']);
+        ElementTypeModel::query()->create(['name' => 'attribute']);
     }
 }

@@ -8,7 +8,8 @@
 @endphp
 <div>
     @if(session()->has('success'))
-        <x-dvui::toast :success="true" title="Post" title2="{{now()->diffForHumans()}}" :label="session('success')"/>
+        <x-dvui::toast :success="true" title="{{$this->page->name}}" title2="{{now()->diffForHumans()}}"
+                       :label="session('success')"/>
     @endif
 
     @php
