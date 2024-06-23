@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 use Mockery\Exception;
+use Modules\App\Models\UserTypeModel;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\View\Domains\ViewStructureComponentType;
@@ -237,32 +238,33 @@ abstract class BaseFactory extends Factory
                     throw new Exception("analisar foreignTableName $entity->table. ' '. $foreignTableName em {$fk->getName()} ");
                 }
 
+                if ($this->modelIsEmpty($model)) {
+                    $columns[$column]['value'] = $this->createRelation($fk_model_class);
+                    continue;
+                }
+
                 $contain_in_index_unique = $this->containInIndexUnique($indexes, $column);
 
                 if (!$contain_in_index_unique) {
-                    $columns[$column]['value'] = $this->randomOrNewRelation($fk_model_class);
+                    $columns[$column]['value'] = $this->randomOrNewRelation($fk_model_class, $model, $column);
                     continue;
                 } elseif ($fk_model_class == User::class) {
                     $columns[$column]['value'] = $this->createRelation($fk_model_class);
                     continue;
                 }
 
-                if ($this->modelIsEmpty($model)) {
-                    $columns[$column]['value'] = $this->randomOrNewRelation($fk_model_class);
+                $fk_id = $this->randomRelationId($fk_model_class, $model, $column);
+                if (!$fk_id) {
+                    $columns[$column]['value'] = $this->createRelation($fk_model_class);
                     continue;
                 }
 
                 $index_is_unique_multiple = collect($indexes)->contains(function ($index) use ($column) {
                     return $index->isUnique() && collect($index->getColumns())->contains($column) && count($index->getColumns()) > 1;
                 });
-
-                $fk_id = $this->randomRelationId($fk_model_class);
-
-                $modelContainRandomRelation = $this->modelContainRandomRelation($model, $column, $fk_id, $indexes, $columns);
-                if ($modelContainRandomRelation) {
-                    $columns[$column]['value'] = $index_is_unique_multiple
-                        ? $fk_id
-                        : $this->createRelation($fk_model_class);
+                if ($index_is_unique_multiple) {
+                    //Todo get all unique columns and check if has in $columns with same values
+                    $columns[$column]['value'] = $fk_id;
                     continue;
                 }
 
@@ -282,8 +284,12 @@ abstract class BaseFactory extends Factory
 
     protected function createRelation(string $model_class): int
     {
+        $attributes = [];
         /**@var BaseModel $model_class */
-        return $model_class::factory()->create()->id;
+        if ($model_class == User::class && $defult = config('app.seed.user.types.default')) {
+            $attributes = ['type_id' => $defult];
+        }
+        return $model_class::factory()->create($attributes)->id;
     }
 
     /**
@@ -410,6 +416,11 @@ abstract class BaseFactory extends Factory
                 continue;
             }
 
+            if ($obj->getName() == 'remember_token') {
+                $another_columns[$key]['value'] = Str::random(10);
+                continue;
+            }
+
             $type = (new \ReflectionObject($obj->getType()))->getName();
             $another_columns[$key]['value'] = self::getFakeDataViaTableAttributeType(
                 ViewStructureComponentType::fromDBType($type),
@@ -433,33 +444,37 @@ abstract class BaseFactory extends Factory
         return $class::query()->count() == 0;
     }
 
-    protected function randomRelationId(string $fk_model_class): int|null
+    /**
+     * @param string|BaseModel $fk_model_class
+     * @param string|BaseModel $model_class
+     * @param string $attribute_id
+     * @return int|null
+     */
+    protected function randomRelationId(string $fk_model_class, string $model_class, string $attribute_id): int|null
     {
-        /**@var BaseModel $fk_model_class */
-        return $fk_model_class::query()->inRandomOrder()->first()->id ?? null;
-    }
-
-    protected function randomOrNewRelation(string $model_class): int
-    {
-        /**@var BaseModel $model_class */
-        if ($model_class == User::class) {
-            return $this->createRelation($model_class);
+        if ($fk_model_class == UserTypeModel::class) {
+            return config('app.seed.user.types.default');
         }
-        return $this->randomRelationId($model_class) ?: $this->createRelation($model_class);
+        $already_used_ids = $model_class::query()->pluck($attribute_id)->all();
+
+        /**@var BaseModel $fk_model_class */
+        return $fk_model_class::query()->whereNotIn('id', $already_used_ids)->inRandomOrder()->first()->id ?? null;
     }
 
-    protected function modelContainRandomRelation(string $model, string $column, $fk_id, $indexes, $columns): bool
+    /**
+     * @param string|BaseModel $fk_model_class
+     * @param string|BaseModel $model_class
+     * @param string $attribute_id
+     * @return int
+     */
+    protected function randomOrNewRelation(string $fk_model_class, string $model_class, string $attribute_id): int
     {
-        /**@var BaseModel $model */
-        $q = $model::query();
-//        foreach ($indexes as $index) {
-//
-//        }
-//        foreach ($columns as $column_) {
-//
-//        }
-        $q->where($column, $fk_id);
-        return $q->count() > 0;
+        if ($fk_model_class == User::class) {
+            return $this->createRelation($fk_model_class);
+        }
+
+        return $this->randomRelationId($fk_model_class, $model_class, $attribute_id)
+            ?: $this->createRelation($fk_model_class);
     }
 
     protected function modelIsEmpty(string $model): bool
