@@ -6,6 +6,7 @@ use App\Models\User;
 use BadMethodCallException;
 use Closure;
 use Doctrine\DBAL\Schema\Column;
+use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Illuminate\Database\Eloquent\Factories\BelongsToRelationship;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
@@ -16,6 +17,8 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 use Mockery\Exception;
 use Modules\App\Models\UserTypeModel;
+use Modules\Base\Entities\BaseEntity;
+use Modules\Base\Entities\Props;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\View\Domains\ViewStructureComponentType;
@@ -154,23 +157,8 @@ abstract class BaseFactory extends Factory
         /**@var BaseModel $model */
         $model = $this->model;
         $entity = (new $model)->modelEntity()::props();
-        //1 define os campos obrigatorios
-        $tableColumns = \Schema::getConnection()
-            ->getDoctrineSchemaManager()
-            ->listTableColumns($entity->table);
 
-        $columns = [];
-        foreach ($tableColumns as $column) {
-            $column_name = $column->getName();
-            if ($column_name == 'id') {
-                continue;
-            }
-
-            $columns[$column_name]['obj'] = $column;
-            $columns[$column_name]['value'] = $fixed_values[$column_name] ?? null;
-            $columns[$column_name]['required'] = $column->getNotnull();
-            $columns[$column_name]['fk'] = null;
-        }
+        $columns = $this->getTableColumns($entity, $fixed_values);
 
         //2 define valores para campos de chave estrangeira
         $table_models = $this->getTableModels();
@@ -186,30 +174,7 @@ abstract class BaseFactory extends Factory
                 continue;
             }
 
-            $contain_column = $this->states->contains(function ($i, $v) use ($column, &$columns) {
-                if (is_a($i, \Closure::class)) {
-                    $result = $i();
-                    if ($value = $result[$column] ?? null) {
-                        $columns[$column]['value'] = $value;
-                        return true;
-                    }
-                };
-                if (is_a($i, Sequence::class)) {
-                    /**@var Sequence $i*/
-                    $all = collect($i)->all();
-                    return collect($all)->contains(function ($k, $v) use ($column, &$columns, $i) {
-                        return collect($k)->contains(function ($v2, $key) use ($column, $i, $k) {
-                            if (is_a($v2, Closure::class)) {
-                                $result = $v2($i);
-                                return isset($result[$column]);
-                            }
-                            return isset($v2[$column]);
-                        });
-                    });
-                }
-                return false;
-            });
-            if ($contain_column) {
+            if ($this->stateContainColumn($column, $columns)) {
                 continue;
             }
             $foreignTableName = $fk->getForeignTableName();
@@ -219,11 +184,13 @@ abstract class BaseFactory extends Factory
             if ($has_for) {
                 continue;
             }
-            if (collect($columns)->contains(function ($col) use ($column) {
-                /**@var Column $obj */
-                $obj = $col['obj'];
-                return $obj->getName() == $column;
-            })) {
+            if ($this->columnsContain($columns, $column)) {
+//            }
+//            if (collect($columns)->contains(function ($col) use ($column) {
+//                /**@var Column $obj */
+//                $obj = $col['obj'];
+//                return $obj->getName() == $column;
+//            })) {
                 //se houver uma chave estrangeira para msm tabela o que eh comum em
                 //campos ex. parent_id, irá causar um loop infinito
                 //deve verificar se a tabela é a mesma
@@ -231,12 +198,7 @@ abstract class BaseFactory extends Factory
                     $columns[$column]['value'] = $model::query()->first()->id ?? null;
                     continue;
                 }
-                if (!isset($table_models[$foreignTableName]) && config('app.env') == 'local') {
-                    \Log::info(collect($table_models)->toJson());
-                }
-                if (!isset($table_models[$foreignTableName])) {
-                    throw new Exception("analisar foreignTableName $entity->table. ' '. $foreignTableName em {$fk->getName()} ");
-                }
+                $this->validate($table_models, $foreignTableName, $entity, $fk);
 
                 if ($this->modelIsEmpty($model)) {
                     $columns[$column]['value'] = $this->createRelation($fk_model_class);
@@ -504,5 +466,79 @@ abstract class BaseFactory extends Factory
 //                    $contain_in_index_unique = collect($index->getColumns())->contains(fn($c) => $c == $column);
         }
         return $contain_in_index_unique;
+    }
+
+    protected function columnsContain(array $columns, string $column): bool
+    {
+        return collect($columns)->contains(function ($col) use ($column) {
+            /**@var Column $obj */
+            $obj = $col['obj'];
+            return $obj->getName() == $column;
+        });
+    }
+
+    /**
+     * @param Props|object $entity
+     * @param array $columns
+     * @param mixed $fixed_values
+     * @return array
+     * @throws \Doctrine\DBAL\Exception
+     */
+    protected function getTableColumns($entity, mixed $fixed_values): array
+    {
+        $columns = [];
+        $tableColumns = \Schema::getConnection()
+            ->getDoctrineSchemaManager()
+            ->listTableColumns($entity->table);
+
+        foreach ($tableColumns as $column) {
+            $column_name = $column->getName();
+            if ($column_name == 'id') {
+                continue;
+            }
+
+            $columns[$column_name]['obj'] = $column;
+            $columns[$column_name]['value'] = $fixed_values[$column_name] ?? null;
+            $columns[$column_name]['required'] = $column->getNotnull();
+            $columns[$column_name]['fk'] = null;
+        }
+        return $columns;
+    }
+
+    protected function stateContainColumn(string $column, array $columns): bool
+    {
+        return $this->states->contains(function ($i, $v) use ($column, &$columns) {
+            if (is_a($i, \Closure::class)) {
+                $result = $i();
+                if ($value = $result[$column] ?? null) {
+                    $columns[$column]['value'] = $value;
+                    return true;
+                }
+            }
+            if (is_a($i, Sequence::class)) {
+                /**@var Sequence $i */
+                $all = collect($i)->all();
+                return collect($all)->contains(function ($k, $v) use ($column, &$columns, $i) {
+                    return collect($k)->contains(function ($v2, $key) use ($column, $i, $k) {
+                        if (is_a($v2, Closure::class)) {
+                            $result = $v2($i);
+                            return isset($result[$column]);
+                        }
+                        return isset($v2[$column]);
+                    });
+                });
+            }
+            return false;
+        });
+    }
+
+    protected function validate(array $table_models, string $foreignTableName, BaseEntity $entity, ForeignKeyConstraint $fk)
+    {
+        if (!isset($table_models[$foreignTableName]) && config('app.env') == 'local') {
+            \Log::info(collect($table_models)->toJson());
+        }
+        if (!isset($table_models[$foreignTableName])) {
+            throw new Exception("analisar foreignTableName $entity->table. ' '. $foreignTableName em {$fk->getName()} ");
+        }
     }
 }
