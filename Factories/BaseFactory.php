@@ -167,7 +167,7 @@ abstract class BaseFactory extends Factory
             }
 
             $columns[$column_name]['obj'] = $column;
-            $columns[$column_name]['value'] = null;
+            $columns[$column_name]['value'] = $fixed_values[$column_name] ?? null;
             $columns[$column_name]['required'] = $column->getNotnull();
             $columns[$column_name]['fk'] = null;
         }
@@ -182,7 +182,7 @@ abstract class BaseFactory extends Factory
             $column = $fk->getLocalColumns()[0];
             $columns[$column]['fk'] = true;
 
-            if (isset($columns[$column]['value'])) {
+            if (!empty($columns[$column]['value'])) {
                 continue;
             }
 
