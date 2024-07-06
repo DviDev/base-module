@@ -417,10 +417,13 @@ abstract class BaseFactory extends Factory
         if ($fk_model_class == UserTypeModel::class) {
             return config('app.seed.user.types.default');
         }
-        $already_used_ids = $model_class::query()->pluck($attribute_id)->all();
 
         /**@var BaseModel $fk_model_class */
-        return $fk_model_class::query()->whereNotIn('id', $already_used_ids)->inRandomOrder()->first()->id ?? null;
+        return $fk_model_class::query()->select($fk_model_class::table() . '.*')
+            ->leftJoin($model_class::table() . ' as tb1', 'tb1.' . $attribute_id, $fk_model_class::table() . '.id')
+            ->whereNull('tb1.' . $attribute_id)
+            ->limit(1)->first()
+            ->id ?? null;
     }
 
     /**
