@@ -150,10 +150,6 @@ abstract class BaseFactory extends Factory
 
     protected function getValues($fixed_values = []): array
     {
-        //Todo Se campos de fk constam na lista de unique, devem criar um novo.
-        //preciso saber se a propriedade é uma chave estrangeira
-        //se for, gerar um id a partir do modelo
-
         /**@var BaseModel $model */
         $model = $this->model;
         $entity = (new $model)->modelEntity()::props();
