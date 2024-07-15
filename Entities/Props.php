@@ -19,11 +19,9 @@ trait Props
             ? $reflectionClass
             : new ReflectionClass($namespace . '\\' . $entity . 'Props');
         $doc = ($reflectionClass)->getDocComment();
-        $property_type = '@property ';
-//        if (in_array(EntityModelInterface::class, class_implements(static::class))) {
-//        } else {
-//            $property_type = '@property-read ';
-//        }
+
+        $property_type = '@property';
+
         $lines = explode("\n", $doc);
 
         $props = [];
