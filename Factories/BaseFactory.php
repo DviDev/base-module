@@ -181,15 +181,9 @@ abstract class BaseFactory extends Factory
                 continue;
             }
             if ($this->columnsContain($columns, $column)) {
-//            }
-//            if (collect($columns)->contains(function ($col) use ($column) {
-//                /**@var Column $obj */
-//                $obj = $col['obj'];
-//                return $obj->getName() == $column;
-//            })) {
-                //se houver uma chave estrangeira para msm tabela o que eh comum em
-                //campos ex. parent_id, irá causar um loop infinito
-                //deve verificar se a tabela é a mesma
+                /* se houver uma chave estrangeira para msm tabela o que
+                eh comum emcampos ex. parent_id, irá causar um loop
+                infinitodeve verificar se a tabela é a mesma*/
                 if ($foreignTableName == $entity->table) {
                     $columns[$column]['value'] = $model::query()->first()->id ?? null;
                     continue;
