@@ -34,7 +34,7 @@ abstract class BaseComponent extends Component
         } else {
             /**@var ModuleTableModel $table */
             $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-            $this->page = $table->pages()->where('route', 'like', '%.form')->ddRawSql()->get()->first();
+            $this->page = $table->pages()->where('route', 'like', '%.form')->get()->first();
         }
         if (!$this->page) {
             return;
