@@ -23,7 +23,7 @@ abstract class BaseComponent extends Component
 {
     public ?BaseModel $model;
     public array $values = [];
-    public ModuleEntityPageModel $page;
+    public ?ModuleEntityPageModel $page;
     protected $visible_rows;
     protected $listeners = ['refresh' => '$refresh'];
 
@@ -34,7 +34,10 @@ abstract class BaseComponent extends Component
         } else {
             /**@var ModuleTableModel $table */
             $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-            $this->page = $table->pages()->where('route', 'like', '%.form')->get()->first();
+            $this->page = $table->pages()->where('route', 'like', '%.form')->ddRawSql()->get()->first();
+        }
+        if (!$this->page) {
+            return;
         }
         $fn = fn($value) => toBRL($value);
         $this->transformValues($fn);
@@ -67,8 +70,12 @@ abstract class BaseComponent extends Component
 
     public function elements(): Collection|array
     {
+        if (!$this->page) {
+            Toastr::instance($this)->error("This page does not have a structure")->dispatch();
+            return [];
+        }
         /**@var ViewPageStructureModel $structure */
-        $structure = $this->page->structures()->whereNotNull('active')->first();
+        $structure = $this->page?->structures()->whereNotNull('active')->first();
         $cache_key = 'structure.' . $structure->id . '.elements';
         return cache()->remember($cache_key, 3600, function () use ($structure) {
             $elements = $structure->elements()->with(['allChildren', 'properties'])->get()->filter(function (ElementModel $e) {
