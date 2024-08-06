@@ -64,6 +64,8 @@ abstract class BaseMigration extends Migration
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
         } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::TEXT->value) {
             $t = $table->text($attributeEntity->name);
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::LONGTEXT->value) {
+            $t = $table->longText($attributeEntity->name);
         } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::TIME->value) {
             $t = $table->time($attributeEntity->name);
         } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::TIMESTAMP->value) {
