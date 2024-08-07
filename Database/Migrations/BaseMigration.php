@@ -6,7 +6,6 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\Facades\Schema;
-use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\Project\Models\ProjectEntityAttributeModel;
 use Modules\Project\Models\ProjectModuleEntityDBModel;
@@ -16,7 +15,7 @@ abstract class BaseMigration extends Migration
     public function baseUp(ProjectModuleEntityDBModel $entity, \Closure $fn = null): void
     {
         Schema::create($entity->name, function (Blueprint $table) use ($entity) {
-            $attributes = $entity->entityAttributes()->orderBy('id')->get()->all();
+            $attributes = $entity->entityAttributes()->with('relationship.secondModelEntity')->orderBy('id')->get()->all();
             foreach ($attributes as $attribute) {
                 $this->createAttribute($attribute, $table);
             }
@@ -91,7 +90,6 @@ abstract class BaseMigration extends Migration
             }
             if (count($attributeEntity->relationship) > 0) {
                 foreach ($attributeEntity->relationship as $relation) {
-                    /**@var BaseModel $model */
                     $t = $table->foreignId($attributeEntity->name);
                     $fk = $t->unsigned()->references('id')->on($relation->secondModelEntity->name);
                     if (!isset($relation->on_update) || $relation->on_update == 'restrict') {
