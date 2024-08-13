@@ -42,9 +42,8 @@ abstract class BaseLivewireForm extends Component
             throw $exception;
         } catch (\Exception $exception) {
             DB::rollBack();
-            if (config('app.env') == 'local') {
-                throw $exception;
-            }
+            throw_if(config('app.env') == 'local', $exception);
+
             Toastr::instance($this)->error('Não foi possível salvar o item. Tente novamente mais tarde');
         }
     }
