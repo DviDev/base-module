@@ -38,14 +38,14 @@ abstract class BaseLivewireForm extends Component
             DB::commit();
             Toastr::instance($this)->success('Item salvo');
         } catch (ValidationException $exception) {
-            Toastr::instance($this)->error($exception->getMessage())->dispatch();
+            Toastr::instance($this)->error($exception->getMessage());
             throw $exception;
         } catch (\Exception $exception) {
             DB::rollBack();
             if (config('app.env') == 'local') {
                 throw $exception;
             }
-            Toastr::instance($this)->error('Não foi possível salvar o item. Tente novamente mais tarde')->dispatch();
+            Toastr::instance($this)->error('Não foi possível salvar o item. Tente novamente mais tarde');
         }
     }
 

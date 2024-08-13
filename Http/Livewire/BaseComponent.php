@@ -71,7 +71,7 @@ abstract class BaseComponent extends Component
     public function elements(): Collection|array
     {
         if (!$this->page) {
-            Toastr::instance($this)->error("This page does not have a structure")->dispatch();
+            Toastr::instance($this)->error("This page does not have a structure");
             return [];
         }
         /**@var ViewPageStructureModel $structure */
@@ -135,13 +135,13 @@ abstract class BaseComponent extends Component
         } catch (ValidationException $exception) {
             $fn = fn($value) => toBRL($value);
             $this->transformValues($fn);
-            Toastr::instance($this)->error($exception->getMessage())->dispatch();
+            Toastr::instance($this)->error($exception->getMessage());
             throw $exception;
         } catch (Exception $exception) {
             if (config('app.env') == 'local') {
                 throw $exception;
             }
-            Toastr::instance($this)->error('Não foi possível salvar o item')->dispatch();
+            Toastr::instance($this)->error('Não foi possível salvar o item');
         }
     }
 
@@ -209,7 +209,7 @@ abstract class BaseComponent extends Component
             Toastr::instance($this)->success('Item removido');
             $this->redirect('/');
         } catch (Exception $exception) {
-            Toastr::instance($this)->error('O Item não pôde ser removido')->dispatch();
+            Toastr::instance($this)->error('O Item não pôde ser removido');
             throw $exception;
         }
     }
