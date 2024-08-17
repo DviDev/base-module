@@ -120,6 +120,9 @@ abstract class BaseMigration extends Migration
         if ($attributeEntity->unique) {
             $t->unique();
         }
+        if ($attributeEntity->index) {
+            $t->index();
+        }
         $t->default($attributeEntity->default)->nullable(!$attributeEntity->required)->comment($attributeEntity->comments);
     }
 
