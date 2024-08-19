@@ -71,7 +71,7 @@ abstract class BaseComponent extends Component
     public function elements(): Collection|array
     {
         if (!$this->page) {
-            Toastr::instance($this)->error("This page does not have a structure");
+            Toastr::instance($this)->error(__("view::element.This page does not have a structure"));
             return [];
         }
         /**@var ViewPageStructureModel $structure */
