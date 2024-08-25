@@ -35,7 +35,8 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
         $this->registerCommands();
 
         //real time check many queries ex. in post list using post->author suggest use post::with('user')->all()
-        Model::preventLazyLoading($this->app->isProduction());
+//        Model::preventLazyLoading($this->app->isProduction());
+        Model::preventLazyLoading();
     }
 
     /**
