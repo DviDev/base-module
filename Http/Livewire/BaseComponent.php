@@ -21,6 +21,7 @@ use Modules\View\Models\ViewPageStructureModel;
 
 abstract class BaseComponent extends Component
 {
+    public $redirect_after_save = true;
     public ?BaseModel $model;
     public array $values = [];
     public ?ModuleEntityPageModel $page;
@@ -85,7 +86,7 @@ abstract class BaseComponent extends Component
             });
             $children = collect($elements_);
             foreach ($elements_ as $element) {
-                $element_children = $element->allChildren->filter(function (ElementModel $e) {
+                $element->allChildren->filter(function (ElementModel $e) {
                     return !$e->attribute || !in_array($e->attribute?->name, [
                             'id', 'created_at', 'updated_at', 'deleted_at'
                         ]);
@@ -123,6 +124,10 @@ abstract class BaseComponent extends Component
             if ($this->model->wasRecentlyCreated) {
                 session()->flash('success', str(__('base.the data has been saved'))->ucfirst());
                 session()->flash('only_toastr');
+
+                if (!$this->redirect_after_save) {
+                    return;
+                }
                 $route = route($this->page->route, $this->model->id);
                 $this->redirect($route, navigate: true);
                 return;
