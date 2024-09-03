@@ -35,7 +35,7 @@
                                         builder
                                     </a>--}}
                                     @if(auth()->user()->type->enum() == UserType::DEVELOPER)
-                                        <a href="{{route('builder.page', $page->id)}}"
+                                        <a href="{{route('builder.page', $page->id)}}" target="_blank"
                                            class="bg-gray-100 text-blue-500 hover:text-blue-700 border border-gray-200 rounded-l px-2 py-1">
                                             <i class="fas fa-cogs"></i>
                                             builder
