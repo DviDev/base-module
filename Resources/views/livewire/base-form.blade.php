@@ -20,8 +20,8 @@
             <form wire:submit="save">
                 {{--                <x-dvui::card :attr="$element->properties->pluck('value', 'name')->all()">--}}
                 <x-lte::card>
-                    <x-lte::card.header>
-                        <div class="flex grow justify-between pb-2">
+                    <x-lte::card.header :navs="false">
+                        <div class="card-header flex grow py-2 justify-between">
                             <div class="grow flex ml-2">
                                 <span class="font-bold my-auto text-gray-700">
                                     {{$element->properties->pluck('value', 'name')->get('title')}}
