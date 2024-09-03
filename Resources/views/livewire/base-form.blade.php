@@ -20,8 +20,8 @@
             <form wire:submit="save">
                 {{--                <x-dvui::card :attr="$element->properties->pluck('value', 'name')->all()">--}}
                 <x-lte::card>
-                    <x-lte::card.header>
-                        <div class="flex grow justify-between pb-2">
+                    <x-lte::card.header :navs="false">
+                        <div class="card-header flex grow py-2 justify-between">
                             <div class="grow flex ml-2">
                                 <span class="font-bold my-auto text-gray-700">
                                     {{$element->properties->pluck('value', 'name')->get('title')}}
@@ -35,7 +35,7 @@
                                         builder
                                     </a>--}}
                                     @if(auth()->user()->type->enum() == UserType::DEVELOPER)
-                                        <a href="{{route('builder.page', $page->id)}}"
+                                        <a href="{{route('builder.page', $page->id)}}" target="_blank"
                                            class="bg-gray-100 text-blue-500 hover:text-blue-700 border border-gray-200 rounded-l px-2 py-1">
                                             <i class="fas fa-cogs"></i>
                                             builder
