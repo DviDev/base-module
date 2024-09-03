@@ -59,7 +59,7 @@ abstract class BaseComponent extends Component
         $structure = $this->page->structures()->whereNotNull('active')->first();
         $attributes = $structure->elements()->whereNotNull('attribute_id')->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
             ->whereHas('attribute', function (Builder $query) {
-                $query->where('type', 4);
+                $query->where('type', ModuleTableAttributeTypeEnum::DECIMAL->value);
             })
             ->pluck('attribute.name')->all();
         foreach ($attributes as $attribute) {
@@ -80,20 +80,16 @@ abstract class BaseComponent extends Component
         $structure = $this->page?->structures()->whereNotNull('active')->first();
         $cache_key = 'structure.' . $structure->id . '.elements';
         return cache()->remember($cache_key, 3600, function () use ($structure) {
-            $elements = $structure->elements()->with(['allChildren', 'properties'])->get()->filter(function (ElementModel $e) {
+            $elements_ = $structure->elements()->with(['allChildren.attribute', 'properties'])->get()->filter(function (ElementModel $e) {
                 return empty($e->attribute) || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
             });
-            $children = collect($elements);
-            foreach ($elements as $element) {
+            $children = collect($elements_);
+            foreach ($elements_ as $element) {
                 $element_children = $element->allChildren->filter(function (ElementModel $e) {
-                    return !$e->attribute || !in_array($e->attribute->name, [
-                            'id',
-                            'created_at',
-                            'updated_at',
-                            'deleted_at'
+                    return !$e->attribute || !in_array($e->attribute?->name, [
+                            'id', 'created_at', 'updated_at', 'deleted_at'
                         ]);
-                })->all();
-                $children->merge($element_children);
+                })->each(fn($item) => $children->push($item));
             }
             return $children;
         });
@@ -182,7 +178,7 @@ abstract class BaseComponent extends Component
             $items = $model_class::query();
             if ($projectAttribute->reference_view_name) {
                 $str = str($projectAttribute->reference_view_name);
-                $entity = $str->explode(':')->shift();
+                $entity = $str->explode(':')->shift();//Todo check
 //                $items->with($entity);
             }
             return $items->paginate();
