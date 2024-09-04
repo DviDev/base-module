@@ -18,7 +18,6 @@
     @foreach($this->elements() as $element)
         @if($element->type() == ViewStructureComponentType::page_card)
             <form wire:submit="save">
-                {{--                <x-dvui::card :attr="$element->properties->pluck('value', 'name')->all()">--}}
                 <x-lte::card>
                     <x-lte::card.header :navs="false">
                         <div class="card-header flex grow py-2 justify-between">
@@ -29,11 +28,6 @@
                             </div>
                             @if(Builder::can()::builder(Actions::view) || config('app.env') == 'local')
                                 <div class="flex justify-end my-auto">
-                                    {{--<a href="{{route('builder.page', $page->id)}}"
-                                       class="bg-blue-400 hover:bg-blue-500 text-white rounded-l px-2 py-1">
-                                        <i class="fas fa-cogs"></i>
-                                        builder
-                                    </a>--}}
                                     @if(auth()->user()->type->enum() == UserType::DEVELOPER)
                                         <a href="{{route('builder.page', $page->id)}}" target="_blank"
                                            class="bg-gray-100 text-blue-500 hover:text-blue-700 border border-gray-200 rounded-l px-2 py-1">
@@ -66,7 +60,7 @@
                     <x-lte::card.body>
                         @foreach($element->allChildren as $child)
                             <x-view::elements :child="$child" :model="$model"/>
-                            {{--                            <livewire:view::form.elements :child="$child" :model="$model" wire:key="{{$child->id}}"/>--}}
+                            {{--<livewire:view::form.elements :child="$child" :model="$model" wire:key="{{$child->id}}"/>--}}
                         @endforeach
                     </x-lte::card.body>
                     @php
@@ -87,7 +81,6 @@
                         </div>
                     </x-lte::card.footer>
                 </x-lte::card>
-                {{--                </x-dvui::card>--}}
             </form>
         @endif
     @endforeach
