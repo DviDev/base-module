@@ -81,7 +81,7 @@ abstract class BaseComponent extends Component
             return [];
         }
         /**@var ViewPageStructureModel $structure */
-        $structure = $this->page?->structures()->whereNotNull('active')->first();
+        $structure = $this->page?->firstActiveStructure();
         $cache_key = 'structure.' . $structure->id . '.elements';
         return cache()->remember($cache_key, 3600, function () use ($structure) {
             $elements_ = $structure->elements()->with(['allChildren.attribute', 'properties'])->get()->filter(function (ElementModel $e) {
