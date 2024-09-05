@@ -33,6 +33,9 @@ abstract class BaseComponent extends Component
         if (\Request::routeIs('view.entity.page.form')) {
             $this->page = $this->model;
         } else {
+            if (!$this->model) {
+                throw new Exception(__('Model not found'));
+            }
             /**@var ModuleTableModel $table */
             $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
             $this->page = $table->pages()
