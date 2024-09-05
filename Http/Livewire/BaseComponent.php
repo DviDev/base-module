@@ -203,9 +203,11 @@ abstract class BaseComponent extends Component
 
     public function updateStructureCache(): void
     {
-        $structure = $this->page->structures()->whereNotNull('active')->first();
-        $cache_key = 'structure.' . $structure->id . '.elements';
-        cache()->delete($cache_key);
+        $structure = $this->page->firstActiveStructure();
+
+        cache()->delete('structure.' . $structure->id . '.elements');
+        Toastr::instance($this)->success('O cache foi atualizado');
+        $this->dispatch('refresh')->self();
     }
 
     public function delete()
