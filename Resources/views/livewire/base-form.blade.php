@@ -67,16 +67,21 @@
                         /**@var ProjectModuleEntityDBModel $entity*/
                         $entity = $element->structure()->with('page.entity')->first()->page->entity;
                         /**@var ProjectModuleEntityActionModel $save*/
-                        $save = $entity->actions()->where('name', 'save')->get()->first();
-                        $delete = $entity->actions()->where('name', 'delete')->get()->first();
+
+                        $save = $entity->actions()->firstWhere('name', 'save');
+                        $delete = $entity->actions()->firstWhere('name', 'delete');
                     @endphp
                     <x-lte::card.footer>
-                        <div class="flex justify-between">
+                        <div class="flex justify-between items-center">
                             @if($save->checkConditions())
-                                <x-dvui::button type="submit" info rounded label="Salvar"/>
+                                <x-project::module.entity.action.conditions-link :action="$save">
+                                    <x-dvui::button type="submit" info rounded label="Salvar"/>
+                                </x-project::module.entity.action.conditions-link>
                             @endif
                             @if($delete->checkConditions())
-                                <x-dvui::button danger rounded label="Remover" confirm action="delete"/>
+                                <:x-project::module.entity.action.conditions-link :action="$delete">
+                                    <x-dvui::button danger rounded label="Remover" confirm action="delete"/>
+                                </:x-project::module.entity.action.conditions-link>
                             @endif
                         </div>
                     </x-lte::card.footer>
