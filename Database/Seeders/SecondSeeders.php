@@ -11,7 +11,11 @@ class SecondSeeders extends BaseSeeder
         $modules = collect(Module::allEnabled());
         /**@var \Nwidart\Modules\Laravel\Module $module */
         foreach ($modules as $module) {
-            if (in_array($module->getName(), ['Base', 'App', 'DBMap', 'Seguro'])) {
+            if (in_array($module->getName(), [
+                'Base',
+                'App',
+                'DBMap',
+            ])) {
                 continue;
             }
             /*$scan_seeder_class = 'Modules\\' . $module->getName() . '\\Database\\Seeders\\Scan' . $module->getName() . 'ModuleSeeder';

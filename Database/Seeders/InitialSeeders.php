@@ -3,13 +3,14 @@
 namespace Modules\Base\Database\Seeders;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
-use Modules\App\Database\Seeders\AppDatabaseSeeder;
-use Modules\DBMap\Database\Seeders\DBMapDatabaseSeeder;
-use Modules\Permission\Database\Seeders\PermissionTeamsTableSeeder;
+use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
+use Modules\Base\Events\CallAppDatabaseSeederEvent;
+use Modules\Base\Events\CallPermissionDatabaseSeederEvent;
+use Modules\Base\Events\SeederFinishedEvent;
+use Modules\DBMap\Events\ScanTableEvent;
 use Modules\Project\Models\ElementTypeModel;
-use Modules\View\Database\Seeders\ViewDatabaseSeeder;
-use Modules\Workspace\Database\Seeders\WorkspaceTableSeeder;
 use Nwidart\Modules\Facades\Module;
 
 class InitialSeeders extends BaseSeeder
@@ -25,10 +26,6 @@ class InitialSeeders extends BaseSeeder
 
         $modules = $modules ?: collect(Module::allEnabled());
 
-        if ($modules->contains('Project')) {
-            $this->createFirstProjectElementTypes();
-        }
-
         $this->seed($modules);
     }
 
@@ -39,22 +36,45 @@ class InitialSeeders extends BaseSeeder
         ElementTypeModel::query()->create(['name' => 'attribute']);
     }
 
-    protected function seed($modules): void
+    protected function seed(Collection $modules): void
     {
+//        $this->call(ProjectInitialDataSeeder::class);
+        event(new BaseSeederInitialIndependentDataEvent($this->command));
+
         if ($modules->contains('DBMap')) {
-            $this->call(DBMapDatabaseSeeder::class);
+            event(new ScanTableEvent($this->command));
+//            event(new CallDBMapDatabaseSeederEvent());
+            $modules = $modules->except('DBMap');
         }
         if ($modules->contains('View')) {
-            $this->call(ViewDatabaseSeeder::class);
+//            event(new CallViewDatabaseSeederEvent());
+            $modules = $modules->except('View');
         }
         if ($modules->contains('App')) {
-            $this->call(AppDatabaseSeeder::class);
+            event(new CallAppDatabaseSeederEvent);
+            $modules = $modules->except('App');
         }
         if ($modules->contains('Permission')) {
-            $this->call(PermissionTeamsTableSeeder::class);
+            event(new CallPermissionDatabaseSeederEvent());
+            $modules = $modules->except('Permission');
         }
-        if ($modules->contains('Workspace')) {
-            $this->call(WorkspaceTableSeeder::class);
+
+        /**@var \Nwidart\Modules\Laravel\Module $module */
+        foreach ($modules as $module) {
+            if (in_array($module->getName(), [
+                'Base',
+                'App',
+                'DBMap',
+            ])) {
+                continue;
+            }
+            /*$scan_seeder_class = 'Modules\\' . $module->getName() . '\\Database\\Seeders\\Scan' . $module->getName() . 'ModuleSeeder';
+            if (File::exists(base_path($scan_seeder_class))) {
+                $this->call($scan_seeder_class);
+            }*/
+
+            $this->call('Modules\\' . $module->getName() . '\\Database\\Seeders\\' . $module->getName() . 'DatabaseSeeder');
         }
+        event(new SeederFinishedEvent($this->command));
     }
 }

@@ -20,15 +20,16 @@ class BaseDatabaseSeeder extends BaseSeeder
 
         //... some code here
 
+        $modules = $modules->except('Base');
         $this->call(InitialSeeders::class, parameters: ['modules' => $modules]);
+//        $this->call(SecondSeeders::class);
 
-        try {
-            $this->call(SecondSeeders::class);
+        $this->commandInfo(__CLASS__, '🟢 done');
+        /*try {
 
-            $this->commandInfo(__CLASS__, '🟢 done');
         } catch (Exception $exception) {
             $this->command->error('🤖 Error when seeding, try again.');
             throw $exception;
-        }
+        }*/
     }
 }
