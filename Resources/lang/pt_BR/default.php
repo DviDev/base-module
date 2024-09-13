@@ -1,4 +1,5 @@
 <?php
 return [
-    'actions' => 'Ações'
+    'actions' => 'Ações',
+    'visible only in local environment' => 'visível apenas em ambiente local'
 ];

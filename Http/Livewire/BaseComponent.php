@@ -33,6 +33,9 @@ abstract class BaseComponent extends Component
         if (\Request::routeIs('view.entity.page.form')) {
             $this->page = $this->model;
         } else {
+            if (!$this->model) {
+                throw new Exception(__('Model not found'));
+            }
             /**@var ModuleTableModel $table */
             $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
             $this->page = $table->pages()
@@ -78,7 +81,7 @@ abstract class BaseComponent extends Component
             return [];
         }
         /**@var ViewPageStructureModel $structure */
-        $structure = $this->page?->structures()->whereNotNull('active')->first();
+        $structure = $this->page?->firstActiveStructure();
         $cache_key = 'structure.' . $structure->id . '.elements';
         return cache()->remember($cache_key, 3600, function () use ($structure) {
             $elements_ = $structure->elements()->with(['allChildren.attribute', 'properties'])->get()->filter(function (ElementModel $e) {
@@ -200,9 +203,11 @@ abstract class BaseComponent extends Component
 
     public function updateStructureCache(): void
     {
-        $structure = $this->page->structures()->whereNotNull('active')->first();
-        $cache_key = 'structure.' . $structure->id . '.elements';
-        cache()->delete($cache_key);
+        $structure = $this->page->firstActiveStructure();
+
+        cache()->delete('structure.' . $structure->id . '.elements');
+        Toastr::instance($this)->success('O cache foi atualizado');
+        $this->dispatch('refresh')->self();
     }
 
     public function delete()
