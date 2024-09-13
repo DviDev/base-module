@@ -9,7 +9,6 @@ use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
 use Modules\Base\Events\DatabaseSeederEvent;
 use Modules\Base\Events\SeederFinishedEvent;
 use Modules\DBMap\Events\ScanTableEvent;
-use Modules\Project\Models\ElementTypeModel;
 use Nwidart\Modules\Facades\Module;
 
 class InitialSeeders extends BaseSeeder
@@ -26,13 +25,6 @@ class InitialSeeders extends BaseSeeder
         $modules = $modules ?: collect(Module::allEnabled());
 
         $this->seed($modules);
-    }
-
-    protected function createFirstProjectElementTypes(): void
-    {
-        $this->command->info('Creating Element Type Model');
-        ElementTypeModel::query()->create(['name' => 'user type']);
-        ElementTypeModel::query()->create(['name' => 'attribute']);
     }
 
     protected function seed(Collection $modules): void
