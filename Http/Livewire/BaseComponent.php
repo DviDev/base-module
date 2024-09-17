@@ -15,6 +15,7 @@ use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\DBMap\Models\ModuleTableModel;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 use Modules\Project\Models\ProjectEntityAttributeModel;
+use Modules\Project\Models\ProjectModuleEntityDBModel;
 use Modules\View\Models\ElementModel;
 use Modules\View\Models\ModuleEntityPageModel;
 use Modules\View\Models\ViewPageStructureModel;
@@ -82,10 +83,14 @@ abstract class BaseComponent extends Component
         }
         /**@var ViewPageStructureModel $structure */
         $structure = $this->page?->firstActiveStructure();
-        $cache_key = 'structure.' . $structure->id . '.elements';
+        $cache_key = $this->elementsCacheKey($structure);
         return cache()->remember($cache_key, 3600, function () use ($structure) {
-            $elements_ = $structure->elements()->with(['allChildren.attribute', 'properties'])->get()->filter(function (ElementModel $e) {
-                return empty($e->attribute) || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
+            $elements_ = $structure->elements()
+                ->with(['attribute'])
+                ->with('allChildren.attribute')
+                ->with('properties')
+                ->get()->filter(function (ElementModel $e) {
+                    return empty($e->attribute) || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
             });
             $children = collect($elements_);
             foreach ($elements_ as $element) {
@@ -162,13 +167,14 @@ abstract class BaseComponent extends Component
     public function getReferencedTableData(ElementModel $element, ProjectEntityAttributeModel $projectAttribute): array|LengthAwarePaginator
     {
         if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $element->attribute->items) {
-            return str($element->attribute->items)->explode(',')->all();
+            return $element->attribute->items->pluck('name')->all();
         }
         $columns = ['id'];
-        $referenced_table_name = $element->attribute->referenced_table_name;
-        $table = ModuleTableModel::query()->where('name', $referenced_table_name)->first();
-        $name_exists = $table->attributes()->where('name', 'name')->exists();
-        $nome_exists = $table->attributes()->where('name', 'name')->exists();
+
+        $referenced_table_name = $element->structure->page->entity->name;
+        $entity = ProjectModuleEntityDBModel::query()->where('name', $referenced_table_name)->first();
+        $name_exists = $entity->entityAttributes()->where('name', 'name')->exists();
+        $nome_exists = $entity->entityAttributes()->where('name', 'nome')->exists();
         if ($name_exists) {
             $columns[] = 'name as value';
         } elseif ($nome_exists) {
@@ -176,7 +182,8 @@ abstract class BaseComponent extends Component
         } else {
             $columns[] = 'id as value';
         }
-        $entity_name = str($table->entityObj->title);
+
+        $entity_name = str($element->structure->page->entity->title);
         $module = $entity_name->explode(' ')->first();
         $entity_name = $entity_name->explode(' ')->filter(fn($i) => $i !== $module)->join('\\');
         $entity_name = str($entity_name)->singular()->value();
@@ -205,7 +212,7 @@ abstract class BaseComponent extends Component
     {
         $structure = $this->page->firstActiveStructure();
 
-        cache()->delete('structure.' . $structure->id . '.elements');
+        cache()->delete($this->elementsCacheKey($structure));
         Toastr::instance($this)->success('O cache foi atualizado');
         $this->dispatch('refresh')->self();
     }
@@ -274,5 +281,12 @@ abstract class BaseComponent extends Component
         return 'id';
     }
 
-
+    /**
+     * @param ViewPageStructureModel $structure
+     * @return string
+     */
+    protected function elementsCacheKey(ViewPageStructureModel $structure): string
+    {
+        return 'structure.' . $structure->id . '.allChildren.elements';
+    }
 }
