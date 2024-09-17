@@ -79,9 +79,9 @@
                                 </x-project::module.entity.action.conditions-link>
                             @endif
                             @if($delete->checkConditions())
-                                <:x-project::module.entity.action.conditions-link :action="$delete">
+                                    <x-project::module.entity.action.conditions-link :action="$delete">
                                     <x-dvui::button danger rounded label="Remover" confirm action="delete"/>
-                                </:x-project::module.entity.action.conditions-link>
+                                    </x-project::module.entity.action.conditions-link>
                             @endif
                         </div>
                     </x-lte::card.footer>
