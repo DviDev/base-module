@@ -62,7 +62,7 @@
                                         </div>
                                     @if($model->id)
                                         <a href="{{route($page->route)}}" wire:navigate title="{{__('base.new')}}"
-                                           class="bg-blue-500 hover:bg-blue-600 text-white rounded-r px-2 py-1">
+                                            @class(["bg-gray-100 hover:bg-blue-600 hover:text-white border border-l-0 border-gray-200 hover:border-blue-600 rounded-r px-2 py-1"])>
                                             <x-dvui::icon.plus/>
                                         </a>
                                     @endif
