@@ -42,11 +42,24 @@
                                             "rounded-l" => !auth()->user()->type->enum() == UserType::DEVELOPER,
                                              "text-blue-500 hover:text-blue-700 px-2 py-1 cursor-pointer",
                                             "flex space-x-2", "rounded-r" => !$model->id,
-                                        ]) wire:click="updateStructureCache">
-                                        <i class="fas fa-sync my-auto" wire:loading.class="animate-spin"
-                                           wire:target="updateStructureCache"></i>
+                                        ]) wire:click="updateStructureCache" title="{{__('update cache')}}">
+                                        <x-dvui::icon.trash s4 fill class="my-auto font-bold"
+                                                            wire:loading.class="animate-spin text-red-500"
+                                                            wire:target="updateStructureCache"/>
                                         <span class="my-auto">cache</span>
                                     </div>
+                                        <div
+                                            @class([
+                                                "bg-gray-100 border border-gray-200",
+                                                "border-l-0" => auth()->user()->type->enum() == UserType::DEVELOPER,
+                                                "rounded-l" => !auth()->user()->type->enum() == UserType::DEVELOPER,
+                                                 "text-blue-500 hover:text-blue-700 px-2 py-1 cursor-pointer",
+                                                "flex space-x-2", "rounded-r" => !$model->id,
+                                            ]) wire:click="updateComponent" title="{{__('update page')}}">
+                                            <i class="fas fa-sync my-auto" wire:loading.class="animate-spin"
+                                               wire:target="updateComponent"></i>
+                                            <span class="my-auto">refresh</span>
+                                        </div>
                                     @if($model->id)
                                         <a href="{{route($page->route)}}" wire:navigate title="{{__('base.new')}}"
                                            class="bg-blue-500 hover:bg-blue-600 text-white rounded-r px-2 py-1">

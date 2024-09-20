@@ -217,6 +217,11 @@ abstract class BaseComponent extends Component
         $this->dispatch('refresh')->self();
     }
 
+    public function updateComponent(): void
+    {
+        $this->dispatch('refresh')->self();
+    }
+
     public function delete()
     {
         try {
