@@ -84,7 +84,7 @@ abstract class BaseComponent extends Component
         /**@var ViewPageStructureModel $structure */
         $structure = $this->page?->firstActiveStructure();
         $cache_key = $this->elementsCacheKey($structure);
-        return cache()->remember($cache_key, 3600, function () use ($structure) {
+        return cache()->rememberForever($cache_key, function () use ($structure) {
             $elements_ = $structure->elements()
                 ->with(['attribute'])
                 ->with('allChildren.attribute')
