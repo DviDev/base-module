@@ -50,9 +50,10 @@ abstract class BaseComponent extends Component
         $this->transformValues($fn);
         $this->values['dates'] = [];
         foreach ($this->model->attributesToArray() as $attribute => $value) {
-            if (is_a($this->model->{$attribute}, Carbon::class)) {
+            $prop = $this->model->{$attribute};
+            if (is_a($prop, Carbon::class)) {
                 /**@var Carbon $value */
-                $value = $this->model->{$attribute};
+                $value = $prop;
                 $this->values['dates'][$attribute] = ['date' => $value->format('Y-m-d'), 'time' => $value->format('H:i')];
             }
         }
