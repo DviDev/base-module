@@ -128,6 +128,10 @@ abstract class BaseComponent extends Component
             foreach ($this->values['dates'] as $property => $values) {
                 $this->model->{$property} = $values['date'] . ' ' . $values['time'];
             }
+            foreach ($this->model->attributesToArray() as $property => $values) {
+                $trim = trim($values);
+                $this->model->{$property} = empty($trim) ? null : $trim;
+            }
             $this->model->save();
             if ($this->model->wasRecentlyCreated) {
                 session()->flash('success', str(__('base.the data has been saved'))->ucfirst());
