@@ -44,8 +44,12 @@
                                             "flex space-x-2", "rounded-r" => !$model->id,
                                         ]) wire:click="updateStructureCache" title="{{__('update cache')}}">
                                         <x-dvui::icon.trash s4 fill class="my-auto font-bold"
-                                                            wire:loading.class="animate-spin text-red-500"
+                                                            wire:loading.class="hidden"
                                                             wire:target="updateStructureCache"/>
+                                        <i class="fas fa-sync my-auto"
+                                           wire:loading
+                                           wire:loading.class="animate-spin"
+                                           wire:target="updateStructureCache"></i>
                                         <span class="my-auto">cache</span>
                                     </div>
                                         <div
