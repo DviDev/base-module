@@ -32,7 +32,9 @@ abstract class BaseFactory extends Factory
     public static function getFakeDataViaViewStructureElementType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
     {
         return match ($type) {
-            ModuleTableAttributeTypeEnum::DATETIME, ModuleTableAttributeTypeEnum::DATE, ModuleTableAttributeTypeEnum::TIME => now(),
+            ModuleTableAttributeTypeEnum::DATETIME => now()->toDateTimeLocalString(),
+            ModuleTableAttributeTypeEnum::DATE => now()->toDateString(),
+            ModuleTableAttributeTypeEnum::TIME => now()->toTimeString(),
             ModuleTableAttributeTypeEnum::TEXT => $value_default ?? fake()->sentence(),
             ModuleTableAttributeTypeEnum::VARCHAR => $value_default ?? self::getFakeValue($key, $length),
             ModuleTableAttributeTypeEnum::BOOLEAN => $value_default ?? fake()->boolean(),
@@ -290,7 +292,9 @@ abstract class BaseFactory extends Factory
     public static function getFakeDataViaTableAttributeType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
     {
         return match ($type) {
-            ViewStructureComponentType::datetime, ViewStructureComponentType::date, ViewStructureComponentType::time => now(),
+            ViewStructureComponentType::datetime => now()->toDateTimeLocalString(),
+            ViewStructureComponentType::date => now()->toDateString(),
+            ViewStructureComponentType::time => now()->toTimeString(),
             ViewStructureComponentType::text_multiline => $value_default ?? fake()->sentence(),
             ViewStructureComponentType::text => $value_default ?? self::getFakeValue($key, $length),
             ViewStructureComponentType::checkbox_unique => $value_default ?? fake()->boolean(),

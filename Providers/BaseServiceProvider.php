@@ -2,8 +2,10 @@
 
 namespace Modules\Base\Providers;
 
+use App\Spotlight\GotoCommand;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+use LivewireUI\Spotlight\Spotlight;
 use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 
@@ -35,8 +37,9 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
         $this->registerCommands();
 
         //real time check many queries ex. in post list using post->author suggest use post::with('user')->all()
-//        Model::preventLazyLoading($this->app->isProduction());
-        Model::preventLazyLoading();
+        Model::preventLazyLoading(!$this->app->isProduction());
+
+        Spotlight::registerCommandIf(config('base.use.spotlight'), GotoCommand::class);
     }
 
     /**

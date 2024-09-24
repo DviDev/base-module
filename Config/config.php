@@ -8,5 +8,8 @@ return [
     'cache_keys' => [
         'project_app_name' => 'seeder::project::' . config('app.name'),
         'user_develop' => 'seeder::user::developer',
+    ],
+    'use' => [
+        'spotlight' => env('USE_SPOTLIGHT', config('app.env') == 'local')
     ]
 ];

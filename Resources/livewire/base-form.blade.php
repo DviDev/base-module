@@ -27,7 +27,6 @@
                     <div class="flex">
                         @foreach($row->columns as $columnD)
                             @php
-                                dd($columnD);
                                 $component_ = $columnD->components->first();
                             @endphp
 
