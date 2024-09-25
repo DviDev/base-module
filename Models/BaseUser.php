@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
 use Modules\App\Entities\User\UserEntityModel;
 use Modules\App\Entities\User\UserProps;
 use Modules\App\Models\UserTypeModel;
@@ -23,7 +22,6 @@ use Modules\Base\Contracts\HasFactory;
  */
 abstract class BaseUser extends Authenticatable implements BaseModelInterface
 {
-    use HasApiTokens;
     use HasFactory;
     use Notifiable;
     use BaseModelImplementation;
