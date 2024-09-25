@@ -177,12 +177,7 @@ abstract class BaseFactory extends Factory
             $attributes = ['type_id' => $defult];
         }
 
-        //Todo refatorar
-        $factory = $model_class::factory();
-        $arr = !empty($attributes) ? $attributes : null;
-        $model = $factory->make($arr);
-        $model->save();
-        return $model->id;
+        return $model_class::factory()->create($attributes)->id;
     }
 
     protected function getTableModels(): array
