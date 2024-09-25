@@ -1,6 +1,6 @@
 {
     "name": "dvi-dev/base-module",
-    "description": "laravel base module",
+    "description": "laravel base module. Support for another dvi modules",
     "type": "laravel-module",
     "authors": [
         {
