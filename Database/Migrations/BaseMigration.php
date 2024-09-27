@@ -6,7 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
 use Illuminate\Support\Facades\Schema;
-use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
+use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum as AttributeTypeEnum;
 use Modules\Project\Models\ProjectEntityAttributeModel;
 use Modules\Project\Models\ProjectModuleEntityDBModel;
 
@@ -36,38 +36,38 @@ abstract class BaseMigration extends Migration
 
     protected function createAttribute(ProjectEntityAttributeModel $attributeEntity, Blueprint $table): void
     {
-        if ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::char->value) {
+        if ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::char)) {
             $t = $table->char($attributeEntity->name, $attributeEntity->size);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::date->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::date)) {
             $t = $table->date($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::datetime->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::datetime)) {
             $t = $table->dateTime($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::decimal->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::decimal)) {
             $size = str($attributeEntity->size)->explode(',');
             $t = $table->decimal($attributeEntity->name, $size[0], $size[1]);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::double->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::double)) {
             $t = $table->double($attributeEntity->name, $attributeEntity->size);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::float->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::float)) {
             $size = str($attributeEntity->size)->explode(',');
             $t = $table->float($attributeEntity->name, $size[0], $size[1]);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::int->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::int)) {
             $t = $table->integer($attributeEntity->name, $attributeEntity->size);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::mediumtext->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::mediumtext)) {
             $t = $table->mediumText($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::smallint->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::smallint)) {
             $t = $table->smallInteger($attributeEntity->name);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::text->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::text)) {
             $t = $table->text($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::longtext->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::longtext)) {
             $t = $table->longText($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::time->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::time)) {
             $t = $table->time($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::timestamp->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::timestamp)) {
             $t = $table->timestamp($attributeEntity->name);
 
             if ($attributeEntity->use_current) {
@@ -76,14 +76,14 @@ abstract class BaseMigration extends Migration
             if ($attributeEntity->use_current_on_update) {
                 $t->useCurrentOnUpdate();
             }
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::tinyint->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::tinyint)) {
             $t = $table->tinyInteger($attributeEntity->name, $attributeEntity->size);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::varchar->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::varchar)) {
             $t = $table->string($attributeEntity->name, $attributeEntity->size);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::year->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::year)) {
             $t = $table->year($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::bigint->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::bigint)) {
             if ($attributeEntity->auto_increment) {
                 $table->id();
                 return;
@@ -107,15 +107,15 @@ abstract class BaseMigration extends Migration
                 $t = $table->bigInteger($attributeEntity->name);
                 $this->resolveUnsigned($t, $attributeEntity->unsigned);
             }
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::mediumint->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::mediumint)) {
             $t = $table->mediumInteger($attributeEntity->name);
             $this->resolveUnsigned($t, $attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::boolean->value) {
+        } elseif ($attributeEntity->type_id == AttributeTypeEnum::getId(AttributeTypeEnum::boolean)) {
             $t = $table->boolean($attributeEntity->name);
             $t->unsigned();
         }
         if (!isset($t)) {
-            dd('🤖 Missing '.ModuleTableAttributeTypeEnum::from($attributeEntity->type_id)->name.' type');
+            dd('🤖 Missing ' . AttributeTypeEnum::from($attributeEntity->type_id)->name . ' type');
         }
         if ($attributeEntity->unique) {
             $t->unique();

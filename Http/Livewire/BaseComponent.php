@@ -65,7 +65,7 @@ abstract class BaseComponent extends Component
         $structure = $this->page->structures()->whereNotNull('active')->first();
         $attributes = $structure->elements()->whereNotNull('attribute_id')->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
             ->whereHas('attribute', function (Builder $query) {
-                $query->where('type', ModuleTableAttributeTypeEnum::decimal->value);
+                $query->where('type', ModuleTableAttributeTypeEnum::getId(ModuleTableAttributeTypeEnum::decimal));
             })
             ->pluck('attribute.name')->all();
         foreach ($attributes as $attribute) {
