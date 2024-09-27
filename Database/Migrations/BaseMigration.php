@@ -42,32 +42,32 @@ abstract class BaseMigration extends Migration
             $t = $table->date($attributeEntity->name);
         } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::datetime->value) {
             $t = $table->dateTime($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::DECIMAL->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::decimal->value) {
             $size = str($attributeEntity->size)->explode(',');
             $t = $table->decimal($attributeEntity->name, $size[0], $size[1]);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::DOUBLE->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::double->value) {
             $t = $table->double($attributeEntity->name, $attributeEntity->size);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::FLOAT->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::float->value) {
             $size = str($attributeEntity->size)->explode(',');
             $t = $table->float($attributeEntity->name, $size[0], $size[1]);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::INT->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::int->value) {
             $t = $table->integer($attributeEntity->name, $attributeEntity->size);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::MEDIUMTEXT->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::mediumtext->value) {
             $t = $table->mediumText($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::SMALLINT->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::smallint->value) {
             $t = $table->smallInteger($attributeEntity->name);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::TEXT->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::text->value) {
             $t = $table->text($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::LONGTEXT->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::longtext->value) {
             $t = $table->longText($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::TIME->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::time->value) {
             $t = $table->time($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::TIMESTAMP->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::timestamp->value) {
             $t = $table->timestamp($attributeEntity->name);
 
             if ($attributeEntity->use_current) {
@@ -79,11 +79,11 @@ abstract class BaseMigration extends Migration
         } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::tinyint->value) {
             $t = $table->tinyInteger($attributeEntity->name, $attributeEntity->size);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::VARCHAR->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::varchar->value) {
             $t = $table->string($attributeEntity->name, $attributeEntity->size);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::YEAR->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::year->value) {
             $t = $table->year($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::BIGINT->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::bigint->value) {
             if ($attributeEntity->auto_increment) {
                 $table->id();
                 return;
@@ -107,10 +107,10 @@ abstract class BaseMigration extends Migration
                 $t = $table->bigInteger($attributeEntity->name);
                 $this->resolveUnsigned($t, $attributeEntity->unsigned);
             }
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::MEDIUMINT->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::mediumint->value) {
             $t = $table->mediumInteger($attributeEntity->name);
             $this->resolveUnsigned($t, $attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::BOOLEAN->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::boolean->value) {
             $t = $table->boolean($attributeEntity->name);
             $t->unsigned();
         }

@@ -65,7 +65,7 @@ abstract class BaseComponent extends Component
         $structure = $this->page->structures()->whereNotNull('active')->first();
         $attributes = $structure->elements()->whereNotNull('attribute_id')->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
             ->whereHas('attribute', function (Builder $query) {
-                $query->where('type', ModuleTableAttributeTypeEnum::DECIMAL->value);
+                $query->where('type', ModuleTableAttributeTypeEnum::decimal->value);
             })
             ->pluck('attribute.name')->all();
         foreach ($attributes as $attribute) {
@@ -171,7 +171,7 @@ abstract class BaseComponent extends Component
 
     public function getReferencedTableData(ElementModel $element, ProjectEntityAttributeModel $projectAttribute): array|LengthAwarePaginator
     {
-        if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $element->attribute->items) {
+        if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::enum && $element->attribute->items) {
             return $element->attribute->items->pluck('name')->all();
         }
         $columns = ['id'];
