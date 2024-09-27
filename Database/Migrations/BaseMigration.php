@@ -36,9 +36,9 @@ abstract class BaseMigration extends Migration
 
     protected function createAttribute(ProjectEntityAttributeModel $attributeEntity, Blueprint $table): void
     {
-        if ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::CHAR->value) {
+        if ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::char->value) {
             $t = $table->char($attributeEntity->name, $attributeEntity->size);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::DATE->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::date->value) {
             $t = $table->date($attributeEntity->name);
         } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::DATETIME->value) {
             $t = $table->dateTime($attributeEntity->name);
@@ -76,7 +76,7 @@ abstract class BaseMigration extends Migration
             if ($attributeEntity->use_current_on_update) {
                 $t->useCurrentOnUpdate();
             }
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::TINYINT->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::tinyint->value) {
             $t = $table->tinyInteger($attributeEntity->name, $attributeEntity->size);
             $this->resolveUnsigned($t, $attributeEntity->unsigned);
         } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::VARCHAR->value) {

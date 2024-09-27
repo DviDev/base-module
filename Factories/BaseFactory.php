@@ -31,7 +31,7 @@ abstract class BaseFactory extends Factory
     {
         return match ($type) {
             ModuleTableAttributeTypeEnum::DATETIME => now()->toDateTimeLocalString(),
-            ModuleTableAttributeTypeEnum::DATE => now()->toDateString(),
+            ModuleTableAttributeTypeEnum::date => now()->toDateString(),
             ModuleTableAttributeTypeEnum::TIME => now()->toTimeString(),
             ModuleTableAttributeTypeEnum::TEXT => $value_default ?? fake()->sentence(),
             ModuleTableAttributeTypeEnum::VARCHAR => $value_default ?? self::getFakeValue($key, $length),
