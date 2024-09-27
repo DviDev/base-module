@@ -30,7 +30,7 @@ abstract class BaseFactory extends Factory
     public static function getFakeDataViaViewStructureElementType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
     {
         return match ($type) {
-            ModuleTableAttributeTypeEnum::DATETIME => now()->toDateTimeLocalString(),
+            ModuleTableAttributeTypeEnum::datetime => now()->toDateTimeLocalString(),
             ModuleTableAttributeTypeEnum::date => now()->toDateString(),
             ModuleTableAttributeTypeEnum::TIME => now()->toTimeString(),
             ModuleTableAttributeTypeEnum::TEXT => $value_default ?? fake()->sentence(),

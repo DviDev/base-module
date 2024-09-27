@@ -40,7 +40,7 @@ abstract class BaseMigration extends Migration
             $t = $table->char($attributeEntity->name, $attributeEntity->size);
         } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::date->value) {
             $t = $table->date($attributeEntity->name);
-        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::DATETIME->value) {
+        } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::datetime->value) {
             $t = $table->dateTime($attributeEntity->name);
         } elseif ($attributeEntity->type_id == ModuleTableAttributeTypeEnum::DECIMAL->value) {
             $size = str($attributeEntity->size)->explode(',');
