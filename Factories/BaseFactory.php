@@ -327,7 +327,7 @@ abstract class BaseFactory extends Factory
                 }
             }
 
-            $type = ViewStructureComponentType::fromDBType($type);
+            $type = ViewStructureComponentType::fromDBType($type, $length);
             $another_columns[$key]['value'] = self::getFakeDataViaTableAttributeType(
                 type: $type,
                 length: $length,
