@@ -328,7 +328,7 @@ abstract class BaseFactory extends Factory
             }
 
             $type = ViewStructureComponentType::fromDBType($type, $length);
-            $another_columns[$key]['value'] = self::getFakeDataViaTableAttributeType(
+            $value = self::getFakeDataViaTableAttributeType(
                 type: $type,
                 length: $length,
                 key: $key,
@@ -336,6 +336,7 @@ abstract class BaseFactory extends Factory
                 num_scale: $scale,
                 num_precision: $precision
             );
+            $another_columns[$key]['value'] = $value;
 
             if ($key == 'parent_id') {
                 $another_columns[$key]['value'] = null;
