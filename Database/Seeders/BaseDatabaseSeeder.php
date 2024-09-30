@@ -4,7 +4,11 @@ namespace Modules\Base\Database\Seeders;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
-use Nwidart\Modules\Facades\Module;
+use Illuminate\Support\Facades\File;
+use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
+use Modules\Base\Events\DatabaseSeederEvent;
+use Modules\Base\Events\SeederFinishedEvent;
+use Modules\DBMap\Events\ScanTableEvent;
 
 class BaseDatabaseSeeder extends BaseSeeder
 {
@@ -16,20 +20,16 @@ class BaseDatabaseSeeder extends BaseSeeder
     {
         Model::unguard();
 
-        $modules = collect(Module::allEnabled());
+        cache()->clear();
 
-        //... some code here
+        $storage_path = storage_path('app/temp_seed_files');
+        File::deleteDirectory($storage_path);
 
-        $modules = $modules->except('Base');
-        $this->call(InitialSeeders::class, parameters: ['modules' => $modules]);
-//        $this->call(SecondSeeders::class);
+        event(new BaseSeederInitialIndependentDataEvent($this->command));
+        event(new ScanTableEvent($this->command));
+        event(new DatabaseSeederEvent($this->command));
+        event(new SeederFinishedEvent($this->command));
 
         $this->commandInfo(__CLASS__, '🟢 done');
-        /*try {
-
-        } catch (Exception $exception) {
-            $this->command->error('🤖 Error when seeding, try again.');
-            throw $exception;
-        }*/
     }
 }
