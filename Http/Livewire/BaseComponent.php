@@ -12,9 +12,9 @@ use Livewire\Component;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Commands\DviRequestMakeCommand;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
-use Modules\DBMap\Entities\ModuleTable\ModuleTableEntityModel;
 use Modules\DBMap\Models\ModuleTableModel;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
+use Modules\Project\Entities\ProjectModuleEntity\ProjectModuleEntityEntityModel;
 use Modules\Project\Models\ProjectEntityAttributeModel;
 use Modules\Project\Models\ProjectModuleEntityDBModel;
 use Modules\View\Entities\ModuleEntityPage\ModuleEntityPageEntityModel;
@@ -301,13 +301,15 @@ abstract class BaseComponent extends Component
             return;
         }
 
-        $page = ModuleEntityPageEntityModel::props();
-        $table = ModuleTableEntityModel::props();
+        $page = ModuleEntityPageEntityModel::props('page');
+        $entity = ProjectModuleEntityEntityModel::props('entity');
 
         $this->page = ModuleEntityPageModel::query()
-            ->join($table::table(), $table->entity_id, $page->entity_id)
+            ->select($page->table_alias . '.*')
+            ->from($page->table())
+            ->join($entity->table(), $entity->id, $page->entity_id)
+            ->where($entity->name, $this->model->getTable())
             ->where($page->route, 'like', '%.form')
-            ->where($table->name, $this->model->getTable())
             ->first();
     }
 }
