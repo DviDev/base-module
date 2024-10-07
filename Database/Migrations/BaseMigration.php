@@ -129,10 +129,7 @@ abstract class BaseMigration extends Migration
             return null;
         }
         $t = $table->dateTime($attributeEntity->name);
-        $this->checkAnotherProperties(
-            $attributeEntity,
-            $t
-        );
+        $this->checkAnotherProperties($attributeEntity, $t);
         return $t;
     }
 
