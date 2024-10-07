@@ -94,7 +94,9 @@ abstract class BaseMigration extends Migration
         if ($attributeEntity->type_id !== AttributeTypeEnum::getId(AttributeTypeEnum::char)) {
             return null;
         }
-        return $table->char($attributeEntity->name, $attributeEntity->size);
+        $t = $table->char($attributeEntity->name, $attributeEntity->size);
+        $this->checkAnotherProperties($attributeEntity, $t);
+        return $t;
     }
 
     protected function getDate(ProjectEntityAttributeModel $attributeEntity, Blueprint $table): ?ColumnDefinition
