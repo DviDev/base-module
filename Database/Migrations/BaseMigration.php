@@ -111,11 +111,14 @@ abstract class BaseMigration extends Migration
 
     protected function checkAnotherProperties(ProjectEntityAttributeModel $attributeEntity, ColumnDefinition $t): void
     {
+        if ($attributeEntity->unsigned) {
+            $t->unsigned();
+        }
         if ($attributeEntity->unique) {
             $t->unique();
         }
         if ($attributeEntity->index) {
-            $t->index();
+            $t->index($attributeEntity->name);
         }
         $t->default($attributeEntity->default)->nullable(!$attributeEntity->required)->comment($attributeEntity->comments);
     }
