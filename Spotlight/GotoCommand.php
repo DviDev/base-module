@@ -40,6 +40,24 @@ class GotoCommand extends SpotlightCommand
             if ($route->hasParameters()) {
                 continue;
             }
+            if (str_contains($route->uri(), 'livewire')) {
+                continue;
+            }
+            if (str_contains($route->uri(), '_debugbar')) {
+                continue;
+            }
+            if (str_contains($route->uri(), 'wire-spy')) {
+                continue;
+            }
+            if (str_contains($route->uri(), 'sanctum')) {
+                continue;
+            }
+            if (str_contains($route->uri(), '_ignition')) {
+                continue;
+            }
+            if (str_contains($route->uri(), '{fallbackPlaceholder}')) {
+                continue;
+            }
             if (!str_contains($route->getName() ?: $route->uri(), $query)) {
                 continue;
             }
