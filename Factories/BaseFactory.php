@@ -48,22 +48,22 @@ abstract class BaseFactory extends Factory
     public static function getFakeValue(int|string $key, $length)
     {
         if ($key == 'name') {
-            return fake()->text(15);
+            return fake()->unique()->text(15);
         }
         if ($key == 'email') {
-            return random_int(1000, 9999) . '_' . fake()->email();
+            return random_int(1000, 9999) . '_' . fake()->unique()->email();
         }
         if ($key == 'uuid') {
-            return fake()->uuid();
+            return fake()->unique()->uuid();
         }
         if (str($key)->contains('cpf')) {
-            return fake('pt_BR')->cpf();
+            return fake('pt_BR')->unique()->cpf();
         }
         if (str($key)->contains('cnpj')) {
-            return fake('pt_BR')->cnpj();
+            return fake('pt_BR')->unique()->cnpj();
         }
         if (str($key)->contains('rg')) {
-            return fake('pt_BR')->rg();
+            return fake('pt_BR')->unique()->rg();
         }
         if (str($key)->contains('path')) {
             $extension = collect(['pdf', 'png', 'jpeg', 'jpg'])->random();
@@ -72,7 +72,7 @@ abstract class BaseFactory extends Factory
         if (in_array($key, ['telefone', 'phone'])) {
             return '1199' . random_int(100, 999) . random_int(10, 99) . random_int(10, 99);
         }
-        return str(fake()->sentence(3))->substr(0, $length)->value();
+        return str(fake()->unique()->sentence(3))->substr(0, $length)->value();
     }
 
     public function createFn(\Closure $fn)
