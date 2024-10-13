@@ -14,8 +14,10 @@ use Modules\DBMap\Commands\DviRequestMakeCommand;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\DBMap\Models\ModuleTableModel;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
+use Modules\Project\Entities\ProjectModuleEntity\ProjectModuleEntityEntityModel;
 use Modules\Project\Models\ProjectEntityAttributeModel;
 use Modules\Project\Models\ProjectModuleEntityDBModel;
+use Modules\View\Entities\ModuleEntityPage\ModuleEntityPageEntityModel;
 use Modules\View\Models\ElementModel;
 use Modules\View\Models\ModuleEntityPageModel;
 use Modules\View\Models\ViewPageStructureModel;
@@ -31,18 +33,7 @@ abstract class BaseComponent extends Component
 
     public function mount()
     {
-        if (\Request::routeIs('view.entity.page.form')) {
-            $this->page = $this->model;
-        } else {
-            if (!$this->model) {
-                throw new Exception(__('Model not found'));
-            }
-            /**@var ModuleTableModel $table */
-            $table = ModuleTableModel::query()->where('name', $this->model->getTable())->first();
-            $this->page = $table->pages()
-                ->where('route', 'like', '%.form')
-                ->get()->first();
-        }
+        $this->setPage();
         if (!$this->page) {
             return;
         }
@@ -65,7 +56,7 @@ abstract class BaseComponent extends Component
         $structure = $this->page->structures()->whereNotNull('active')->first();
         $attributes = $structure->elements()->whereNotNull('attribute_id')->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
             ->whereHas('attribute', function (Builder $query) {
-                $query->where('type', ModuleTableAttributeTypeEnum::DECIMAL->value);
+                $query->where('type', ModuleTableAttributeTypeEnum::getId(ModuleTableAttributeTypeEnum::decimal));
             })
             ->pluck('attribute.name')->all();
         foreach ($attributes as $attribute) {
@@ -171,7 +162,7 @@ abstract class BaseComponent extends Component
 
     public function getReferencedTableData(ElementModel $element, ProjectEntityAttributeModel $projectAttribute): array|LengthAwarePaginator
     {
-        if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::ENUM && $element->attribute->items) {
+        if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::enum && $element->attribute->items) {
             return $element->attribute->items->pluck('name')->all();
         }
         $columns = ['id'];
@@ -298,5 +289,27 @@ abstract class BaseComponent extends Component
     protected function elementsCacheKey(ViewPageStructureModel $structure): string
     {
         return 'structure.' . $structure->id . '.allChildren.elements';
+    }
+
+    protected function setPage(): void
+    {
+        if (\Request::routeIs('view.entity.page.form')) {
+            if (!$this->model) {
+                throw new Exception(__('Model not found'));
+            }
+            $this->page = $this->model;
+            return;
+        }
+
+        $page = ModuleEntityPageEntityModel::props('page');
+        $entity = ProjectModuleEntityEntityModel::props('entity');
+
+        $this->page = ModuleEntityPageModel::query()
+            ->select($page->table_alias . '.*')
+            ->from($page->table())
+            ->join($entity->table(), $entity->id, $page->entity_id)
+            ->where($entity->name, $this->model->getTable())
+            ->where($page->route, 'like', '%.form')
+            ->first();
     }
 }

@@ -32,15 +32,15 @@ abstract class BaseFactory extends Factory
     public static function getFakeDataViaViewStructureElementType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
     {
         return match ($type) {
-            ModuleTableAttributeTypeEnum::DATETIME => now()->toDateTimeLocalString(),
-            ModuleTableAttributeTypeEnum::DATE => now()->toDateString(),
-            ModuleTableAttributeTypeEnum::TIME => now()->toTimeString(),
-            ModuleTableAttributeTypeEnum::TEXT => $value_default ?? fake()->sentence(),
-            ModuleTableAttributeTypeEnum::VARCHAR => $value_default ?? self::getFakeValue($key, $length),
-            ModuleTableAttributeTypeEnum::BOOLEAN => $value_default ?? fake()->boolean(),
-            ModuleTableAttributeTypeEnum::DECIMAL => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
-            ModuleTableAttributeTypeEnum::FLOAT => $value_default ?? fake()->randomFloat(2, 1, 999999),
-            ModuleTableAttributeTypeEnum::SMALLINT, ModuleTableAttributeTypeEnum::INT, ModuleTableAttributeTypeEnum::BIGINT => $value_default ?? fake()->numberBetween(1, 90),
+            ModuleTableAttributeTypeEnum::datetime => now()->toDateTimeLocalString(),
+            ModuleTableAttributeTypeEnum::date => now()->toDateString(),
+            ModuleTableAttributeTypeEnum::time => now()->toTimeString(),
+            ModuleTableAttributeTypeEnum::text => $value_default ?? fake()->sentence(),
+            ModuleTableAttributeTypeEnum::varchar => $value_default ?? self::getFakeValue($key, $length),
+            ModuleTableAttributeTypeEnum::boolean => $value_default ?? fake()->boolean(),
+            ModuleTableAttributeTypeEnum::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
+            ModuleTableAttributeTypeEnum::float => $value_default ?? fake()->randomFloat(2, 1, 999999),
+            ModuleTableAttributeTypeEnum::smallint, ModuleTableAttributeTypeEnum::int, ModuleTableAttributeTypeEnum::bigint => $value_default ?? fake()->numberBetween(1, 90),
             default => 1
         };
     }
@@ -48,10 +48,10 @@ abstract class BaseFactory extends Factory
     public static function getFakeValue(int|string $key, $length)
     {
         if ($key == 'name') {
-            return fake()->unique()->text(15);
+            return fake()->unique()->text(random_int(round($length/2),$length));
         }
         if ($key == 'email') {
-            return random_int(1000, 9999) . '_' . fake()->unique()->email();
+            return random_int(1000, 9999) . '_' . fake()->email();
         }
         if ($key == 'uuid') {
             return fake()->unique()->uuid();
