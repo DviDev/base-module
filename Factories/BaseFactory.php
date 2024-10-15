@@ -412,9 +412,14 @@ abstract class BaseFactory extends Factory
     protected function indexIsUniqueMultiple(array $indexes, mixed $column): bool
     {
         return collect($indexes)->contains(function ($index) use ($column) {
-            $columns = $index->getColumns();
+            if (is_array($index)) {
+                $columns = $index['columns'];
+            }
+            if (is_object($index)) {
+                $columns = $index->getColumns();
+            }
             $contains = collect($columns)->contains($column);
-            return $index->isUnique() && $contains && count($columns) > 1;
+            return isset($index['unique']) && $contains && count($columns) > 1;
         });
     }
 
@@ -473,11 +478,11 @@ abstract class BaseFactory extends Factory
 
     public static function getFakeDataViaTableAttributeType(
         ViewStructureComponentType $type,
-                   $length,
+                                   $length,
         int|string $key,
-                   $value_default = null,
-                   $num_scale = null,
-                   $num_precision = null
+                                   $value_default = null,
+                                   $num_scale = null,
+                                   $num_precision = null
     )
     {
         return match ($type) {
