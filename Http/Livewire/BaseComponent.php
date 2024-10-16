@@ -126,7 +126,7 @@ abstract class BaseComponent extends Component
             }
             $this->model->save();
             if ($this->model->wasRecentlyCreated) {
-                session()->flash('success', str(__('base.the data has been saved'))->ucfirst());
+                session()->flash('success', str(__('the data has been saved'))->ucfirst());
                 session()->flash('only_toastr');
 
                 if (!$this->redirect_after_save) {
