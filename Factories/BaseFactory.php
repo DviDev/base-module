@@ -45,6 +45,7 @@ abstract class BaseFactory extends Factory
 
     public static function getFakeValue(int|string $key, $length)
     {
+        $length = max($length, 10);
         if ($key == 'name') {
             return fake()->text(random_int(round($length / 2), $length));
         }
