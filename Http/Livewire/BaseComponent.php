@@ -138,7 +138,7 @@ abstract class BaseComponent extends Component
             }
             $fn = fn($value) => toBRL($value);
             $this->transformValues($fn);
-            Toastr::instance($this)->success(str(__('base.the data has been saved'))->ucfirst());
+            Toastr::instance($this)->success(str(__('the data has been saved'))->ucfirst());
         } catch (ValidationException $exception) {
             $fn = fn($value) => toBRL($value);
             $this->transformValues($fn);
