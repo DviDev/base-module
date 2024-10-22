@@ -50,11 +50,11 @@ abstract class BaseComponent extends Component
         }
     }
 
-    protected function transformValues($fn)
+    protected function transformValues($fn): void
     {
-        /**@var ViewPageStructureModel $structure */
-        $structure = $this->page->structures()->whereNotNull('active')->first();
-        $attributes = $structure->elements()->whereNotNull('attribute_id')->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
+        $attributes = $this->page->firstActiveFormStructure()
+            ->elements()->whereNotNull('attribute_id')
+            ->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
             ->whereHas('attribute', function (Builder $query) {
                 $query->where('type', ModuleTableAttributeTypeEnum::getId(ModuleTableAttributeTypeEnum::decimal));
             })
@@ -73,11 +73,11 @@ abstract class BaseComponent extends Component
             Toastr::instance($this)->error(__("view::element.This page does not have a structure"));
             return [];
         }
-        /**@var ViewPageStructureModel $structure */
-        $structure = $this->page?->firstActiveStructure();
-        $cache_key = $this->elementsCacheKey($structure);
-        return cache()->rememberForever($cache_key, function () use ($structure) {
-            $elements_ = $structure->elements()
+        /**@var ViewPageStructureModel $firstActiveFormStructure */
+        $firstActiveFormStructure = $this->page?->firstActiveFormStructure();
+        $cache_key = $this->elementsCacheKey($firstActiveFormStructure);
+        return cache()->rememberForever($cache_key, function () use ($firstActiveFormStructure) {
+            $elements_ = $firstActiveFormStructure->elements()
                 ->with(['attribute'])
                 ->with('allChildren.attribute')
                 ->with('properties')
@@ -206,10 +206,10 @@ abstract class BaseComponent extends Component
 
     public function updateStructureCache(): void
     {
-        $structure = $this->page->firstActiveStructure();
+        $structure = $this->page->firstActiveFormStructure();
 
         cache()->delete($this->elementsCacheKey($structure));
-        Toastr::instance($this)->success('O cache foi atualizado');
+        Toastr::instance($this)->success(__('view::element.The cache was updated'));
         $this->dispatch('refresh')->self();
     }
 

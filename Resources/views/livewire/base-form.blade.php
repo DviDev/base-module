@@ -42,7 +42,9 @@
                                             "rounded-l" => !auth()->user()->type->enum() == UserType::DEVELOPER,
                                              "text-blue-500 hover:text-blue-700 px-2 py-1 cursor-pointer",
                                             "flex space-x-2", "rounded-r" => !$model->id,
-                                        ]) wire:click="updateStructureCache" title="{{__('update cache')}}">
+                                        ])
+                                        wire:click="updateStructureCache"
+                                        title="{{ucfirst(__('base::cache.update cache'))}}">
                                         <x-dvui::icon.trash s4 fill class="my-auto font-bold"
                                                             wire:loading.class="hidden"
                                                             wire:target="updateStructureCache"/>
@@ -59,7 +61,7 @@
                                                 "rounded-l" => !auth()->user()->type->enum() == UserType::DEVELOPER,
                                                  "text-blue-500 hover:text-blue-700 px-2 py-1 cursor-pointer",
                                                 "flex space-x-2", "rounded-r" => !$model->id,
-                                            ]) wire:click="updateComponent" title="{{__('update page')}}">
+                                            ]) wire:click="updateComponent" title="{{__('base::page.update page')}}">
                                             <i class="fas fa-sync my-auto" wire:loading.class="animate-spin"
                                                wire:target="updateComponent"></i>
                                             <span class="my-auto">refresh</span>
