@@ -3,7 +3,7 @@
     use Modules\Base\Entities\Actions\Builder;
     use Modules\View\Domains\ViewStructureComponentType;
     use Modules\Project\Models\ProjectModuleEntityDBModel;
-    use Modules\Project\Models\ProjectModuleEntityActionModel;
+    use Modules\Project\Models\ProjectModuleActionModel;
     use Modules\App\Entities\User\UserType;
 @endphp
 <div>
@@ -85,7 +85,7 @@
                     @php
                         /**@var ProjectModuleEntityDBModel $entity*/
                         $entity = $element->structure()->with('page.entity')->first()->page->entity;
-                        /**@var ProjectModuleEntityActionModel $save*/
+                        /**@var ProjectModuleActionModel $save*/
 
                         $save = $entity->actions()->firstWhere('name', 'save');
                         $delete = $entity->actions()->firstWhere('name', 'delete');
