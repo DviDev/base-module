@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 use LivewireUI\Spotlight\Spotlight;
 use Modules\Base\Console\FeatureFlushCommand;
+use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Spotlight\GotoCommand;
 
@@ -50,6 +51,8 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
     public function register()
     {
         $this->app->register(RouteServiceProvider::class);
+
+        $this->registerGlobalWebMiddlewares();
     }
 
     /**
@@ -143,5 +146,11 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
     public static function errorTypeClass()
     {
         return BaseTypeErrors::class;
+    }
+
+    protected function registerGlobalWebMiddlewares(): void
+    {
+        $router = $this->app['router'];
+        $router->pushMiddlewareToGroup('web', UseSpotlightMiddleware::class);
     }
 }
