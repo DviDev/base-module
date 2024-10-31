@@ -7,6 +7,6 @@
     "save": "salvar",
     "Continue": "Continuar",
     "cancel": "cancelar",
-    "This page does not have a structure.": "Esta página não tem uma estrutura.",
-    "update cache": "atualizar cache"
+    "update cache": "atualizar cache",
+    "name": "nome"
 }
