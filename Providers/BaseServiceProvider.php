@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 use LivewireUI\Spotlight\Spotlight;
 use Modules\Base\Console\FeatureFlushCommand;
+use Modules\Base\Console\InstallModulesCommand;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Spotlight\GotoCommand;
@@ -141,6 +142,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
     private function registerCommands()
     {
         $this->commands(FeatureFlushCommand::class);
+        $this->commands(InstallModulesCommand::class);
     }
 
     public static function errorTypeClass()
