@@ -33,9 +33,6 @@ class InstallModulesCommand extends Command
      */
     public function handle()
     {
-        $output = [];
-//        exec('GIT_SSH_COMMAND="ssh -i ~/.ssh/id_rsa.pub" ssh -T git@github.com', $output);
-//        dd($output);
         $modules = config('base.modules');
 
         $choices = multiselect(
@@ -45,6 +42,7 @@ class InstallModulesCommand extends Command
         if (count($choices) == 0) {
             return;
         }
+        pause('Installing ' . collect($choices)->join(',', 'and') . '. Press enter to continue');
 
         if ($this->confirm('You want install nwidart/laravel-modules?')) {
             exec('composer require nwidart/laravel-modules');
