@@ -11,6 +11,8 @@ use Modules\Base\Console\InstallModulesCommand;
 use Modules\Base\Http\Livewire\Config\ConfigForm;
 use Modules\Base\Http\Livewire\Config\ConfigList;
 use Modules\Base\Http\Livewire\Config\ConfigListItem;
+use Modules\Base\Http\Livewire\Notification\NotificationList;
+use Modules\Base\Http\Livewire\Notification\NotificationView;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Spotlight\GotoCommand;
@@ -60,11 +62,17 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
 
         $this->registerGlobalWebMiddlewares();
 
+        $this->registerLivewireComponents();
+    }
+
+    protected function registerLivewireComponents(): void
+    {
         Livewire::component('base::config.config-form', ConfigForm::class);
         Livewire::component('base::config.config-list', ConfigList::class);
         Livewire::component('base::config.config-list-item', ConfigListItem::class);
+        Livewire::component('base::notification.notification-list', NotificationList::class);
+        Livewire::component('base::notification.notification-view', NotificationView::class);
     }
-
     /**
      * Register config.
      *
