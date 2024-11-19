@@ -4,9 +4,13 @@ namespace Modules\Base\Providers;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use LivewireUI\Spotlight\Spotlight;
 use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Console\InstallModulesCommand;
+use Modules\Base\Http\Livewire\Config\ConfigForm;
+use Modules\Base\Http\Livewire\Config\ConfigList;
+use Modules\Base\Http\Livewire\Config\ConfigListItem;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Spotlight\GotoCommand;
@@ -54,6 +58,10 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
         $this->app->register(RouteServiceProvider::class);
 
         $this->registerGlobalWebMiddlewares();
+
+        Livewire::component('base::config.config-form', ConfigForm::class);
+        Livewire::component('base::config.config-list', ConfigList::class);
+        Livewire::component('base::config.config-list-item', ConfigListItem::class);
     }
 
     /**
