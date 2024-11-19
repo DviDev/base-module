@@ -56,6 +56,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
     public function register()
     {
         $this->app->register(RouteServiceProvider::class);
+        $this->app->register(BaseEventServiceProvider::class);
 
         $this->registerGlobalWebMiddlewares();
 
