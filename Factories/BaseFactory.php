@@ -15,10 +15,10 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 use Mockery\Exception;
-use Modules\App\Models\UserTypeModel;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
+use Modules\Person\Models\UserTypeModel;
 use Modules\View\Domains\ViewStructureComponentType;
 use Nwidart\Modules\Facades\Module;
 
@@ -350,7 +350,7 @@ abstract class BaseFactory extends Factory
     {
         $attributes = [];
         /**@var BaseModel $model_class */
-        if ($model_class == User::class && $defult = config('app.seed.user.types.default')) {
+        if ($model_class === User::class && $defult = config('person.seed.user.types.default')) {
             $attributes = ['type_id' => $defult];
         }
 
@@ -399,7 +399,7 @@ abstract class BaseFactory extends Factory
     protected function randomRelationId(string $fk_model_class, string $model_class, string $attribute_id): int|null
     {
         if ($fk_model_class == UserTypeModel::class) {
-            return config('app.seed.user.types.default');
+            return config('person.seed.user.types.default');
         }
 
         /**@var BaseModel $fk_model_class */

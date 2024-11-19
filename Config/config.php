@@ -9,6 +9,7 @@ return [
         'project_app_name' => 'seeder::project::' . config('app.name'),
         'user_develop' => 'seeder::user::developer',
     ],
+    'default_layout' => env('DEFAULT_LAYOUT', 'flowbite'),
     'use' => [
         'spotlight' => env('USE_SPOTLIGHT', config('app.env') == 'local')
     ],
