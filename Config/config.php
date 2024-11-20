@@ -2,6 +2,7 @@
 
 return [
     'name' => 'Base',
+    'local_testing_production' => config('app.env') == 'production' && env('APP_LOCAL_TESTING_PRODUCTION') == true,
     'date_format' => config('app.locale') == 'pt_BR' ? 'd/m/Y' : 'Y-m-d',
     'date_time_format' => config('app.locale') == 'pt_BR' ? 'd/m/Y H:i' : 'Y-m-d H:i',
     'time_format' => 'H:i:s',
