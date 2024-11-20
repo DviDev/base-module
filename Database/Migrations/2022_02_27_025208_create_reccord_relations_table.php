@@ -13,12 +13,12 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('app_record_relations', function (Blueprint $table) {
+        Schema::create('base_record_relations', function (Blueprint $table) {
             $p = RecordRelationEntityModel::props(force: true);
             $table->id();
-            $table->foreignId($p->record1)->references('id')->on('app_records')
+            $table->foreignId($p->record1)->references('id')->on('base_records')
                 ->cascadeOnUpdate()->restrictOnDelete();
-            $table->foreignId($p->record2)->references('id')->on('app_records')
+            $table->foreignId($p->record2)->references('id')->on('base_records')
                 ->cascadeOnUpdate()->restrictOnDelete();;
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('app_record_relations');
+        Schema::dropIfExists('base_record_relations');
     }
 };

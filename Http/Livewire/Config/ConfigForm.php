@@ -28,7 +28,7 @@ class ConfigForm extends Component
     {
         $config = ConfigEntityModel::props('config', true);
         return [
-            'name' => ['required', Rule::unique('app_configs')->ignore($this->config->id), 'max:255', 'min:3'],
+            'name' => ['required', Rule::unique('base_configs')->ignore($this->config->id), 'max:255', 'min:3'],
             $config->value => ['required', 'max:255'],
             $config->description => 'nullable'
         ];

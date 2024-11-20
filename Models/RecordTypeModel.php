@@ -20,7 +20,7 @@ class RecordTypeModel extends BaseModel
 
     public static function table($alias = null): string
     {
-        return self::dbTable('app_record_types', $alias);
+        return self::dbTable('base_record_types', $alias);
     }
 
     protected static function newFactory(): BaseFactory

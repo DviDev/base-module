@@ -20,7 +20,7 @@ class RecordRelationModel extends BaseModel
 
     public static function table($alias = null): string
     {
-        return self::dbTable('app_record_relations', $alias);
+        return self::dbTable('base_record_relations', $alias);
     }
 
     protected static function newFactory(): BaseFactory

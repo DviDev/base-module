@@ -3,22 +3,18 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Modules\Base\Entities\Record\RecordEntityModel;
+use Modules\Base\Entities\RecordType\RecordTypeEntityModel;
 
 return new class extends Migration {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('app_records', function (Blueprint $table) {
-            $p = RecordEntityModel::props(force: true);
+        Schema::create('base_record_types', function (Blueprint $table) {
+            $p = RecordTypeEntityModel::props(force: true);
             $table->id();
             $table->string($p->name);
-            $table->foreignId($p->type_id)->references('id')->on('app_record_types')
-                ->cascadeOnUpdate()->restrictOnDelete();
 
             $table->timestamp($p->created_at)->useCurrent();
             $table->timestamp($p->updated_at)->useCurrent()->useCurrentOnUpdate();
@@ -28,11 +24,9 @@ return new class extends Migration {
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('app_records');
+        Schema::dropIfExists('base_record_types');
     }
 };

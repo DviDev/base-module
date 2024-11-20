@@ -13,7 +13,7 @@ return new class extends Migration {
      */
     public function up()
     {
-        Schema::create('app_configs', function (Blueprint $table) {
+        Schema::create('base_configs', function (Blueprint $table) {
             $config = ConfigEntityModel::props(null, true);
             $table->id();
 
@@ -36,6 +36,6 @@ return new class extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('app_configs');
+        Schema::dropIfExists('base_configs');
     }
 };

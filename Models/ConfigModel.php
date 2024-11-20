@@ -39,7 +39,7 @@ class ConfigModel extends BaseModel
     }
     public static function table($alias = null): string
     {
-        return self::dbTable('app_configs', $alias);
+        return self::dbTable('base_configs', $alias);
     }
 
     public function user(): BelongsTo
