@@ -141,3 +141,41 @@ Usa o BaseComponente para entregar um formulário dinâmico baseado no Livewire.
 
 - O BaseResponse é geralmente utilizado por domínios para tratar respostas complexas, principalmente quando se trabalha
   com APIs.
+
+### Tipos de usuários
+
+A maioria das aplicações adminstrativas possuem um conjunto de usuários que podem ser classificados em grupos distintos.
+
+Este módulo entrega tipos de usuários para podermos classificar usuários por tipo de função.
+
+Telas
+
+- Perfil
+- Listagem
+- Formulário
+
+### Record
+
+Record é uma entidade que representa a forma mais genéria de um item no banco. Sabendo que um item pode ter:
+id, data de criação, data de atualização, data de remoção etc, essa entidade possui essas características de forma
+genérica que todo modelo pode se beneficiar, sendo assim não seria necessário repetir estes campos em todos os modelos.
+
+Se seu negócio segue esta lógica, você pode se beneficiar desta forma de atuação.
+
+### Config
+
+O objetivo desta entidade é agrupar as configurações do sistema. Por exemplo, o idioma do sistema, o tema do sistema,
+etc.
+
+Telas
+
+- Listagem
+- Formulário
+
+### Notifications
+
+O objetivo desta entidade é ter notificações fora do padrão laravel, mas será descontinuada.
+Telas
+
+- Listagem
+- Visualização
