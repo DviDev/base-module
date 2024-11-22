@@ -22,12 +22,12 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
     /**
      * @var string $moduleName
      */
-    protected $moduleName = 'Base';
+    protected string $moduleName = 'Base';
 
     /**
      * @var string $moduleNameLower
      */
-    protected $moduleNameLower = 'base';
+    protected string $moduleNameLower = 'base';
 
     /**
      * Boot the application events.
