@@ -50,7 +50,7 @@ class ConfigModel extends BaseModel
     static public function byValue($name)
     {
         return cache()->rememberForever("config::$name", function () {
-            return ConfigModel::whereFn(fn(ConfigEntityModel $c) => [[$c->name, 'app_logo']])->first()->value;
+            return ConfigModel::firstWhere('name', 'app_logo')->value;
         });
     }
 }
