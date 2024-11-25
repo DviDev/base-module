@@ -26,20 +26,6 @@ class SeederInitialIndependentDataBaseListener
      */
     public function handle(BaseSeederInitialIndependentDataEvent $event): void
     {
-        $this->command = $event->command;
-        $this->command->info(PHP_EOL . '🤖 Base Module: Creating initial data');
-        $this->createModuleRecordTypes();
-
         Artisan::call('db:seed', ['--class' => ConfigTableSeeder::class]);
-
-        $event->command->info(PHP_EOL . '🤖 Base Module: Initial data created');
-    }
-
-    protected function createModuleRecordTypes(): void
-    {
-        $this->command->info(PHP_EOL . '🤖 Base Module: Creating Record Types');
-        foreach (Module::all() as $module) {
-            RecordTypeModel::factory()->create(['name' => $module]);
-        }
     }
 }
