@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use LivewireUI\Spotlight\Spotlight;
+use Modules\Base\Console\DispatchBaseEventsCommand;
+use Modules\Base\Console\DispatchInitialIndependentDataEventCommand;
 use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Console\InstallModulesCommand;
 use Modules\Base\Http\Livewire\Config\ConfigForm;
@@ -160,6 +162,8 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
     {
         $this->commands(FeatureFlushCommand::class);
         $this->commands(InstallModulesCommand::class);
+        $this->commands(DispatchInitialIndependentDataEventCommand::class);
+        $this->commands(DispatchBaseEventsCommand::class);
     }
 
     public static function errorTypeClass()
