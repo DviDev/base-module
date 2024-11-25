@@ -5,7 +5,7 @@ namespace Modules\Base\Listeners;
 use Modules\Base\Events\SeederFinishedEvent;
 use Modules\Project\Database\Seeders\ProjectTableSeeder;
 
-class SeederFinishedBaseListener
+class CreateProjectDataListener
 {
     /**
      * Create the event listener.
@@ -20,7 +20,6 @@ class SeederFinishedBaseListener
      */
     public function handle(SeederFinishedEvent $event): void
     {
-        $seeder = new ProjectTableSeeder();
-        $seeder->run(module_name: 'Base', command: $event->command);
+        (new ProjectTableSeeder())->run(module_name: 'Base');
     }
 }
