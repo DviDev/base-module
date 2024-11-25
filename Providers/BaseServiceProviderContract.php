@@ -3,7 +3,6 @@
 namespace Modules\Base\Providers;
 
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\ServiceProvider;
 use Modules\Flowbite\App\Providers\RouteServiceProvider;
 
@@ -140,15 +139,8 @@ abstract class BaseServiceProviderContract extends ServiceProvider
 
     protected function publishableComponent($name, $class): void
     {
-        $component = str($name)->explode('.')->join('/');
-        $filename = resource_path('views/components/' . $this->getModuleNameLower() . '/' . $component);
         $namespace = $this->getModuleNameLower() . "::$name";
-        if (File::exists($filename . '.blade.php')) {
-            $path = 'components.' . $this->getModuleNameLower() . '.' . $name;
-            Blade::component($path, $namespace);
-        } else {
-            Blade::component($namespace, $class);
-        }
+        Blade::component(class: $namespace, alias: $class);
 
         list($origin, $destination) = $this->originAndDestination($name);
 
