@@ -174,6 +174,8 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
     protected function registerGlobalWebMiddlewares(): void
     {
         $router = $this->app['router'];
-        $router->pushMiddlewareToGroup('web', UseSpotlightMiddleware::class);
+        if (config('base.use.spotlight')) {
+            $router->pushMiddlewareToGroup('web', UseSpotlightMiddleware::class);
+        }
     }
 }
