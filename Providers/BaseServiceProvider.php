@@ -3,7 +3,6 @@
 namespace Modules\Base\Providers;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 use LivewireUI\Spotlight\Spotlight;
 use Modules\Base\Console\DispatchBaseEventsCommand;
@@ -18,6 +17,8 @@ use Modules\Base\Http\Livewire\Notification\NotificationView;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Spotlight\GotoCommand;
+use Modules\Base\View\Components\Page\Notification\NotificationListPage;
+use Modules\Base\View\Components\Page\Notification\NotificationViewPage;
 
 class BaseServiceProvider extends BaseServiceProviderContract
 {
@@ -69,6 +70,9 @@ class BaseServiceProvider extends BaseServiceProviderContract
 
     protected function registerLivewireComponents(): void
     {
+        self::publishableComponent('page.notification.notification-list-page', NotificationListPage::class);
+        self::publishableComponent('page.notification.notification-view-page', NotificationViewPage::class);
+
         Livewire::component('base::config.config-form', ConfigForm::class);
         Livewire::component('base::config.config-list', ConfigList::class);
         Livewire::component('base::config.config-list-item', ConfigListItem::class);
