@@ -19,7 +19,7 @@ use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Spotlight\GotoCommand;
 
-class BaseServiceProvider extends ServiceProvider implements BaseServiceProviderInterface
+class BaseServiceProvider extends BaseServiceProviderContract
 {
     /**
      * @var string $moduleName
@@ -36,7 +36,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->registerTranslations();
         $this->registerConfig();
@@ -57,7 +57,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->app->register(RouteServiceProvider::class);
         $this->app->register(BaseEventServiceProvider::class);
@@ -80,7 +80,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      *
      * @return void
      */
-    protected function registerConfig()
+    protected function registerConfig(): void
     {
         $this->publishes([
             module_path($this->moduleName, 'Config/config.php') => config_path($this->moduleNameLower . '.php'),
@@ -95,7 +95,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      *
      * @return void
      */
-    public function registerViews()
+    public function registerViews(): void
     {
         $viewPath = resource_path('views/modules/' . $this->moduleNameLower);
 
@@ -113,7 +113,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      *
      * @return void
      */
-    public function registerTranslations()
+    public function registerTranslations(): void
     {
         $langPath = resource_path('lang/modules/' . $this->moduleNameLower);
 
@@ -142,12 +142,12 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      *
      * @return array
      */
-    public function provides()
+    public function provides(): array
     {
         return [];
     }
 
-    private function getPublishableViewPaths(): array
+    protected function getPublishableViewPaths(): array
     {
         $paths = [];
         foreach (\Config::get('view.paths') as $path) {
@@ -158,7 +158,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
         return $paths;
     }
 
-    private function registerCommands()
+    protected function registerCommands(): void
     {
         $this->commands(FeatureFlushCommand::class);
         $this->commands(InstallModulesCommand::class);
@@ -177,5 +177,15 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
         if (config('base.use.spotlight')) {
             $router->pushMiddlewareToGroup('web', UseSpotlightMiddleware::class);
         }
+    }
+
+    public function getModuleNameLower(): string
+    {
+        return 'base';
+    }
+
+    public function getModuleName(): string
+    {
+        return 'Base';
     }
 }
