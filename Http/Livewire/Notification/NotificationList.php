@@ -10,6 +10,13 @@ class NotificationList extends Component
     use WithPagination;
 
     protected $paginationTheme = 'bootstrap';
+    protected $notifications;
+
+    public function mount($notifications, $paginationTheme = 'bootstrap')
+    {
+        $this->notifications = $notifications;
+        $this->paginationTheme = $paginationTheme;
+    }
 
     public function render()
     {
@@ -18,6 +25,6 @@ class NotificationList extends Component
 
     public function notifications()
     {
-        return auth()->user()->notifications()->paginate(15);
+        return $this->notifications ?: auth()->user()->notifications()->paginate(15);
     }
 }
