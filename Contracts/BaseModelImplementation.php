@@ -104,13 +104,4 @@ trait BaseModelImplementation
         $entity = $this->modelEntity();
         return (new $entity)->repository($this);
     }
-
-    public function delete(): ?bool
-    {
-        $props = self::props();
-        if (in_array('deleted_at', $props->toArray())) {
-            $this->deleted_at = $this->deleted_at ?? now();
-        }
-        return parent::delete();
-    }
 }

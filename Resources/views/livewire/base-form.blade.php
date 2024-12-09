@@ -1,10 +1,5 @@
 @php
-    use Modules\Base\Entities\Actions\Actions;
-    use Modules\Base\Entities\Actions\Builder;
-    use Modules\View\Domains\ViewStructureComponentType;
-    use Modules\Project\Models\ProjectModuleEntityDBModel;
-    use Modules\Project\Models\ProjectActionModel;
-    use Modules\App\Entities\User\UserType;
+    use Modules\Base\Entities\Actions\Actions;use Modules\Base\Entities\Actions\Builder;use Modules\Person\Entities\User\UserType;use Modules\Project\Models\ProjectActionModel;use Modules\Project\Models\ProjectModuleEntityDBModel;use Modules\View\Domains\ViewStructureComponentType;
 @endphp
 <div>
     @if(session()->has('success'))

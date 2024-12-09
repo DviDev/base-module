@@ -4,9 +4,13 @@ namespace Modules\Base\Database\Seeders;
 
 use Nwidart\Modules\Facades\Module;
 
-class SecondSeeders extends BaseSeeder
+class DispatchBaseEventSeeder extends BaseSeeder
 {
     public function run()
+    {
+    }
+
+    protected function classModuleSeeders(): void
     {
         $modules = collect(Module::allEnabled());
         /**@var \Nwidart\Modules\Laravel\Module $module */

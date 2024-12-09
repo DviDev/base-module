@@ -3,31 +3,41 @@
 namespace Modules\Base\Providers;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use LivewireUI\Spotlight\Spotlight;
+use Modules\Base\Console\DispatchBaseEventsCommand;
+use Modules\Base\Console\DispatchInitialIndependentDataEventCommand;
 use Modules\Base\Console\FeatureFlushCommand;
+use Modules\Base\Console\InstallModulesCommand;
+use Modules\Base\Http\Livewire\Config\ConfigForm;
+use Modules\Base\Http\Livewire\Config\ConfigList;
+use Modules\Base\Http\Livewire\Config\ConfigListItem;
+use Modules\Base\Http\Livewire\Notification\NotificationList;
+use Modules\Base\Http\Livewire\Notification\NotificationView;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Spotlight\GotoCommand;
+use Modules\Base\View\Components\Page\Notification\NotificationListPage;
+use Modules\Base\View\Components\Page\Notification\NotificationViewPage;
 
-class BaseServiceProvider extends ServiceProvider implements BaseServiceProviderInterface
+class BaseServiceProvider extends BaseServiceProviderContract
 {
     /**
      * @var string $moduleName
      */
-    protected $moduleName = 'Base';
+    protected string $moduleName = 'Base';
 
     /**
      * @var string $moduleNameLower
      */
-    protected $moduleNameLower = 'base';
+    protected string $moduleNameLower = 'base';
 
     /**
      * Boot the application events.
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->registerTranslations();
         $this->registerConfig();
@@ -48,19 +58,33 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         $this->app->register(RouteServiceProvider::class);
+        $this->app->register(BaseEventServiceProvider::class);
 
         $this->registerGlobalWebMiddlewares();
+
+        $this->registerLivewireComponents();
     }
 
+    protected function registerLivewireComponents(): void
+    {
+        self::publishableComponent('page.notification.notification-list-page', NotificationListPage::class);
+        self::publishableComponent('page.notification.notification-view-page', NotificationViewPage::class);
+
+        Livewire::component('base::config.config-form', ConfigForm::class);
+        Livewire::component('base::config.config-list', ConfigList::class);
+        Livewire::component('base::config.config-list-item', ConfigListItem::class);
+        Livewire::component('base::notification.notification-list', NotificationList::class);
+        Livewire::component('base::notification.notification-view', NotificationView::class);
+    }
     /**
      * Register config.
      *
      * @return void
      */
-    protected function registerConfig()
+    protected function registerConfig(): void
     {
         $this->publishes([
             module_path($this->moduleName, 'Config/config.php') => config_path($this->moduleNameLower . '.php'),
@@ -75,7 +99,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      *
      * @return void
      */
-    public function registerViews()
+    public function registerViews(): void
     {
         $viewPath = resource_path('views/modules/' . $this->moduleNameLower);
 
@@ -93,7 +117,7 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      *
      * @return void
      */
-    public function registerTranslations()
+    public function registerTranslations(): void
     {
         $langPath = resource_path('lang/modules/' . $this->moduleNameLower);
 
@@ -122,12 +146,12 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
      *
      * @return array
      */
-    public function provides()
+    public function provides(): array
     {
         return [];
     }
 
-    private function getPublishableViewPaths(): array
+    protected function getPublishableViewPaths(): array
     {
         $paths = [];
         foreach (\Config::get('view.paths') as $path) {
@@ -138,9 +162,12 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
         return $paths;
     }
 
-    private function registerCommands()
+    protected function registerCommands(): void
     {
         $this->commands(FeatureFlushCommand::class);
+        $this->commands(InstallModulesCommand::class);
+        $this->commands(DispatchInitialIndependentDataEventCommand::class);
+        $this->commands(DispatchBaseEventsCommand::class);
     }
 
     public static function errorTypeClass()
@@ -151,6 +178,18 @@ class BaseServiceProvider extends ServiceProvider implements BaseServiceProvider
     protected function registerGlobalWebMiddlewares(): void
     {
         $router = $this->app['router'];
-        $router->pushMiddlewareToGroup('web', UseSpotlightMiddleware::class);
+        if (config('base.use.spotlight')) {
+            $router->pushMiddlewareToGroup('web', UseSpotlightMiddleware::class);
+        }
+    }
+
+    public function getModuleNameLower(): string
+    {
+        return 'base';
+    }
+
+    public function getModuleName(): string
+    {
+        return 'Base';
     }
 }

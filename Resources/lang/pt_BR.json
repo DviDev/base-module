@@ -10,7 +10,11 @@
     "register": "Cadastrar",
     "disable": "desabilitar",
     "create": "criar",
-    "confirm": "confirmar",
+    "confirm": "confirma",
+    "remove": "remover",
     "the data has been saved": "os dados foram salvos.",
-    "name": "nome"
+    "name": "nome",
+    "notification": "notificação",
+    "notifications": "notificações",
+    "sign out": "sair"
 }

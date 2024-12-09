@@ -96,6 +96,11 @@ abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayabl
         return $this->attributes_;
     }
 
+    public function arrayValues()
+    {
+        return array_values($this->attributes_);
+    }
+
     public function changed(): array
     {
         return $this->changed;

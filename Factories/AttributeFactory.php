@@ -25,9 +25,13 @@ abstract class AttributeFactory
         if ($attributeEntity->unique) {
             $t->unique();
         }
-        if ($attributeEntity->index) {
+        if ($attributeEntity->index == 'KEY') {
             $t->index($attributeEntity->name);
         }
+        if ($attributeEntity->index == 'FULLTEXT') {
+            $t->fulltext($attributeEntity->name);
+        }
+
         $t->default($attributeEntity->default)->nullable($attributeEntity->required == null)->comment($attributeEntity->comments);
     }
 

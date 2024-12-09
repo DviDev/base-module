@@ -2,7 +2,6 @@
 
 namespace Modules\Base\Events;
 
-use Illuminate\Console\Command;
 use Illuminate\Queue\SerializesModels;
 
 class DatabaseSeederEvent
@@ -12,7 +11,7 @@ class DatabaseSeederEvent
     /**
      * Create a new event instance.
      */
-    public function __construct(public Command $command)
+    public function __construct()
     {
         //
     }
