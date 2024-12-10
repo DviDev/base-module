@@ -4,6 +4,7 @@ namespace Modules\Base\Listeners;
 
 use Modules\Base\Events\SeederFinishedEvent;
 use Modules\Project\Database\Seeders\ProjectTableSeeder;
+use \Illuminate\Support\Facades\Artisan;
 
 class CreateProjectDataListener
 {
@@ -20,6 +21,9 @@ class CreateProjectDataListener
      */
     public function handle(SeederFinishedEvent $event): void
     {
-        (new ProjectTableSeeder())->run(module_name: 'Base');
+        /* app()->instance('module_name', 'Base');
+        Artisan::call("db:seed", [
+            '--class' => ProjectTableSeeder::class,
+        ]); */
     }
 }
