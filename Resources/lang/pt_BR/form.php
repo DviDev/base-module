@@ -9,6 +9,7 @@ return [
     'Enable any module' => 'Habilite algum modulo',
     'Submit' => 'Enviar',
     'Select a date' => 'Selecione uma data',
+    'search' => 'pesquisar',
     'search by id' => 'pesquisar por id',
     'search by name' => 'pesquisar por nome',
     'search by email' => 'pesquisar por email',
