@@ -11,8 +11,6 @@ use Exception;
  */
 abstract class BaseController
 {
-    use ResponseController;
-
     protected $domain;
 
     public function domain()
