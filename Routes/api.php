@@ -1,9 +1,5 @@
 <?php
 
-use Modules\App\Http\Controllers\LogErrorsController;
-use Modules\App\Http\Controllers\VersionController;
-use Modules\Contact\Http\Middleware\AdminCustomerMiddleware;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
