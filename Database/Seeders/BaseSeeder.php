@@ -6,6 +6,7 @@ use App\Models\User;
 use Closure;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Modules\Person\Models\PersonModel;
 use Modules\Person\Models\UserTypeModel;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -19,13 +20,14 @@ abstract class BaseSeeder extends Seeder
         }
 
         /**@var User $user */
-        $user = User::factory()->create([
-            'name' => str($type->name)->explode('_')->map(fn($word) => str($word)->lower()->ucfirst())->join(' '),
+        $name = str($type->name)->explode('_')->map(fn($word) => str($word)->lower()->ucfirst())->join(' ');
+        return User::factory()->create([
+            'name' => $name,
             'email' => $type->name . '@site.com',
             'password' => \Hash::make('password'),
-            'type_id' => $type->id
+            'type_id' => $type->id,
+            'person_id' => PersonModel::factory()->create(['name' => $name])->id,
         ]);
-        return $user;
     }
 
     protected function withProgressBar(int|Collection $amount, Closure $createCollectionOfOne): \Illuminate\Database\Eloquent\Collection
