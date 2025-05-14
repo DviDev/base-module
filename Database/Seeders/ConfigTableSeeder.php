@@ -4,7 +4,7 @@ namespace Modules\Base\Database\Seeders;
 
 use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Models\RecordTypeModel;
-use Nwidart\Modules\Facades\Module;
+use Modules\Project\Models\ProjectModuleEntityDBModel;
 
 class ConfigTableSeeder extends BaseSeeder
 {
@@ -27,8 +27,8 @@ class ConfigTableSeeder extends BaseSeeder
     protected function createModuleRecordTypes(): void
     {
         $this->command->info(PHP_EOL . '🤖 Base Module: Creating Record Types');
-        foreach (Module::all() as $module) {
-            RecordTypeModel::factory()->create(['name' => $module]);
+        foreach (ProjectModuleEntityDBModel::all() as $entity) {
+            RecordTypeModel::factory()->create(['name' => $entity->title]);
         }
     }
 }
