@@ -4,7 +4,6 @@ namespace Modules\Base\Providers;
 
 use Illuminate\Database\Eloquent\Model;
 use Livewire\Livewire;
-use LivewireUI\Spotlight\Spotlight;
 use Modules\Base\Console\DispatchBaseEventsCommand;
 use Modules\Base\Console\DispatchInitialIndependentDataEventCommand;
 use Modules\Base\Console\FeatureFlushCommand;
@@ -50,7 +49,7 @@ class BaseServiceProvider extends BaseServiceProviderContract
         //real time check many queries ex. in post list using post->author suggest use post::with('user')->all()
         Model::preventLazyLoading(!$this->app->isProduction());
 
-        Spotlight::registerCommandIf(config('base.use.spotlight'), GotoCommand::class);
+//        Spotlight::registerCommandIf(config('base.use.spotlight'), GotoCommand::class);
     }
 
     /**
