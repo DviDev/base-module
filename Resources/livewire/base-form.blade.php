@@ -12,13 +12,8 @@
     </x-slot:heading>
 
     <div class="text-gray-400">
-        @if(session()->has('success'))
-            <x-dvui::toast :success="true" title="Success" title2="{{now()->diffForHumans()}}"
-                           :label="session('success')"/>
-        @endif
         <form wire:submit="save">
             <div class="space-y-3">
-
                 @php
                     /**@var ElementModel $row*/
                     /**@var ElementModel $columnD*/

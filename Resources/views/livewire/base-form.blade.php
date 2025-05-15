@@ -2,11 +2,6 @@
     use Modules\Base\Entities\Actions\Actions;use Modules\Base\Entities\Actions\Builder;use Modules\Person\Entities\User\UserType;use Modules\Project\Models\ProjectActionModel;use Modules\Project\Models\ProjectModuleEntityDBModel;use Modules\View\Domains\ViewStructureComponentType;
 @endphp
 <div>
-    @if(session()->has('success'))
-        <x-dvui::toast :success="true" title="{{$this->page->name}}" title2="{{now()->diffForHumans()}}"
-                       :label="session('success')"/>
-    @endif
-
     @php
         /**@var \Modules\View\Models\ElementModel $element*/
     @endphp
