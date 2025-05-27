@@ -1,0 +1,20 @@
+{
+    "title": "título",
+    "attention": "atenção",
+    "open": "abrir",
+    "close": "fechar",
+    "save": "salvar",
+    "continue": "continuar",
+    "cancel": "cancelar",
+    "new": "novo",
+    "register": "Cadastrar",
+    "disable": "desabilitar",
+    "create": "criar",
+    "confirm": "confirma",
+    "remove": "remover",
+    "the data has been saved": "os dados foram salvos.",
+    "name": "nome",
+    "notification": "notificação",
+    "notifications": "notificações",
+    "sign out": "sair"
+}
