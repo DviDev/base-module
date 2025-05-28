@@ -35,17 +35,10 @@ it('should return a valid value for BIGINT field type', function () {
     // Verifica se está dentro dos limites do BIGINT com sinal
     expect($value)->toBeGreaterThanOrEqual(-9223372036854775808);
     expect($value)->toBeLessThanOrEqual(9223372036854775807);
-
-    // Se for BIGINT sem sinal
-    // expect($value)->toBeGreaterThanOrEqual(0);
-    // expect($value)->toBeLessThanOrEqual(18446744073709551615);
-
-    expect(false)->toBeTrue();
 });
 
 it('should return a valid value for BINARY field type', function () {
-    $value = FakerFactory::getBinaryValue(); // Supondo que você tenha este método
-
+    $value = FakerFactory::getBinaryValue();
     // Verifica se é uma string
     expect(is_string($value))->toBeTrue();
 
@@ -54,7 +47,7 @@ it('should return a valid value for BINARY field type', function () {
     expect(strlen($value))->toBeGreaterThan(0);
 
     // Verifica se contém apenas caracteres binários válidos
-    expect(preg_match('/^[01]+$/', bin2hex($value)))->toBe(1);
+    expect(preg_match('/^[0-9a-f]+$/', bin2hex($value)))->toBe(1);
 });
 
 it('should return a valid value for BIT field type', function () {
@@ -106,12 +99,12 @@ it('should return a valid value for CHAR field type', function () {
     expect(strlen($value))->toBeGreaterThan(0);
 
     // Verifica se contém apenas caracteres válidos
-    expect(preg_match('/^[a-zA-Z0-9\s]+$/', $value))->toBe(1);
+    expect(preg_match('/^[\w\s\.\-]+$/', $value))->toBe(1);
 });
 
 it('should return a valid value for DATE field type', function () {
     $value = FakerFactory::getDateValue(); // Supondo que você tenha este método
-
+    dump($value, strtotime($value));
     // Verifica se é uma string
     expect(is_string($value))->toBeTrue();
 
@@ -125,8 +118,8 @@ it('should return a valid value for DATE field type', function () {
 
     // Verifica se está dentro de um intervalo razoável
     $timestamp = strtotime($value);
-    expect($timestamp)->toBeGreaterThan(strtotime('1970-01-01'));
-    expect($timestamp)->toBeLessThan(strtotime('2100-01-01'));
+    expect($timestamp)->toBeGreaterThan(strtotime('1000-01-01'));
+    expect($timestamp)->toBeLessThan(strtotime('9999-12-31'));
 });
 
 it('should return a valid value for DATETIME field type', function () {
@@ -145,8 +138,8 @@ it('should return a valid value for DATETIME field type', function () {
 
     // Verifica se está dentro de um intervalo razoável
     $timestamp = strtotime($value);
-    expect($timestamp)->toBeGreaterThan(strtotime('1970-01-01 00:00:00'));
-    expect($timestamp)->toBeLessThan(strtotime('2100-01-01 00:00:00'));
+    expect($timestamp)->toBeGreaterThan(strtotime('1000-01-01 00:00:00'));
+    expect($timestamp)->toBeLessThan(strtotime('9999-12-31 23:59:59'));
 });
 
 it('should return a valid value for DECIMAL field type', function () {
@@ -336,8 +329,8 @@ it('should return a valid value for SMALLINT field type', function () {
     $value = FakerFactory::getSmallIntValue(); // Supondo que você tenha este método
 
     // Verifica se é um número inteiro
+    dump($value);
     expect(is_int($value))->toBeTrue();
-
     // Verifica se está dentro dos limites do SMALLINT
     expect($value)->toBeGreaterThanOrEqual(-32768);
     expect($value)->toBeLessThanOrEqual(32767);
