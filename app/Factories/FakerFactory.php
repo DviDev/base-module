@@ -15,8 +15,8 @@ class FakerFactory
     public static function getBinaryValue(): string
     {
         $faker = Factory::create();
-        $length = $faker->numberBetween(1, 255); // MySQL BINARY type max length is 255 bytes
-        return substr(base64_encode($faker->randomBytes($length)), 0, $length);
+        $length = $faker->numberBetween(1, 255);
+        return substr(base64_encode(random_bytes($length)), 0, $length);
     }
 
     public static function getBitValue(): int
@@ -30,17 +30,17 @@ class FakerFactory
         $faker = Factory::create();
         // BLOB can store up to 65,535 bytes (64KB)
         $length = $faker->numberBetween(1, 65535);
-        return base64_encode($faker->randomBytes($length));
+        return base64_encode(random_bytes($length));
     }
 
     public static function getCharValue(int $length = 1): string
     {
         $faker = Factory::create();
-        $length = min($length, 255); // MySQL CHAR type max length is 255
+        $length = min(max($length, 5), 255); // MySQL CHAR type max length is 255, min 5 for Faker
         return substr($faker->text($length), 0, $length);
     }
 
-    public static function getDateValue()
+    public static function getMysqlDateValue()
     {
         $faker = Factory::create();
         // MySQL DATE range is '1000-01-01' to '9999-12-31'
@@ -207,7 +207,7 @@ class FakerFactory
         // LONGBLOB can store up to 4GB (4,294,967,295 bytes)
         // For practical purposes, we'll generate a much smaller size
         $length = $faker->numberBetween(1, 1048576); // Max 1MB for practical purposes
-        return base64_encode($faker->randomBytes($length));
+        return base64_encode(random_bytes($length));
     }
 
     public static function getLongTextValue(): string
@@ -230,7 +230,7 @@ class FakerFactory
         // MEDIUMBLOB can store up to 16MB (16,777,215 bytes)
         // For practical purposes, we'll generate a much smaller size
         $length = $faker->numberBetween(1, 262144); // Max 256KB for practical purposes
-        return base64_encode($faker->randomBytes($length));
+        return base64_encode(random_bytes($length));
     }
 
     public static function getMediumIntValue(): int
@@ -267,7 +267,7 @@ class FakerFactory
         return implode(',', $selected);
     }
 
-    public static function getSmallIntValue(): string
+    public static function getSmallIntValue(): int
     {
         $faker = Factory::create();
         // SMALLINT range is -32768 to 32767
@@ -301,7 +301,7 @@ class FakerFactory
         $faker = Factory::create();
         // TINYBLOB can store up to 255 bytes
         $length = $faker->numberBetween(1, 255);
-        return base64_encode($faker->randomBytes($length));
+        return base64_encode(random_bytes($length));
     }
 
     public static function getTinyIntValue()
@@ -328,10 +328,9 @@ class FakerFactory
 
     public static function getVarbinaryValue(int $length): string
     {
-        $faker = Factory::create();
         // VARBINARY max length is 65,535 bytes
         $length = min($length, 65535);
-        return substr(base64_encode($faker->randomBytes($length)), 0, $length);
+        return substr(base64_encode(random_bytes($length)), 0, $length);
     }
 
     public static function getYearValue(): int
@@ -339,5 +338,13 @@ class FakerFactory
         $faker = Factory::create();
         // YEAR range is 1901 to 2155
         return $faker->numberBetween(1901, 2155);
+    }
+
+    public static function getDateValue()
+    {
+        $faker = Factory::create();
+        // MySQL DATE range is '1000-01-01' to '9999-12-31'
+        return $faker->dateTimeBetween('1000-01-01', '9999-12-31')
+            ->format('Y-m-d');
     }
 }
