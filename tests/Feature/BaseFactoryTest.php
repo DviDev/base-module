@@ -1,10 +1,16 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Modules\Base\Factories\BaseFactory;
 use Modules\Base\Factories\FakerFactory;
+use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
+use Modules\DBMap\Entities\ModuleTableAttribute\ModuleTableAttributeEntityModel;
+use Modules\DBMap\Models\ModuleTableAttributeModel;
+use Modules\DBMap\Models\ModuleTableAttributeTypeModel;
 
 uses(Tests\TestCase::class);
+uses(DatabaseTransactions::class);
 
 it('Index is unique multiple', function () {
     //'Todo get all unique columns and check if has in $columns with same values'
@@ -25,30 +31,46 @@ it('should be create user data', function () {
     //Todo 3. Testa cada atributo
     //Ex: name:attr_char - size: 12 (testa se o valor retornado tem as caracteristicas necessárias)
 });
-it('should return a valid value for BIGINT field type', function () {
-    //testa se o valor retornado é um valor aceito pelo campo BIGINT do mysql
-    $value = FakerFactory::getBigIntValue(); // Supondo que você tenha este método
+describe('dbmap.factory.fake.auto', function () {
+    beforeEach(function () {
+        $p = ModuleTableAttributeEntityModel::props();
 
-    // Verifica se é um número inteiro
-    expect(is_int($value))->toBeTrue();
+        $this->attribute = ModuleTableAttributeModel::factory()->create([
+            $p->type => ModuleTableAttributeTypeModel::getByType(ModuleTableAttributeTypeEnum::bigint)->id,
+            $p->items => null,
+            $p->size => null,
+            $p->table_id => 12,
+            $p->unsigned => fake()->boolean() ? 1 : null,
+            $p->nullable => fake()->boolean() ? 1 : null,
+        ]);
+    });
+//    uses(DatabaseTransactions::class);
+    it('should return a valid value for BIGINT field type', function () {
+        //testa se o valor retornado é um valor aceito pelo campo BIGINT do mysql
 
-    // Verifica se está dentro dos limites do BIGINT com sinal
-    expect($value)->toBeGreaterThanOrEqual(-9223372036854775808);
-    expect($value)->toBeLessThanOrEqual(9223372036854775807);
+        //quero testar se o valor gerado conforme o solicitado pelo $attribute é um valor aceito pelo campo BIGINT do mysql
+        $value = FakerFactory::getBigIntValue($this->attribute);
+        expect(is_int($value))->toBeTrue();
+
+        // Verifica se está dentro dos limites do BIGINT com sinal
+        expect($value)->toBeGreaterThanOrEqual(-9223372036854775808);
+        expect($value)->toBeLessThanOrEqual(9223372036854775807);
+    });
+
+    it('should return a valid value for BINARY field type', function () {
+        $value = FakerFactory::getBinaryValue($this->attribute);
+        // Verifica se é uma string
+        expect(is_string($value))->toBeTrue();
+
+        // Verifica se o comprimento é compatível com BINARY (normalmente entre 1 e 255 bytes)
+        expect(strlen($value))->toBeLessThanOrEqual(255);
+        expect(strlen($value))->toBeGreaterThan(0);
+
+        // Verifica se contém apenas caracteres binários válidos
+        expect(preg_match('/^[0-9a-f]+$/', bin2hex($value)))->toBe(1);
+    });
 });
 
-it('should return a valid value for BINARY field type', function () {
-    $value = FakerFactory::getBinaryValue();
-    // Verifica se é uma string
-    expect(is_string($value))->toBeTrue();
-
-    // Verifica se o comprimento é compatível com BINARY (normalmente entre 1 e 255 bytes)
-    expect(strlen($value))->toBeLessThanOrEqual(255);
-    expect(strlen($value))->toBeGreaterThan(0);
-
-    // Verifica se contém apenas caracteres binários válidos
-    expect(preg_match('/^[0-9a-f]+$/', bin2hex($value)))->toBe(1);
-});
 
 it('should return a valid value for BIT field type', function () {
     $value = FakerFactory::getBitValue(); // Supondo que você tenha este método
