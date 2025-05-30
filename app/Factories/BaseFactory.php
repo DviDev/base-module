@@ -271,15 +271,16 @@ abstract class BaseFactory extends Factory
                     continue;
                 }
                 $module_model_path = 'Modules/' . $module->getName() . '/Models';
-                if (is_dir(base_path($module_model_path))) {
-                    $files = \File::files(base_path($module_model_path));
-                    foreach ($files as $file) {
-                        /**@var BaseModel $model */
-                        $model = str($module_model_path . '/' . $file->getFilenameWithoutExtension())->replace('/', '\\')->value();
-                        $reflectionClass = new \ReflectionClass($model);
-                        if ($reflectionClass->isSubclassOf(BaseModel::class)) {
-                            $table_model[$model::table()] = $model;
-                        }
+                if (!is_dir(module_path($module->getName(), 'Models'))) {
+                    continue;
+                }
+                $files = \File::files(module_path($module->getName(), 'Models'));
+                foreach ($files as $file) {
+                    /**@var BaseModel $model */
+                    $model = str($module_model_path . '/' . $file->getFilenameWithoutExtension())->replace('/', '\\')->value();
+                    $reflectionClass = new \ReflectionClass($model);
+                    if ($reflectionClass->isSubclassOf(BaseModel::class)) {
+                        $table_model[$model::table()] = $model;
                     }
                 }
             }
@@ -350,8 +351,8 @@ abstract class BaseFactory extends Factory
     {
         $attributes = [];
         /**@var BaseModel $model_class */
-        if ($model_class === User::class && $defult = config('person.seed.user.types.default')) {
-            $attributes = ['type_id' => $defult];
+        if ($model_class === User::class && $default = config('person.seed.user.types.default')) {
+            $attributes = ['type_id' => $default];
         }
 
         return $model_class::factory()->create($attributes)->id;

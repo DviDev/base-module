@@ -8,9 +8,6 @@
             "email": "davimenezes.dev@gmail.com"
         }
     ],
-    "require": {
-        "ext-iconv": "*"
-    },
     "extra": {
         "laravel": {
             "providers": [],
@@ -21,13 +18,18 @@
     },
     "autoload": {
         "psr-4": {
-            "Modules\\Base\\": [
-                "",
-                "app/"
-            ]
+            "Modules\\Base\\": "app/",
+            "Modules\\Base\\Database\\Factories\\": "database/factories/",
+            "Modules\\Base\\Database\\Seeders\\": "database/seeders/",
+            "Modules\\Base\\Database\\Migrations\\": "database/migrations/"
         },
         "files": [
             "app/helpers.php"
         ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Base\\Tests\\": "tests/"
+        }
     }
 }
