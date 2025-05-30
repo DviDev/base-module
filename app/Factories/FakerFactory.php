@@ -3,108 +3,145 @@
 namespace Modules\Base\Factories;
 
 use Faker\Factory;
+use Modules\DBMap\Models\ModuleTableAttributeModel;
 
 class FakerFactory
 {
-    public static function getBigIntValue(): int
+    public static function getBigIntValue(ModuleTableAttributeModel $attribute): ?int
     {
         $faker = Factory::create();
-        return $faker->numberBetween(-9223372036854775808, 9223372036854775807);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $min = $attribute->unsigned ? 0 : -9223372036854775808;
+        $max = min($attribute->size ?? 9223372036854775807, 9223372036854775807);
+
+        return $faker->numberBetween($min, $max);
     }
 
-    public static function getBinaryValue(): string
+    public static function getBinaryValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        $length = $faker->numberBetween(1, 255);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $length = min($attribute->size ?? 255, 255);
         return substr(base64_encode(random_bytes($length)), 0, $length);
     }
 
-    public static function getBitValue(): int
+    public static function getBitValue(ModuleTableAttributeModel $attribute): ?int
     {
         $faker = Factory::create();
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
         return $faker->boolean ? 1 : 0;
     }
 
-    public static function getBlobValue(): string
+    public static function getBlobValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        // BLOB can store up to 65,535 bytes (64KB)
-        $length = $faker->numberBetween(1, 65535);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $length = min($attribute->size ?? 65535, 65535);
         return base64_encode(random_bytes($length));
     }
 
-    public static function getCharValue(int $length = 1): string
+    public static function getCharValue(ModuleTableAttributeModel $attribute, int $length = 1): ?string
     {
         $faker = Factory::create();
-        $length = min(max($length, 5), 255); // MySQL CHAR type max length is 255, min 5 for Faker
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $length = min(max($attribute->size ?? $length, 1), 255);
         return substr($faker->text($length), 0, $length);
     }
 
-    public static function getMysqlDateValue()
+    public static function getMysqlDateValue(ModuleTableAttributeModel $attribute)
     {
+
         $faker = Factory::create();
-        // MySQL DATE range is '1000-01-01' to '9999-12-31'
-        return $faker->dateTimeBetween('1000-01-01', '9999-12-31')
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $minDate = $attribute->requirement['min'] ?? '1000-01-01';
+        $maxDate = $attribute->requirement['max'] ?? '9999-12-31';
+
+        return $faker->dateTimeBetween($minDate, $maxDate)
             ->format('Y-m-d');
     }
 
-    public static function getDateTimeValue()
+    public static function getDateTimeValue(ModuleTableAttributeModel $attribute)
     {
         $faker = Factory::create();
-        // MySQL DATETIME range is '1000-01-01 00:00:00' to '9999-12-31 23:59:59'
-        return $faker->dateTimeBetween('1000-01-01 00:00:00', '9999-12-31 23:59:59')
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $minDateTime = $attribute->requirement['min'] ?? '1000-01-01 00:00:00';
+        $maxDateTime = $attribute->requirement['max'] ?? '9999-12-31 23:59:59';
+
+        return $faker->dateTimeBetween($minDateTime, $maxDateTime)
             ->format('Y-m-d H:i:s');
     }
 
-    public static function getDecimalValue(int $precision = 65, int $scale = 30): string
+    public static function getDecimalValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
 
-        // MySQL DECIMAL max precision is 65, max scale is 30
-        $precision = min(65, max($precision, $scale));
-        $scale = min(30, max(0, $scale));
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
 
-        // Calculate maximum whole number part based on precision and scale
+        $precision = min(65, $attribute->size ?? 65);
+        $scale = min(30, $attribute->scale ?? 0);
+
         $maxWholeDigits = $precision - $scale;
-        $maxWhole = pow(10, $maxWholeDigits) - 1;
+        $minWhole = $attribute->unsigned ? 0 : -pow(10, $maxWholeDigits) + 1;
+        $maxWhole = $attribute->requirement['max'] ?? pow(10, $maxWholeDigits) - 1;
 
-        // Generate random number with proper precision and scale
-        $whole = $faker->numberBetween(0, $maxWhole);
+        $whole = $faker->numberBetween($minWhole, $maxWhole);
         $decimal = $faker->numberBetween(0, pow(10, $scale) - 1);
 
-        // Format the number to ensure proper scale
         return sprintf("%d.%0{$scale}d", $whole, $decimal);
     }
 
-    public static function getDoubleValue(): float|int
+    public static function getDoubleValue(ModuleTableAttributeModel $attribute): float|int|null
     {
         $faker = Factory::create();
-        $isPositive = $faker->boolean;
 
-        if ($faker->boolean) { // Sometimes return 0
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $isPositive = !$attribute->unsigned ? $faker->boolean : true;
+
+        if ($faker->boolean) {
             return 0.0;
         }
 
-        $exponent = $faker->numberBetween(-308, 308);
-        $mantissa = $faker->randomFloat(15, 1, 9.999999999999999);
+        $min = $attribute->requirement['min'] ?? ($attribute->unsigned ? 2.2250738585072014E-308 : -1.7976931348623157E+308);
+        $max = $attribute->requirement['max'] ?? 1.7976931348623157E+308;
 
-        // Ensure the number is within MySQL DOUBLE bounds
-        $number = $mantissa * pow(10, $exponent);
-
-        // Handle very small numbers
-        if (abs($number) < 2.2250738585072014E-308) {
-            $number = $isPositive ? 2.2250738585072014E-308 : -2.2250738585072014E-308;
-        }
-
-        // Handle very large numbers
-        if (abs($number) > 1.7976931348623157E+308) {
-            $number = $isPositive ? 1.7976931348623157E+308 : -1.7976931348623157E+308;
-        }
-
-        return $isPositive ? $number : -$number;
+        $number = $faker->randomFloat(15, $min, $max);
+        return $isPositive ? abs($number) : -abs($number);
     }
 
-    public static function getEnumValue(array $allowedValues): mixed
+    public static function getEnumValue(ModuleTableAttributeModel $attribute, array $allowedValues): mixed
     {
         $faker = Factory::create();
 
@@ -118,71 +155,72 @@ class FakerFactory
         return $faker->randomElement($validValues);
     }
 
-    public static function getFloatValue(): float|int
-    {
-        $faker = Factory::create();
-        $isPositive = $faker->boolean;
-
-        if ($faker->boolean) { // Sometimes return 0
-            return 0.0;
-        }
-
-        $exponent = $faker->numberBetween(-38, 38);
-        $mantissa = $faker->randomFloat(7, 1, 3.4028234);
-
-        // Ensure the number is within MySQL FLOAT bounds
-        $number = $mantissa * pow(10, $exponent);
-
-        // Handle very small numbers
-        if (abs($number) < 1.175494351E-38) {
-            $number = $isPositive ? 1.175494351E-38 : -1.175494351E-38;
-        }
-
-        // Handle very large numbers
-        if (abs($number) > 3.402823466E+38) {
-            $number = $isPositive ? 3.402823466E+38 : -3.402823466E+38;
-        }
-
-        return $isPositive ? $number : -$number;
-    }
-
-    public static function getIntValue(bool $allowNull = false): ?int
+    public static function getFloatValue(ModuleTableAttributeModel $attribute): float|int|null
     {
         $faker = Factory::create();
 
-        if ($allowNull && $faker->boolean(10)) { // 10% chance of returning null if allowed
+        if ($attribute->nullable && $faker->boolean(10)) {
             return null;
         }
 
-        // MySQL INT range is -2147483648 to 2147483647
-        return $faker->numberBetween(-2147483648, 2147483647);
+        $isPositive = !$attribute->unsigned ? $faker->boolean : true;
+
+        if ($faker->boolean) {
+            return 0.0;
+        }
+
+        $min = $attribute->requirement['min'] ?? ($attribute->unsigned ? 1.175494351E-38 : -3.402823466E+38);
+        $max = $attribute->requirement['max'] ?? 3.402823466E+38;
+
+        $number = $faker->randomFloat(7, $min, $max);
+        return $isPositive ? abs($number) : -abs($number);
     }
 
-    public static function getJsonValue(): false|string
+    public static function getIntValue(ModuleTableAttributeModel $attribute): ?int
     {
         $faker = Factory::create();
 
-        // Generate random structure (array or object)
-        $depth = $faker->numberBetween(1, 3); // Control nesting depth
-        $elements = $faker->numberBetween(1, 5); // Number of elements
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $min = $attribute->unsigned ? 0 : -2147483648;
+        $max = 2147483647;
+
+        return $faker->numberBetween($min, $max);
+    }
+
+    public static function getJsonValue(ModuleTableAttributeModel $attribute): false|string|null
+    {
+        $faker = Factory::create();
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $depth = $attribute->requirement['depth'] ?? $faker->numberBetween(1, 3);
+        $elements = $attribute->requirement['elements'] ?? $faker->numberBetween(1, 5);
 
         $data = [];
         for ($i = 0; $i < $elements; $i++) {
             $key = $faker->word;
 
-            // Randomly choose value type
             switch ($faker->numberBetween(1, 6)) {
                 case 1:
                     $data[$key] = $faker->word;
                     break;
                 case 2:
-                    $data[$key] = $faker->numberBetween(1, 1000);
+                    $data[$key] = $faker->numberBetween(
+                        $attribute->requirement['min'] ?? 1,
+                        $attribute->requirement['max'] ?? 1000
+                    );
                     break;
                 case 3:
                     $data[$key] = $faker->boolean;
                     break;
                 case 4:
-                    $data[$key] = $faker->randomElements(['a', 'b', 'c'], $faker->numberBetween(1, 3));
+                    $values = $attribute->items ? explode(',', $attribute->items) : ['a', 'b', 'c'];
+                    $data[$key] = $faker->randomElements($values, $faker->numberBetween(1, 3));
                     break;
                 case 5:
                     if ($depth > 1) {
@@ -197,59 +235,86 @@ class FakerFactory
             }
         }
 
-        // MySQL's maximum JSON document size is 1GB, but we keep it reasonable
         return json_encode($data, JSON_UNESCAPED_UNICODE);
     }
 
-    public static function getLongBlobValue(): string
+    public static function getLongBlobValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        // LONGBLOB can store up to 4GB (4,294,967,295 bytes)
-        // For practical purposes, we'll generate a much smaller size
-        $length = $faker->numberBetween(1, 1048576); // Max 1MB for practical purposes
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $maxSize = $attribute->requirement['max_size'] ?? 1048576; // Default 1MB
+        $minSize = $attribute->requirement['min_size'] ?? 1;
+        $length = $faker->numberBetween($minSize, $maxSize);
+
         return base64_encode(random_bytes($length));
     }
 
-    public static function getLongTextValue(): string
+    public static function getLongTextValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        // LONGTEXT can store up to 4GB (4,294,967,295 bytes)
-        // For practical purposes, we'll generate a much smaller size
-        $paragraphs = $faker->numberBetween(1, 50); // Generate between 1-50 paragraphs
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $maxParagraphs = $attribute->requirement['max_paragraphs'] ?? 50;
+        $minParagraphs = $attribute->requirement['min_paragraphs'] ?? 1;
+        $maxSize = $attribute->requirement['max_size'] ?? 1048576;
+
+        $paragraphs = $faker->numberBetween($minParagraphs, $maxParagraphs);
         $text = $faker->paragraphs($paragraphs, true);
 
-        // Ensure text is valid UTF-8 and within reasonable size (1MB for practical purposes)
-        $text = mb_substr($text, 0, 1048576);
-
-        return $text;
+        return mb_substr($text, 0, $maxSize);
     }
 
-    public static function getMediumBlobValue(): string
+    public static function getMediumBlobValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        // MEDIUMBLOB can store up to 16MB (16,777,215 bytes)
-        // For practical purposes, we'll generate a much smaller size
-        $length = $faker->numberBetween(1, 262144); // Max 256KB for practical purposes
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $maxSize = $attribute->requirement['max_size'] ?? 262144; // Default 256KB
+        $minSize = $attribute->requirement['min_size'] ?? 1;
+        $length = $faker->numberBetween($minSize, $maxSize);
+
         return base64_encode(random_bytes($length));
     }
 
-    public static function getMediumIntValue(): int
+    public static function getMediumIntValue(ModuleTableAttributeModel $attribute): ?int
     {
         $faker = Factory::create();
-        // MEDIUMINT range is -8388608 to 8388607
-        return $faker->numberBetween(-8388608, 8388607);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $min = $attribute->unsigned ? 0 : -8388608;
+        $max = $attribute->unsigned ? 16777215 : 8388607;
+
+        return $faker->numberBetween($min, $max);
     }
 
-    public static function getMediumTextValue(): string
+    public static function getMediumTextValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        // MEDIUMTEXT can store up to 16MB (16,777,215 bytes)
-        // For practical purposes, we'll generate a much smaller size
-        $paragraphs = $faker->numberBetween(1, 25); // Generate between 1-25 paragraphs
-        return mb_substr($faker->paragraphs($paragraphs, true), 0, 262144); // Max 256KB for practical purposes
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $maxSize = $attribute->size ?? 262144;
+        $paragraphs = $faker->numberBetween(1, 25);
+
+        return mb_substr($faker->paragraphs($paragraphs, true), 0, $maxSize);
     }
 
-    public static function getSetValue(array $allowedValues): ?string
+    public static function getSetValue(ModuleTableAttributeModel $attribute, array $allowedValues): ?string
     {
         $faker = Factory::create();
 
@@ -267,84 +332,162 @@ class FakerFactory
         return implode(',', $selected);
     }
 
-    public static function getSmallIntValue(): int
+    public static function getSmallIntValue(ModuleTableAttributeModel $attribute): ?int
     {
         $faker = Factory::create();
-        // SMALLINT range is -32768 to 32767
-        return $faker->numberBetween(-32768, 32767);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $min = $attribute->requirement['min'] ?? ($attribute->unsigned ? 0 : -32768);
+        $max = $attribute->requirement['max'] ?? ($attribute->unsigned ? 65535 : 32767);
+        return $faker->numberBetween($min, $max);
     }
 
-    public static function getTextValue(): string
+    public static function getTextValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        // TEXT can store up to 65,535 bytes
-        $paragraphs = $faker->numberBetween(1, 10);
-        return mb_substr($faker->paragraphs($paragraphs, true), 0, 65535);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $maxSize = $attribute->size ?? 65535;
+        $minParagraphs = $attribute->requirement['min_paragraphs'] ?? 1;
+        $maxParagraphs = $attribute->requirement['max_paragraphs'] ?? 10;
+        $paragraphs = $faker->numberBetween($minParagraphs, $maxParagraphs);
+
+        return mb_substr($faker->paragraphs($paragraphs, true), 0, $maxSize);
     }
 
-    public static function getTimeValue()
+    public static function getTimeValue(ModuleTableAttributeModel $attribute)
     {
         $faker = Factory::create();
-        // TIME range is '-838:59:59' to '838:59:59'
-        return $faker->time('H:i:s');
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $minTime = $attribute->requirement['min'] ?? '-838:59:59';
+        $maxTime = $attribute->requirement['max'] ?? '838:59:59';
+
+        return $faker->dateTimeBetween($minTime, $maxTime)->format('H:i:s');
     }
 
-    public static function getTimestampValue(): string
+    public static function getTimestampValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        // TIMESTAMP range is '1970-01-01 00:00:01' UTC to '2038-01-19 03:14:07' UTC
-        return $faker->dateTimeBetween('1970-01-01 00:00:01', '2038-01-19 03:14:07')->format('Y-m-d H:i:s');
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $minTimestamp = $attribute->requirement['min'] ?? '1970-01-01 00:00:01';
+        $maxTimestamp = $attribute->requirement['max'] ?? '2038-01-19 03:14:07';
+
+        return $faker->dateTimeBetween($minTimestamp, $maxTimestamp)->format('Y-m-d H:i:s');
     }
 
-    public static function getTinyBlobValue(): string
+    public static function getTinyBlobValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        // TINYBLOB can store up to 255 bytes
-        $length = $faker->numberBetween(1, 255);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $minSize = $attribute->requirement['min_size'] ?? 1;
+        $maxSize = min($attribute->requirement['max_size'] ?? 255, 255);
+        $length = $faker->numberBetween($minSize, $maxSize);
+
         return base64_encode(random_bytes($length));
     }
 
-    public static function getTinyIntValue()
+    public static function getTinyIntValue(ModuleTableAttributeModel $attribute): ?int
     {
         $faker = Factory::create();
-        // TINYINT range is -128 to 127
-        return $faker->numberBetween(-128, 127);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $min = $attribute->requirement['min'] ?? ($attribute->unsigned ? 0 : -128);
+        $max = $attribute->requirement['max'] ?? ($attribute->unsigned ? 255 : 127);
+
+        return $faker->numberBetween($min, $max);
     }
 
-    public static function getTinyTextValue(): string
+    public static function getTinyTextValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        // TINYTEXT can store up to 255 bytes
-        return mb_substr($faker->text(), 0, 255);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $maxSize = min($attribute->requirement['max_size'] ?? 255, 255);
+        return mb_substr($faker->text(), 0, $maxSize);
     }
 
-    public static function getVarcharValue(int $length): string
+    public static function getVarcharValue(ModuleTableAttributeModel $attribute): ?string
     {
         $faker = Factory::create();
-        // VARCHAR max length is 65,535 bytes
-        $length = min($length, 65535);
-        return mb_substr($faker->text($length), 0, $length);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $maxLength = min($attribute->size ?? 255, 65535);
+
+        if ($attribute->items) {
+            $allowedValues = explode(',', $attribute->items);
+            return $faker->randomElement($allowedValues);
+        }
+
+        return mb_substr($faker->text($maxLength), 0, $maxLength);
     }
 
-    public static function getVarbinaryValue(int $length): string
+    public static function getVarbinaryValue(ModuleTableAttributeModel $attribute): ?string
     {
-        // VARBINARY max length is 65,535 bytes
-        $length = min($length, 65535);
+        $faker = Factory::create();
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $minLength = $attribute->requirement['min_size'] ?? 1;
+        $maxLength = min($attribute->requirement['max_size'] ?? 65535, 65535);
+        $length = $faker->numberBetween($minLength, $maxLength);
+
         return substr(base64_encode(random_bytes($length)), 0, $length);
     }
 
-    public static function getYearValue(): int
+    public static function getYearValue(ModuleTableAttributeModel $attribute): int|null
     {
         $faker = Factory::create();
-        // YEAR range is 1901 to 2155
-        return $faker->numberBetween(1901, 2155);
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $minYear = $attribute->requirement['min'] ?? 1901;
+        $maxYear = $attribute->requirement['max'] ?? 2155;
+
+        return $faker->numberBetween($minYear, $maxYear);
     }
 
-    public static function getDateValue()
+    public static function getDateValue(ModuleTableAttributeModel $attribute)
     {
         $faker = Factory::create();
-        // MySQL DATE range is '1000-01-01' to '9999-12-31'
-        return $faker->dateTimeBetween('1000-01-01', '9999-12-31')
-            ->format('Y-m-d');
+
+        if ($attribute->nullable && $faker->boolean(10)) {
+            return null;
+        }
+
+        $minDate = $attribute->requirement['min'] ?? '1000-01-01';
+        $maxDate = $attribute->requirement['max'] ?? '9999-12-31';
+
+        return $faker->dateTimeBetween($minDate, $maxDate)->format('Y-m-d');
     }
 }
