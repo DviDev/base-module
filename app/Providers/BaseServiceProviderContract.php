@@ -159,7 +159,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     {
         $component = str($name)->explode('.')->join('/');
         $origin = module_path($this->getModuleName(), "Resources/views/components/$component.blade.php");
-        $destination = resource_path("views/components/{$this->getModuleNameLower()}/$component.blade.php");
+        $destination = resource_path("views/vendor/{$this->getModuleNameLower()}/$component.blade.php");
         return [$origin, $destination];
     }
 }
