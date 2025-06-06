@@ -29,7 +29,7 @@ abstract class BaseFormBladeComponent extends Component
 
         $items = collect($attrs)->merge($attributes->getAttributes())->forget('attr');
         if (!$items->has('id')) {
-            $items->put('id', 'comp_date_' . random_int(900, 1000));
+            $items->put('id', 'comp_date_' . now()->timestamp);
         }
         $array = $items->all();
         if (isset($array['name'])) {
