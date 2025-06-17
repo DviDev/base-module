@@ -15,7 +15,6 @@ use Modules\Base\Http\Livewire\Notification\NotificationList;
 use Modules\Base\Http\Livewire\Notification\NotificationView;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Services\Errors\BaseTypeErrors;
-use Modules\Base\Spotlight\GotoCommand;
 use Modules\Base\View\Components\Page\Notification\NotificationListPage;
 use Modules\Base\View\Components\Page\Notification\NotificationViewPage;
 
@@ -85,11 +84,16 @@ class BaseServiceProvider extends BaseServiceProviderContract
      */
     protected function registerConfig(): void
     {
+        $config_module_path = module_path($this->moduleName, 'Config');
+        $config_module_path_lower = module_path($this->moduleName, 'config');
+        if (is_dir($config_module_path)) {
+            rename($config_module_path, $config_module_path_lower);
+        }
         $this->publishes([
-            module_path($this->moduleName, 'Config/config.php') => config_path($this->moduleNameLower . '.php'),
+            module_path($this->moduleName, 'config/config.php') => config_path($this->moduleNameLower . '.php'),
         ], 'config');
         $this->mergeConfigFrom(
-            module_path($this->moduleName, 'Config/config.php'), $this->moduleNameLower
+            module_path($this->moduleName, 'config/config.php'), $this->moduleNameLower
         );
     }
 
