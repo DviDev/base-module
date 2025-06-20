@@ -5,28 +5,30 @@ namespace Modules\Base\Database\Seeders;
 class SeederEventDTO
 {
     protected string $event;
+
     protected array $parameters;
 
-    private function __construct()
-    {
-    }
+    private function __construct() {}
 
     public static function event(string $event): static
     {
-        $new = new static();
+        $new = new static;
         $new->event = $event;
+
         return $new;
     }
 
     public function param($name, $value): static
     {
         $this->parameters[$name] = $value;
+
         return $this;
     }
 
     public function params(array $array): static
     {
         $this->parameters = $array;
+
         return $this;
     }
 

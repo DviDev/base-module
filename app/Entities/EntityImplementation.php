@@ -10,6 +10,7 @@ trait EntityImplementation
     public static function new(): object
     {
         $class = static::class;
+
         return new $class;
     }
 }

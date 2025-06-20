@@ -12,7 +12,7 @@ class LocalEnvironmentMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!app()->isLocal()) {
+        if (! app()->isLocal()) {
             abort(403, 'Acesso negado');
         }
 

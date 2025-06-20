@@ -14,7 +14,4 @@ use Illuminate\Support\Carbon;
  * @property $created_at
  * @property string|Carbon $updated_at
  */
-trait ConfigProps
-{
-
-}
+trait ConfigProps {}

@@ -12,9 +12,10 @@ use Throwable;
 class ExceptionBaseResponse extends Exception
 {
     private BaseResponse $response;
+
     private ?Throwable $exception;
 
-    public function __construct(BaseResponse $response, Throwable $exception = null)
+    public function __construct(BaseResponse $response, ?Throwable $exception = null)
     {
         $this->response = $response;
         $this->exception = $exception;
@@ -25,11 +26,11 @@ class ExceptionBaseResponse extends Exception
     public static function throw($errorCode, $msg = null, $exception = null)
     {
         if (is_a($exception, ExceptionBaseResponse::class)) {
-            /**@var ExceptionBaseResponse $exception */
+            /** @var ExceptionBaseResponse $exception */
             $exception->response()->addError($errorCode);
             throw $exception;
         }
-        throw new self((new BaseResponse())->addError($errorCode, $msg), $exception);
+        throw new self((new BaseResponse)->addError($errorCode, $msg), $exception);
     }
 
     public static function throwWithBaseResponse(BaseResponse $baseResponse, Exception $exception)
@@ -58,6 +59,7 @@ class ExceptionBaseResponse extends Exception
         }
         $response_data = $this->response->toArray();
         $message .= json_encode($response_data, JSON_UNESCAPED_UNICODE);
+
         return $message;
     }
 
@@ -66,8 +68,9 @@ class ExceptionBaseResponse extends Exception
         if ($this->exception) {
             return $this->exception->getCode();
         }
+
         return collect($this->response->getErrors())
-            ->each(fn($error) => $error->code)->join(',');
+            ->each(fn ($error) => $error->code)->join(',');
     }
 
     public function file()
@@ -75,6 +78,7 @@ class ExceptionBaseResponse extends Exception
         if ($this->exception) {
             return $this->exception->getFile();
         }
+
         return null;
     }
 
@@ -83,6 +87,7 @@ class ExceptionBaseResponse extends Exception
         if ($this->exception) {
             return $this->exception->getLine();
         }
+
         return null;
     }
 
@@ -91,6 +96,7 @@ class ExceptionBaseResponse extends Exception
         if ($this->exception) {
             return $this->exception->getTrace();
         }
+
         return null;
     }
 
@@ -99,6 +105,7 @@ class ExceptionBaseResponse extends Exception
         if ($this->exception) {
             return $this->exception->getTraceAsString();
         }
+
         return null;
     }
 
@@ -107,22 +114,24 @@ class ExceptionBaseResponse extends Exception
         if ($this->exception) {
             return $this->exception->getPrevious();
         }
-        return  null;
+
+        return null;
     }
 
     public function __toString()
     {
         $str = '';
         if ($message = $this->message()) {
-            $str = 'Error: ' . $message;
+            $str = 'Error: '.$message;
         }
         if ($file = $this->file()) {
-            $str .= ' in ' . $file;
+            $str .= ' in '.$file;
         }
 
         if ($line = $this->line()) {
-            $str .= ' line ' .$line;
+            $str .= ' line '.$line;
         }
+
         return $str;
     }
 }

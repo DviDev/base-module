@@ -2,8 +2,6 @@
 
 namespace Modules\Base\Domain;
 
-use Exception;
-use Illuminate\Support\Facades\Log;
 use Modules\Base\Repository\BaseRepository;
 use Modules\Base\Services\Response\BaseResponse;
 use ReflectionObject;
@@ -11,16 +9,18 @@ use ReflectionObject;
 /**
  * @author     Davi Menezes
  * @copyright  Copyright (c) 2020. (davimenezes.dev@gmail.com)
+ *
  * @see https://github.com/DaviMenezes
  */
 abstract class BaseDomain
 {
     public BaseRepository $repository;
+
     protected BaseResponse $baseResponse;
 
     public function __construct()
     {
-        $this->baseResponse = new BaseResponse();
+        $this->baseResponse = new BaseResponse;
     }
 
     public function baseResponse(): BaseResponse
@@ -31,7 +31,8 @@ abstract class BaseDomain
     public function repository(): BaseRepository
     {
         $class = $this->repositoryClass();
-        return $this->repository = $this->repository ?? new $class();
+
+        return $this->repository = $this->repository ?? new $class;
     }
 
     abstract public function repositoryClass(): string;

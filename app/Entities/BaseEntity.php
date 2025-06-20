@@ -6,7 +6,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 use Modules\Base\Contracts\EntityInterface;
 
-abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayable
+abstract class BaseEntity implements Arrayable, EntityInterface, JsonSerializable
 {
     use Props;
 
@@ -50,11 +50,13 @@ abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayabl
     {
         if (str_starts_with($method, 'set')) {
             $prop = strtolower(substr($method, 3));
+
             return $this->set($prop, $parameters[0]);
         }
         if (is_a($this, BaseEntityModel::class) && $method == 'save') {
             $this->repository()->save();
         }
+
         return $this;
     }
 
@@ -70,14 +72,15 @@ abstract class BaseEntity implements EntityInterface, JsonSerializable, Arrayabl
 
     public function set(string $prop, $value, $model_to_entity = false): BaseEntity
     {
-        $changing = !isset($this->attributes_[$prop]) ||
+        $changing = ! isset($this->attributes_[$prop]) ||
             (isset($this->attributes_[$prop]) && $this->attributes_[$prop] !== $value);
         if ($changing) {
             $this->attributes_[$prop] = $value;
         }
-        if (!$model_to_entity && $changing) {
+        if (! $model_to_entity && $changing) {
             $this->changed[] = $prop;
         }
+
         return $this;
     }
 

@@ -14,7 +14,7 @@ class UseSpotlightMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!config('base.use.spotlight')) {
+        if (! config('base.use.spotlight')) {
             return $next($request);
         }
 
@@ -32,7 +32,7 @@ class UseSpotlightMiddleware
 
         $response = $next($request);
 
-        if (!($response instanceof Response)) {
+        if (! ($response instanceof Response)) {
             return $response;
         }
 
@@ -40,7 +40,7 @@ class UseSpotlightMiddleware
 
         $content = str($response->getContent())
             ->remove('<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>')
-            ->replace('</body>', $spotlight . '</body>')
+            ->replace('</body>', $spotlight.'</body>')
             ->value();
 
         return $response->setContent($content);

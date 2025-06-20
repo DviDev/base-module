@@ -5,9 +5,10 @@ namespace Modules\Base\Services\Errors;
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
-class Error implements JsonSerializable, Arrayable
+class Error implements Arrayable, JsonSerializable
 {
     public $code;
+
     public $msg;
 
     public function __construct($code, $msg)

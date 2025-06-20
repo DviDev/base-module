@@ -1,4 +1,5 @@
 <?php
+
 return [
     'actions' => 'Ações',
     'visible only in local environment' => 'visível apenas em ambiente local',
@@ -7,5 +8,5 @@ return [
     'password' => 'Senha',
     'password confirmation' => 'Confirmação de senha',
     'confirm password' => 'Confirme a senha',
-    "back" => "voltar",
+    'back' => 'voltar',
 ];

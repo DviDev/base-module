@@ -10,24 +10,26 @@ class BlueprintBigIntegerFactory extends AttributeFactory
     {
         if ($this->attributeEntity->auto_increment) {
             $this->table->id();
+
             return;
         }
         if (count($this->attributeEntity->relationship) > 0) {
             foreach ($this->attributeEntity->relationship as $relation) {
                 $t = $this->table->foreignId($this->attributeEntity->name);
                 $fk = $t->unsigned()->references('id')->on($relation->secondModelEntity->name);
-                if (!isset($relation->on_update) || $relation->on_update == 'restrict') {
+                if (! isset($relation->on_update) || $relation->on_update == 'restrict') {
                     $fk->restrictOnUpdate();
                 } else {
                     $fk->cascadeOnUpdate();
                 }
-                if (!isset($relation->on_delete) || $relation->on_delete == 'cascade') {
+                if (! isset($relation->on_delete) || $relation->on_delete == 'cascade') {
                     $fk->cascadeOnDelete();
                 } else {
                     $fk->restrictOnDelete();
                 }
             }
             $this->checksOtherProperties($this->attributeEntity, $t);
+
             return;
         }
 

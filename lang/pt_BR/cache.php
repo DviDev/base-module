@@ -1,4 +1,5 @@
 <?php
+
 return [
-    'update cache' => 'atualizar cache'
+    'update cache' => 'atualizar cache',
 ];

@@ -6,14 +6,12 @@ use Nwidart\Modules\Facades\Module;
 
 class DispatchBaseEventSeeder extends BaseSeeder
 {
-    public function run()
-    {
-    }
+    public function run() {}
 
     protected function classModuleSeeders(): void
     {
         $modules = collect(Module::allEnabled());
-        /**@var \Nwidart\Modules\Laravel\Module $module */
+        /** @var \Nwidart\Modules\Laravel\Module $module */
         foreach ($modules as $module) {
             if (in_array($module->getName(), [
                 'Base',
@@ -26,7 +24,7 @@ class DispatchBaseEventSeeder extends BaseSeeder
             if (File::exists(base_path($scan_seeder_class))) {
                 $this->call($scan_seeder_class);
             }*/
-            $this->call('Modules\\' . $module->getName() . '\\Database\\Seeders\\' . $module->getName() . 'DatabaseSeeder');
+            $this->call('Modules\\'.$module->getName().'\\Database\\Seeders\\'.$module->getName().'DatabaseSeeder');
         }
     }
 }

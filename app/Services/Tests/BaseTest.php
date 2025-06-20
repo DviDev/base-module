@@ -33,20 +33,20 @@ abstract class BaseTest extends TestCase
     public function canCreateInstanceOfEntity(): void
     {
         $entity_class = $this->getEntityClass();
-        $entity = new $entity_class();
+        $entity = new $entity_class;
         $this->assertInstanceOf($entity_class, $entity);
     }
 
     public function canCreateInstanceOfModel(): void
     {
         $model_class = $this->getModelClass();
-        $model = new $model_class();
+        $model = new $model_class;
         $this->assertInstanceOf($model_class, $model);
     }
 
     public function shouldSave($attributes = null): void
     {
-        if (!$attributes) {
+        if (! $attributes) {
             $modelClass = $this->getModelClass();
             $model = $modelClass::factory()->create();
             $attributes = $model->getAttributes();
@@ -66,7 +66,7 @@ abstract class BaseTest extends TestCase
 
     public function shouldUpdate($attributes = null): void
     {
-        if (!$attributes) {
+        if (! $attributes) {
             $model = $this->create();
             $make = $this->getModelClass()::factory()->make();
             $model->update($make->attributesToArray());
@@ -85,15 +85,11 @@ abstract class BaseTest extends TestCase
         $this->assertDatabaseMissing($this->getModelClass()::table(), $attributes);
     }
 
-    protected function create():BaseModel
+    protected function create(): BaseModel
     {
         return $this->getModelClass()::factory()->create();
     }
 
-    /**
-     * @param mixed $attributes
-     * @return mixed
-     */
     protected function fixtimestamps(mixed $attributes): mixed
     {
         if (isset($attributes['created_at'])) {
@@ -104,6 +100,7 @@ abstract class BaseTest extends TestCase
         if (isset($attributes['updated_at'])) {
             $attributes['updated_at'] = (new Carbon($attributes['updated_at']))->format('Y-m-d H:i:s');
         }
+
         return $attributes;
     }
 }

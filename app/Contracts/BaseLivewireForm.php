@@ -20,7 +20,8 @@ abstract class BaseLivewireForm extends Component
         }
     }
 
-    abstract protected function modelClass():string;
+    abstract protected function modelClass(): string;
+
     abstract protected function getModel();
 
     abstract public function validationAttributes();
@@ -33,7 +34,7 @@ abstract class BaseLivewireForm extends Component
             DB::beginTransaction();
 
             $class = $this->getClass();
-            $this->model = $this->model ?? new $class();
+            $this->model = $this->model ?? new $class;
             $this->saveAction();
             DB::commit();
             Toastr::instance($this)->success('Item salvo');
@@ -48,9 +49,7 @@ abstract class BaseLivewireForm extends Component
         }
     }
 
-
     /**
-     * @return string
      * @throws \Exception
      */
     protected function getClass(): string
@@ -59,6 +58,7 @@ abstract class BaseLivewireForm extends Component
         if (empty($class)) {
             throw new \Exception('Inform the model class');
         }
+
         return $class;
     }
 }
