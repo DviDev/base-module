@@ -6,10 +6,9 @@ use Modules\Base\Entities\BaseEntityModel;
 
 interface BaseModelInterface
 {
-    /**@return string|BaseEntityModel|EntityInterface */
-    public function modelEntity();
+    public function modelEntity(): string|BaseEntityModel;
 
-    public function toEntity();
+    public function toEntity(): BaseEntityModel;
 
     /**
      * @param  null  $alias

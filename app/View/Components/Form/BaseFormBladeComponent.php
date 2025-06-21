@@ -22,7 +22,7 @@ abstract class BaseFormBladeComponent extends Component
         //
     }
 
-    public static function prepare(ComponentAttributeBag $attributes)
+    public static function prepare(ComponentAttributeBag $attributes): void
     {
         $attrs = $attributes->get('attr');
 

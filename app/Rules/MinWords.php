@@ -2,9 +2,10 @@
 
 namespace Modules\Base\Rules;
 
-use Illuminate\Contracts\Validation\Rule;
+use Closure;
+use Illuminate\Contracts\Validation\ValidationRule;
 
-class MinWords implements Rule
+class MinWords implements ValidationRule
 {
     /**
      * Create a new rule instance.
@@ -13,25 +14,14 @@ class MinWords implements Rule
      */
     public function __construct(public $min, public $attribute = null) {}
 
-    /**
-     * Determine if the validation rule passes.
-     *
-     * @param  string  $attribute
-     * @param  mixed  $value
-     * @return bool
-     */
-    public function passes($attribute, $value)
-    {
-        return str($value)->explode(' ')->count() >= $this->min;
-    }
 
     /**
-     * Get the validation error message.
-     *
-     * @return string
+     * Run the validation rule.
      */
-    public function message()
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        return 'O campo '.$this->attribute.' deve ter o mínimo de '.$this->min.' palavras';
+        if (str($value)->explode(' ')->count() >= $this->min) {
+            $fail('O campo '.$attribute.' deve ter o mínimo de '.$value.' palavras');
+        }
     }
 }

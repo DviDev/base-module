@@ -7,9 +7,9 @@ use JsonSerializable;
 
 class Error implements Arrayable, JsonSerializable
 {
-    public $code;
+    public int $code;
 
-    public $msg;
+    public string $msg;
 
     public function __construct($code, $msg)
     {
@@ -17,7 +17,7 @@ class Error implements Arrayable, JsonSerializable
         $this->msg = $msg ?? ErrorMessages::getMessageDefault($code);
     }
 
-    public function toJson($options = 0)
+    public function toJson($options = 0): false|string
     {
         return json_encode($this->toArray(), $options);
     }
@@ -30,7 +30,7 @@ class Error implements Arrayable, JsonSerializable
         ];
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->toArray();
     }

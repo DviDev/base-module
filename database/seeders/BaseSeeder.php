@@ -14,13 +14,12 @@ abstract class BaseSeeder extends Seeder
 {
     public static function firstOrCreateUser(UserTypeModel $type): User
     {
-        $user = User::query()->where('email', $type->name.'@site.com')->first();
+        $user = User::query()->firstWhere('email', $type->name.'@site.com');
         if ($user) {
             return $user;
         }
 
-        /** @var User $user */
-        $name = str($type->name)->explode('_')->map(fn ($word) => str($word)->lower()->ucfirst())->join(' ');
+        $name = str($type->name)->explode('_')->map(fn (string $word) => str($word)->lower()->ucfirst())->join(' ');
 
         return User::factory()->create([
             'name' => $name,

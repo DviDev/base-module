@@ -3,6 +3,7 @@
 namespace Modules\Base\Spotlight;
 
 use Illuminate\Routing\Route;
+use Illuminate\Support\Collection;
 use LivewireUI\Spotlight\Spotlight;
 use LivewireUI\Spotlight\SpotlightCommand;
 use LivewireUI\Spotlight\SpotlightCommandDependencies;
@@ -29,7 +30,7 @@ class GotoCommand extends SpotlightCommand
             );
     }
 
-    public function searchRoute($query)
+    public function searchRoute($query): Collection
     {
         // Obs. Filters by str(), Str::, it doesn't work.
         // Using collect([])->filter(), or collect([])->expect() etc. won't work for now
@@ -77,7 +78,7 @@ class GotoCommand extends SpotlightCommand
         });
     }
 
-    public function execute(Spotlight $spotlight, $route)
+    public function execute(Spotlight $spotlight, $route): void
     {
         $spotlight->redirect($route);
     }

@@ -8,6 +8,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Commands\DviRequestMakeCommand;
@@ -36,7 +37,7 @@ abstract class BaseComponent extends Component
 
     protected $listeners = ['refresh' => '$refresh'];
 
-    public function mount()
+    public function mount(): void
     {
         $this->setPage();
         if (! $this->page) {
@@ -104,7 +105,7 @@ abstract class BaseComponent extends Component
         });
     }
 
-    public function render()
+    public function render(): View
     {
         return view('base::livewire.base-form');
     }
@@ -120,7 +121,7 @@ abstract class BaseComponent extends Component
         return $rules;
     }
 
-    public function save()
+    public function save(): void
     {
         try {
             $fn = fn ($value) => toUS($value);
@@ -230,7 +231,7 @@ abstract class BaseComponent extends Component
         $this->dispatch('refresh')->self();
     }
 
-    public function delete()
+    public function delete(): void
     {
         try {
             $this->model->delete();
@@ -242,7 +243,7 @@ abstract class BaseComponent extends Component
         }
     }
 
-    public function getKeyValue(ElementModel $element, $item, $reference_view_name)
+    public function getKeyValue(ElementModel $element, $item, $reference_view_name): array
     {
         try {
             if ($reference_view_name) {

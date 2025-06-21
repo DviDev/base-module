@@ -24,12 +24,11 @@ use Modules\Base\Services\Errors\ExceptionBaseResponse;
  */
 abstract class BaseRepository
 {
-    /** @var BaseEntityModel */
-    protected $entity;
+    protected BaseEntityModel $entity;
 
     public function __construct(public ?BaseModel $model = null) {}
 
-    public function model()
+    public function model(): Model
     {
         $model = $this->modelClass();
 
@@ -41,8 +40,7 @@ abstract class BaseRepository
         $this->entity = $entity;
     }
 
-    /**@return BaseModel | string */
-    abstract public function modelClass();
+    abstract public function modelClass(): BaseModel|string;
 
     public function save(?BaseEntityModel &$entityModel = null): Model
     {
@@ -79,7 +77,7 @@ abstract class BaseRepository
         }
     }
 
-    public static function obj()
+    public static function obj(): BaseRepository
     {
         $class = static::class;
 
@@ -89,7 +87,7 @@ abstract class BaseRepository
     /**
      * @return bool|object
      */
-    public function create(array $data)
+    public function create(array $data): object|bool
     {
         return $this->modelClass()::query()->create($data);
     }
@@ -108,14 +106,13 @@ abstract class BaseRepository
         return $this->firstOrNew($query);
     }
 
-    public function remove($id)
+    public function remove($id):mixed
     {
         return $this->modelClass()::query()
             ->where('id', '=', $id)->delete();
     }
 
-    /**@return Builder|Model|BaseModel|object */
-    public function first()
+    public function first(): Model|Builder
     {
         return $this->modelClass()::query()->first();
     }
@@ -133,7 +130,7 @@ abstract class BaseRepository
         return $this->modelClass()::query()->where('id', $id)->exists();
     }
 
-    protected function db(Closure $fn, ...$classes)
+    protected function db(Closure $fn, ...$classes): mixed
     {
         $params = [];
         /** @var BaseModel $class */
@@ -146,11 +143,7 @@ abstract class BaseRepository
         return call_user_func_array($fn, $params);
     }
 
-    /**
-     * @param  Builder|\Illuminate\Database\Query\Builder  $query
-     * @return Builder|Model|BaseModel|object
-     */
-    protected function firstOrNew($query)
+    protected function firstOrNew(Builder|\Illuminate\Database\Query\Builder $query): Model|BaseModel
     {
         $model = $query->first();
         if ($model) {
@@ -184,7 +177,7 @@ abstract class BaseRepository
         return null;
     }
 
-    public static function deleteFn(Closure $fn)
+    public static function deleteFn(Closure $fn): void
     {
         $model = (new static)->model();
         $props = $model->modelEntity()::props(null, true);

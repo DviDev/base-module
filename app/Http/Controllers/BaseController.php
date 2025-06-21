@@ -3,6 +3,7 @@
 namespace Modules\Base\Http\Controllers;
 
 use Exception;
+use Modules\Base\Domain\BaseDomain;
 
 /**
  * @author     Davi Menezes
@@ -12,7 +13,7 @@ use Exception;
  */
 abstract class BaseController
 {
-    protected $domain;
+    protected BaseDomain $domain;
 
     public function domain()
     {

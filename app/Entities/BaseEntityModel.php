@@ -14,8 +14,7 @@ use Modules\Base\Services\Errors\ExceptionBaseResponse;
  */
 abstract class BaseEntityModel extends BaseEntity implements EntityModelInterface
 {
-    /** @var self|BaseModel */
-    public $model;
+    public self|BaseModel $model;
 
     public string $table;
 
@@ -25,7 +24,7 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
         $this->table = $this->table();
     }
 
-    protected static function setTable($table, $alias = null): string
+    protected static function setTable(string $table, string $alias = null): string
     {
         return $table.($alias ? ' as '.$alias : '');
     }
@@ -51,7 +50,7 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
         return $repository;
     }
 
-    public function __get($name)
+    public function __get(string $name)
     {
         if (array_key_exists($name, $this->attributes_)) {
             return $this->attributes_[$name];

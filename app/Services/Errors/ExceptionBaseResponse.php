@@ -23,7 +23,10 @@ class ExceptionBaseResponse extends Exception
         parent::__construct();
     }
 
-    public static function throw($errorCode, $msg = null, $exception = null)
+    /**
+     * @throws ExceptionBaseResponse
+     */
+    public static function throw(int $errorCode, string $msg = null, object $exception = null): ExceptionBaseResponse
     {
         if (is_a($exception, ExceptionBaseResponse::class)) {
             /** @var ExceptionBaseResponse $exception */
@@ -33,7 +36,7 @@ class ExceptionBaseResponse extends Exception
         throw new self((new BaseResponse)->addError($errorCode, $msg), $exception);
     }
 
-    public static function throwWithBaseResponse(BaseResponse $baseResponse, Exception $exception)
+    public static function throwWithBaseResponse(BaseResponse $baseResponse, Exception $exception): ExceptionBaseResponse
     {
         if (is_a($exception, ExceptionBaseResponse::class)) {
             throw $exception;
@@ -51,7 +54,7 @@ class ExceptionBaseResponse extends Exception
         return $this->exception;
     }
 
-    public function message()
+    public function message(): string
     {
         $message = '';
         if ($this->exception) {
@@ -63,17 +66,17 @@ class ExceptionBaseResponse extends Exception
         return $message;
     }
 
-    public function code()
+    public function code(): int|string
     {
         if ($this->exception) {
             return $this->exception->getCode();
         }
 
         return collect($this->response->getErrors())
-            ->each(fn ($error) => $error->code)->join(',');
+            ->each(fn (object $error) => $error->code)->join(',');
     }
 
-    public function file()
+    public function file(): ?string
     {
         if ($this->exception) {
             return $this->exception->getFile();
@@ -82,7 +85,7 @@ class ExceptionBaseResponse extends Exception
         return null;
     }
 
-    public function line()
+    public function line(): ?int
     {
         if ($this->exception) {
             return $this->exception->getLine();
@@ -91,7 +94,7 @@ class ExceptionBaseResponse extends Exception
         return null;
     }
 
-    public function trace()
+    public function trace(): ?array
     {
         if ($this->exception) {
             return $this->exception->getTrace();
@@ -100,7 +103,7 @@ class ExceptionBaseResponse extends Exception
         return null;
     }
 
-    public function traceAsString()
+    public function traceAsString(): ?string
     {
         if ($this->exception) {
             return $this->exception->getTraceAsString();
@@ -109,7 +112,7 @@ class ExceptionBaseResponse extends Exception
         return null;
     }
 
-    public function previous()
+    public function previous(): ?Throwable
     {
         if ($this->exception) {
             return $this->exception->getPrevious();
@@ -118,7 +121,7 @@ class ExceptionBaseResponse extends Exception
         return null;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         $str = '';
         if ($message = $this->message()) {

@@ -4,6 +4,7 @@ namespace Modules\Base\Http\Livewire\Config;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Base\Entities\Config\ConfigEntityModel;
 use Modules\Base\Models\ConfigModel;
@@ -22,7 +23,7 @@ class ConfigList extends Component
         'delete' => 'delete',
     ];
 
-    public function render()
+    public function render(): View
     {
         return view('base::livewire.config.config-list');
     }
@@ -42,19 +43,19 @@ class ConfigList extends Component
         return $query->paginate(10);
     }
 
-    public function delete()
+    public function delete(): void
     {
         Toastr::instance($this)->success('Item removido');
         $this->dispatch('refresh')->self();
     }
 
-    public function search()
+    public function search(): void
     {
         //        $this->authorize('search', auth()->user());
         $ret = Gate::check(UserType::ADMIN->value);
     }
 
-    public function clear()
+    public function clear(): void
     {
         $this->reset();
     }

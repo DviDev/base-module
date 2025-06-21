@@ -121,11 +121,11 @@ class BaseServiceProvider extends BaseServiceProviderContract
      *
      * @return void
      */
-    public function registerFactories()
+    public function registerFactories(): void
     {
-        //        if (! app()->environment('production') && $this->app->runningInConsole()) {
-        //            app(\Factory::class)->load(module_path($this->moduleName, 'Database/factories'));
-        //        }
+        /*if (! app()->environment('production') && $this->app->runningInConsole()) {
+            app(\Factory::class)->load(module_path($this->moduleName, 'Database/factories'));
+        }*/
     }
 
     /**
@@ -156,7 +156,7 @@ class BaseServiceProvider extends BaseServiceProviderContract
         $this->commands(DispatchBaseEventsCommand::class);
     }
 
-    public static function errorTypeClass()
+    public static function errorTypeClass(): string
     {
         return BaseTypeErrors::class;
     }

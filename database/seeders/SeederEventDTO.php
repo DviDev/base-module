@@ -18,7 +18,7 @@ class SeederEventDTO
         return $new;
     }
 
-    public function param($name, $value): static
+    public function param(string $name, mixed $value): static
     {
         $this->parameters[$name] = $value;
 
