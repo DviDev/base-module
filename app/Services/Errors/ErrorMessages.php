@@ -11,17 +11,17 @@ class ErrorMessages
     {
         $errors = collect([]);
         $fn = function ($array) use ($errors) {
-            collect($array)->map(fn($value, $key) => $errors->put($key, $value));
+            collect($array)->map(fn ($value, $key) => $errors->put($key, $value));
         };
         $modules = \Module::allEnabled();
-        /**@var Module $module */
+        /** @var Module $module */
         foreach ($modules as $module) {
             $module_name = $module->getName();
-            $provider = 'Modules\\' . $module_name . '\Providers\\' . $module_name . 'ServiceProvider';
-            if (!in_array(BaseServiceProviderInterface::class, class_implements($provider))) {
+            $provider = 'Modules\\'.$module_name.'\Providers\\'.$module_name.'ServiceProvider';
+            if (! in_array(BaseServiceProviderInterface::class, class_implements($provider))) {
                 continue;
             }
-            /**@var BaseServiceProviderInterface $provider */
+            /** @var BaseServiceProviderInterface $provider */
             $error_type_class = $provider::errorTypeClass();
             $fn($error_type_class::errorMessages());
         }

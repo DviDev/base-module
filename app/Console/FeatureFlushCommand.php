@@ -51,7 +51,7 @@ class FeatureFlushCommand extends Command
     protected function getArguments()
     {
         return [
-//            ['example', InputArgument::REQUIRED, 'An example argument.'],
+            //            ['example', InputArgument::REQUIRED, 'An example argument.'],
         ];
     }
 

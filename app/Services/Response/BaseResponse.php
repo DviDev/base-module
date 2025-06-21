@@ -9,13 +9,17 @@ use Modules\Base\Services\Errors\Error;
 class BaseResponse implements \JsonSerializable, Jsonable
 {
     protected $errors = [];
+
     protected $message;
+
     protected $type;
+
     protected $data = [];
 
     public function addError($code, $msg = null): BaseResponse
     {
         $this->errors[] = new Error($code, $msg);
+
         return $this;
     }
 
@@ -32,12 +36,14 @@ class BaseResponse implements \JsonSerializable, Jsonable
     public function setType(string $type): BaseResponse
     {
         $this->type = $type;
+
         return $this;
     }
 
     public function addData(string $key, $value): BaseResponse
     {
         $this->data[$key] = $value;
+
         return $this;
     }
 
@@ -49,6 +55,7 @@ class BaseResponse implements \JsonSerializable, Jsonable
     public function setMsg($msg)
     {
         $this->message = $msg;
+
         return $this;
     }
 
@@ -58,8 +65,9 @@ class BaseResponse implements \JsonSerializable, Jsonable
         if (count($this->errors) > 0) {
             $this->data['errors'] = collect($this->errors)->toArray();
             $this->data['errors']['type'] = $this->type;
-            $this->data['errors'] = collect($this->data['errors'])->reject(fn($value) => empty($value))->all();
+            $this->data['errors'] = collect($this->data['errors'])->reject(fn ($value) => empty($value))->all();
         }
+
         return $this->data;
     }
 
@@ -69,10 +77,11 @@ class BaseResponse implements \JsonSerializable, Jsonable
     public function httpResponse()
     {
         $code = $this->hasError() ? 400 : 200;
+
         return response()->json($this->toArray(), $code);
     }
 
-    public function jsonSerialize():mixed
+    public function jsonSerialize(): mixed
     {
         return $this->toArray();
     }

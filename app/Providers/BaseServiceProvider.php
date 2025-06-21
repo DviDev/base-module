@@ -20,20 +20,12 @@ use Modules\Base\View\Components\Page\Notification\NotificationViewPage;
 
 class BaseServiceProvider extends BaseServiceProviderContract
 {
-    /**
-     * @var string $moduleName
-     */
     protected string $moduleName = 'Base';
 
-    /**
-     * @var string $moduleNameLower
-     */
     protected string $moduleNameLower = 'base';
 
     /**
      * Boot the application events.
-     *
-     * @return void
      */
     public function boot(): void
     {
@@ -45,16 +37,14 @@ class BaseServiceProvider extends BaseServiceProviderContract
 
         $this->registerCommands();
 
-        //real time check many queries ex. in post list using post->author suggest use post::with('user')->all()
-        Model::preventLazyLoading(!$this->app->isProduction());
+        // real time check many queries ex. in post list using post->author suggest use post::with('user')->all()
+        Model::preventLazyLoading(! $this->app->isProduction());
 
-//        Spotlight::registerCommandIf(config('base.use.spotlight'), GotoCommand::class);
+        //        Spotlight::registerCommandIf(config('base.use.spotlight'), GotoCommand::class);
     }
 
     /**
      * Register the service provider.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -77,10 +67,9 @@ class BaseServiceProvider extends BaseServiceProviderContract
         Livewire::component('base::notification.notification-list', NotificationList::class);
         Livewire::component('base::notification.notification-view', NotificationView::class);
     }
+
     /**
      * Register config.
-     *
-     * @return void
      */
     protected function registerConfig(): void
     {
@@ -90,7 +79,7 @@ class BaseServiceProvider extends BaseServiceProviderContract
             rename($config_module_path, $config_module_path_lower);
         }
         $this->publishes([
-            module_path($this->moduleName, 'config/config.php') => config_path($this->moduleNameLower . '.php'),
+            module_path($this->moduleName, 'config/config.php') => config_path($this->moduleNameLower.'.php'),
         ], 'config');
         $this->mergeConfigFrom(
             module_path($this->moduleName, 'config/config.php'), $this->moduleNameLower
@@ -99,30 +88,26 @@ class BaseServiceProvider extends BaseServiceProviderContract
 
     /**
      * Register views.
-     *
-     * @return void
      */
     public function registerViews(): void
     {
-        $viewPath = resource_path('views/modules/' . $this->moduleNameLower);
+        $viewPath = resource_path('views/modules/'.$this->moduleNameLower);
 
         $sourcePath = module_path($this->moduleName, 'resources/views');
 
         $this->publishes([
-            $sourcePath => $viewPath
-        ], ['views', $this->moduleNameLower . '-module-views']);
+            $sourcePath => $viewPath,
+        ], ['views', $this->moduleNameLower.'-module-views']);
 
         $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->moduleNameLower);
     }
 
     /**
      * Register translations.
-     *
-     * @return void
      */
     public function registerTranslations(): void
     {
-        $langPath = resource_path('lang/modules/' . $this->moduleNameLower);
+        $langPath = resource_path('lang/modules/'.$this->moduleNameLower);
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, $this->moduleNameLower);
         } else {
@@ -138,15 +123,13 @@ class BaseServiceProvider extends BaseServiceProviderContract
      */
     public function registerFactories()
     {
-//        if (! app()->environment('production') && $this->app->runningInConsole()) {
-//            app(\Factory::class)->load(module_path($this->moduleName, 'Database/factories'));
-//        }
+        //        if (! app()->environment('production') && $this->app->runningInConsole()) {
+        //            app(\Factory::class)->load(module_path($this->moduleName, 'Database/factories'));
+        //        }
     }
 
     /**
      * Get the services provided by the provider.
-     *
-     * @return array
      */
     public function provides(): array
     {
@@ -157,10 +140,11 @@ class BaseServiceProvider extends BaseServiceProviderContract
     {
         $paths = [];
         foreach (\Config::get('view.paths') as $path) {
-            if (is_dir($path . '/modules/' . $this->moduleNameLower)) {
-                $paths[] = $path . '/modules/' . $this->moduleNameLower;
+            if (is_dir($path.'/modules/'.$this->moduleNameLower)) {
+                $paths[] = $path.'/modules/'.$this->moduleNameLower;
             }
         }
+
         return $paths;
     }
 

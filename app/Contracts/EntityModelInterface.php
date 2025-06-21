@@ -2,7 +2,4 @@
 
 namespace Modules\Base\Contracts;
 
-interface EntityModelInterface
-{
-
-}
+interface EntityModelInterface {}

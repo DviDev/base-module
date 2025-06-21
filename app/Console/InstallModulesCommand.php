@@ -5,6 +5,7 @@ namespace Modules\Base\Console;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
+
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\pause;
@@ -15,6 +16,7 @@ class InstallModulesCommand extends Command
      * The name and signature of the console command.
      */
     protected $signature = 'base:install-modules';
+
     /**
      * The console command description.
      */
@@ -42,7 +44,7 @@ class InstallModulesCommand extends Command
         if (count($choices) == 0) {
             return;
         }
-        pause('Installing ' . collect($choices)->join(',', 'and') . '. Press enter to continue');
+        pause('Installing '.collect($choices)->join(',', 'and').'. Press enter to continue');
 
         if ($this->confirm('You want install nwidart/laravel-modules?')) {
             exec('composer require nwidart/laravel-modules');
@@ -50,7 +52,7 @@ class InstallModulesCommand extends Command
         }
         foreach ($choices as $module) {
             $vendor = $modules[$module];
-            $this->info(PHP_EOL . '🤖 ' . $vendor . ' ' . __('installing'));
+            $this->info(PHP_EOL.'🤖 '.$vendor.' '.__('installing'));
 
             if ($this->alreadyInstalled($vendor, $module)) {
                 continue;
@@ -60,9 +62,9 @@ class InstallModulesCommand extends Command
             $this->enableModule($module);
             $this->composerDumpAutoload();
 
-            $this->info(PHP_EOL . '🤖 ' . $vendor . ' (✔ installed)');
+            $this->info(PHP_EOL.'🤖 '.$vendor.' (✔ installed)');
         }
-        $this->info(PHP_EOL . '🤖 ' . __('done'));
+        $this->info(PHP_EOL.'🤖 '.__('done'));
     }
 
     /**
@@ -87,7 +89,7 @@ class InstallModulesCommand extends Command
 
     protected function initializeGitFlow(int|string $module): void
     {
-        if (!confirm('Initialize git flow?')) {
+        if (! confirm('Initialize git flow?')) {
             return;
         }
         exec("cd Modules/$module && git flow init -d");
@@ -95,11 +97,11 @@ class InstallModulesCommand extends Command
 
     protected function enableModule(int|string $module): void
     {
-        if (!confirm('Can you enable module now?')) {
+        if (! confirm('Can you enable module now?')) {
             return;
         }
-        $enable_command = 'php artisan module:enable ' . $module;
-        pause('RUNNING: ' . $enable_command . ' Continue? (enter to continue)');
+        $enable_command = 'php artisan module:enable '.$module;
+        pause('RUNNING: '.$enable_command.' Continue? (enter to continue)');
         $output = [];
         exec($enable_command, $output);
         foreach (collect($output) as $line) {
@@ -123,10 +125,11 @@ class InstallModulesCommand extends Command
     {
         $installed = [];
         exec('cd Modules && ls', $installed);
-        if (!in_array($module, $installed)) {
+        if (! in_array($module, $installed)) {
             return false;
         }
-        $this->info(PHP_EOL . '🤖 ' . __('already installed') . ' ' . $vendor);
+        $this->info(PHP_EOL.'🤖 '.__('already installed').' '.$vendor);
+
         return true;
     }
 
@@ -134,7 +137,7 @@ class InstallModulesCommand extends Command
     {
         $output = [];
         $command = 'composer dump-autoload';
-        pause('RUNNING: ' . $command . ' - Continue? (enter to continue)');
+        pause('RUNNING: '.$command.' - Continue? (enter to continue)');
         exec($command, $output);
         foreach (collect($output) as $line) {
             $this->info($line);

@@ -12,6 +12,7 @@ class DispatchBaseEventsCommand extends Command
      * The name and signature of the console command.
      */
     protected $signature = 'base:dispatch_base_events';
+
     /**
      * The console command description.
      */
@@ -30,8 +31,8 @@ class DispatchBaseEventsCommand extends Command
      */
     public function handle()
     {
-        \Event::dispatch(new ScanTableEvent());
-//        \Event::dispatch(new DatabaseSeederEvent());
-        \Event::dispatch(new SeederFinishedEvent());
+        \Event::dispatch(new ScanTableEvent);
+        //        \Event::dispatch(new DatabaseSeederEvent());
+        \Event::dispatch(new SeederFinishedEvent);
     }
 }

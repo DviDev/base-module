@@ -12,10 +12,12 @@ use LivewireUI\Spotlight\SpotlightSearchResult;
 class GotoCommand extends SpotlightCommand
 {
     protected string $name = 'goto';
+
     protected string $description = 'Go to routes';
+
     protected array $synonyms = [
         'page',
-        'route'
+        'route',
     ];
 
     public function dependencies(): ?SpotlightCommandDependencies
@@ -29,13 +31,13 @@ class GotoCommand extends SpotlightCommand
 
     public function searchRoute($query)
     {
-        //Obs. Filters by str(), Str::, it doesn't work.
+        // Obs. Filters by str(), Str::, it doesn't work.
         // Using collect([])->filter(), or collect([])->expect() etc. won't work for now
         $routes = \Illuminate\Support\Facades\Route::getRoutes();
 
         $collection = collect($routes)->all();
         $array = [];
-        /**@var Route $route */
+        /** @var Route $route */
         foreach ($collection as $route) {
             if ($route->hasParameters()) {
                 continue;
@@ -58,15 +60,17 @@ class GotoCommand extends SpotlightCommand
             if (str_contains($route->uri(), '{fallbackPlaceholder}')) {
                 continue;
             }
-            if (!str_contains($route->getName() ?: $route->uri(), $query)) {
+            if (! str_contains($route->getName() ?: $route->uri(), $query)) {
                 continue;
             }
             $array[] = $route;
         }
+
         return collect($array)->map(function (Route $route) {
             $name = $route->getName() ?: $route->uri();
+
             return new SpotlightSearchResult(
-                '/' . $route->uri(),
+                '/'.$route->uri(),
                 $route->uri(),
                 sprintf('Go to route %s', $name)
             );

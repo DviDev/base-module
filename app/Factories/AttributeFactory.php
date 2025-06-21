@@ -10,10 +10,8 @@ abstract class AttributeFactory
 {
     public function __construct(
         public ProjectEntityAttributeModel $attributeEntity,
-        public Blueprint                   &$table
-    )
-    {
-    }
+        public Blueprint &$table
+    ) {}
 
     abstract public function handle(): void;
 
@@ -37,7 +35,7 @@ abstract class AttributeFactory
 
     protected function resolveUnsigned(ColumnDefinition $column, $unsigned): void
     {
-        if (!$unsigned) {
+        if (! $unsigned) {
             return;
         }
         $column->unsigned();

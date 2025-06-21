@@ -13,29 +13,29 @@ use Modules\Base\Services\Errors\ExceptionBaseResponse;
 /**
  * @author     Davi Menezes
  * @copyright  Copyright (c) 2020. (davimenezes.dev@gmail.com)
+ *
  * @see https://github.com/DaviMenezes
+ *
  * @property-read $this $model
- * @method  BaseModel findOrFail($id)
+ *
+ * @method BaseModel findOrFail($id)
+ *
  * @method-red  static BaseModel find($id)
  */
 abstract class BaseRepository
 {
-    /**@var BaseEntityModel */
+    /** @var BaseEntityModel */
     protected $entity;
 
-    public function __construct(public ?BaseModel $model = null)
-    {
-    }
+    public function __construct(public ?BaseModel $model = null) {}
 
     public function model()
     {
         $model = $this->modelClass();
-        return $this->model = $this->model ?? new $model();
+
+        return $this->model = $this->model ?? new $model;
     }
 
-    /**
-     * @param BaseEntityModel $entity
-     */
     public function setEntity(BaseEntityModel $entity): void
     {
         $this->entity = $entity;
@@ -44,18 +44,18 @@ abstract class BaseRepository
     /**@return BaseModel | string */
     abstract public function modelClass();
 
-    public function save(BaseEntityModel &$entityModel = null): Model
+    public function save(?BaseEntityModel &$entityModel = null): Model
     {
         $this->entity = $entityModel ?? $this->entity;
-        if (!$this->entity) {
+        if (! $this->entity) {
             ExceptionBaseResponse::throw(BaseTypeErrors::UNINFORMED_ENTITY);
         }
         $modelClass = $this->modelClass();
-        if (!$modelClass) {
+        if (! $modelClass) {
             ExceptionBaseResponse::throw(BaseTypeErrors::ENTITY_NOT_IMPLEMENTED);
         }
         $entity_class = $this->model()->modelEntity();
-        if (!$this->entity instanceof $entity_class) {
+        if (! $this->entity instanceof $entity_class) {
             ExceptionBaseResponse::throw(BaseTypeErrors::ENTITY_TYPE_ERROR);
         }
 
@@ -69,6 +69,7 @@ abstract class BaseRepository
             $this->model->save();
             $this->entity->id = $this->model->id;
             $this->entity->model = $this->model;
+
             return $this->model;
         } catch (\Exception $exception) {
             if (request()->route() && request()->route()->getPrefix() === 'api') {
@@ -81,11 +82,11 @@ abstract class BaseRepository
     public static function obj()
     {
         $class = static::class;
+
         return new $class;
     }
 
     /**
-     * @param array $data
      * @return bool|object
      */
     public function create(array $data)
@@ -95,13 +96,15 @@ abstract class BaseRepository
 
     public static function createFn(\Closure $fn): object|bool
     {
-        $entity_class = (new static())->model()->modelEntity();
-        return (new static())->create($fn((new $entity_class)->props()));
+        $entity_class = (new static)->model()->modelEntity();
+
+        return (new static)->create($fn((new $entity_class)->props()));
     }
 
     public function findOrNew($id): Model|Builder
     {
         $query = $this->modelClass()::query()->where('id', $id);
+
         return $this->firstOrNew($query);
     }
 
@@ -117,10 +120,11 @@ abstract class BaseRepository
         return $this->modelClass()::query()->first();
     }
 
-    public function find($id):BaseModel|null
+    public function find($id): ?BaseModel
     {
         $class = get_called_class();
-        $obj = new $class();
+        $obj = new $class;
+
         return $obj->modelClass()::query()->find($id);
     }
 
@@ -132,17 +136,18 @@ abstract class BaseRepository
     protected function db(Closure $fn, ...$classes)
     {
         $params = [];
-        /**@var BaseModel $class */
+        /** @var BaseModel $class */
         foreach ($classes as $class) {
-            /**@var BaseEntityModel $modelEntity */
-            $modelEntity = (new $class())->modelEntity();
+            /** @var BaseEntityModel $modelEntity */
+            $modelEntity = (new $class)->modelEntity();
             $params[] = $modelEntity::props($class::table());
         }
+
         return call_user_func_array($fn, $params);
     }
 
     /**
-     * @param Builder|\Illuminate\Database\Query\Builder $query
+     * @param  Builder|\Illuminate\Database\Query\Builder  $query
      * @return Builder|Model|BaseModel|object
      */
     protected function firstOrNew($query)
@@ -152,27 +157,30 @@ abstract class BaseRepository
             return $model;
         }
         $class = $this->modelClass();
+
         return new $class;
     }
 
     public function __call($name, $arguments)
     {
         $query = $this->modelClass()::query();
-        /**@var BaseRepository $obj */
+        /** @var BaseRepository $obj */
         if (method_exists($query, $name)) {
             return $query->$name($arguments[0]);
         }
+
         return null;
     }
 
     public static function __callStatic($name, $arguments)
     {
         $class = get_called_class();
-        /**@var BaseRepository $obj */
-        $obj = new $class();
+        /** @var BaseRepository $obj */
+        $obj = new $class;
         if (is_callable($obj->$name($arguments))) {
             return $obj->$name($arguments);
         }
+
         return null;
     }
 
@@ -183,5 +191,4 @@ abstract class BaseRepository
         $term = $fn($props);
         $model->newQuery()->where($term[0], $term[1], $term[2])->delete();
     }
-
 }

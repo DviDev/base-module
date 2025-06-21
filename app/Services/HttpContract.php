@@ -15,10 +15,12 @@ use Modules\Base\Services\Response\ResponseType;
 abstract class HttpContract
 {
     protected $data;
+
     /**
      * @var Response
      */
     public $serviceResponse;
+
     /**
      * @var BaseResponse
      */
@@ -27,7 +29,7 @@ abstract class HttpContract
     public function __construct($data = [])
     {
         $this->data = $data;
-        $this->baseResponse = new BaseResponse();
+        $this->baseResponse = new BaseResponse;
     }
 
     /** @return HttpContract */
@@ -41,7 +43,7 @@ abstract class HttpContract
 
     abstract protected function loginContract();
 
-    abstract protected function moduleName():string;
+    abstract protected function moduleName(): string;
 
     protected function accessToken(): ?string
     {
@@ -49,7 +51,7 @@ abstract class HttpContract
             return null;
         }
 
-        if (!$this->loginContract()) {
+        if (! $this->loginContract()) {
             return null;
         }
         $response = $this->makeLogin();
@@ -57,8 +59,9 @@ abstract class HttpContract
         if ($response->baseResponse->hasError()) {
             return null;
         }
-        /**@var TokenEntity $token */
-        $token = cache()->get($this->moduleName() . '.token');
+        /** @var TokenEntity $token */
+        $token = cache()->get($this->moduleName().'.token');
+
         return $token->token;
     }
 
@@ -67,6 +70,7 @@ abstract class HttpContract
         if (is_a($this->data, BaseEntity::class)) {
             return $this->data->toArray();
         }
+
         return $this->data;
     }
 
@@ -76,43 +80,46 @@ abstract class HttpContract
     protected function get($query = null)
     {
         $this->serviceResponse = $this->http()->get(
-            $this->url() . $this->endPoint(),
+            $this->url().$this->endPoint(),
             $query
         );
         $this->checkIfFailed();
         $this->setData();
+
         return $this;
     }
 
     /**
-     * @param array $data
      * @return HttpContract
      */
     protected function post(array $data = [])
     {
         $this->serviceResponse = $this->http()->post(
-            $this->url() . $this->endPoint(),
+            $this->url().$this->endPoint(),
             $data
         );
         $this->checkIfFailed();
         $this->setData();
+
         return $this;
     }
 
     protected function http()
     {
         $this->validateUrl();
+
         return Http::withHeaders($this->getHeaders());
     }
 
     protected function getHeaders()
     {
         $array = [
-            'Content-Type' => 'application/json'
+            'Content-Type' => 'application/json',
         ];
         if ($token = $this->accessToken()) {
-            $array['Authorization'] = 'Bearer ' . $token;
+            $array['Authorization'] = 'Bearer '.$token;
         }
+
         return $array;
     }
 
@@ -125,7 +132,7 @@ abstract class HttpContract
 
     protected function checkIfFailed()
     {
-        if (!$this->serviceResponse->failed()) {
+        if (! $this->serviceResponse->failed()) {
             return;
         }
 
@@ -145,22 +152,23 @@ abstract class HttpContract
     }
 
     public function __toString()
-     {
-         return json_encode($this->baseResponse->toArray(), JSON_UNESCAPED_UNICODE);
-     }
+    {
+        return json_encode($this->baseResponse->toArray(), JSON_UNESCAPED_UNICODE);
+    }
 
     protected function makeLogin(): HttpContract
     {
         $loginContract = $this->loginContract();
-        /**@var BaseLoginHttpServiceInterface $loginContract */
-        $loginContract = new $loginContract();
+        /** @var BaseLoginHttpServiceInterface $loginContract */
+        $loginContract = new $loginContract;
+
         return $loginContract->login();
     }
 
     protected function validateUrl(): void
     {
-        $url = $this->url() . $this->endPoint();
-        if (!Str::contains(Str::after($url, 'https://'), '/')) {
+        $url = $this->url().$this->endPoint();
+        if (! Str::contains(Str::after($url, 'https://'), '/')) {
             ExceptionBaseResponse::throw(BaseTypeErrors::HTTP_SERVICE_WITHOUT_ENDPOINT);
         }
     }

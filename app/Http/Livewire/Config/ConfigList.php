@@ -12,13 +12,14 @@ use Modules\Person\Entities\User\UserType;
 
 class ConfigList extends Component
 {
-//    use AuthorizesRequests;
+    //    use AuthorizesRequests;
 
     public $search;
+
     protected $listeners = [
         'refresh' => '$refresh',
         'search' => 'list',
-        'delete' => 'delete'
+        'delete' => 'delete',
     ];
 
     public function render()
@@ -49,7 +50,7 @@ class ConfigList extends Component
 
     public function search()
     {
-//        $this->authorize('search', auth()->user());
+        //        $this->authorize('search', auth()->user());
         $ret = Gate::check(UserType::ADMIN->value);
     }
 

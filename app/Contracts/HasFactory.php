@@ -11,8 +11,10 @@ trait HasFactory
 
     protected static function newFactory()
     {
-        return new class(model: get_called_class()) extends BaseFactory {
+        return new class(model: get_called_class()) extends BaseFactory
+        {
             public $model;
+
             public function __construct($count = null, ?Collection $states = null, ?Collection $has = null, ?Collection $for = null, ?Collection $afterMaking = null, ?Collection $afterCreating = null, $connection = null, ?Collection $recycle = null, $model = null)
             {
                 $this->model = $model;
@@ -23,6 +25,7 @@ trait HasFactory
             {
                 $new = parent::newInstance($arguments);
                 $new->model = $this->model;
+
                 return $new;
             }
         };

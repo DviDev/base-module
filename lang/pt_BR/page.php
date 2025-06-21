@@ -1,4 +1,5 @@
 <?php
+
 return [
     'update page' => 'atualizar página',
     'open form' => 'abrir formulário',

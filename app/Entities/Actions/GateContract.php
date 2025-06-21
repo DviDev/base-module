@@ -8,8 +8,9 @@ abstract class GateContract
 
     protected static function handle(Actions|string $action, string $name): string
     {
-        $str = self::$can . $name . '.' . $action->name;
+        $str = self::$can.$name.'.'.$action->name;
         self::$can = '';
+
         return $str;
     }
 
@@ -26,6 +27,7 @@ abstract class GateContract
     public static function can(): string
     {
         self::$can = 'can:';
+
         return self::class;
     }
 }

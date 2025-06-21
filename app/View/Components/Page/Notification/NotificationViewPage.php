@@ -15,6 +15,7 @@ class NotificationViewPage extends BaseBladeComponent
         if ($this->published('page.notification.notification-view-page')) {
             return view('components.base.page.notification.notification-view-page');
         }
+
         return view('base::components.page.notification.notification-view-page');
     }
 }

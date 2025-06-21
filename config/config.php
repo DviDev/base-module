@@ -7,12 +7,12 @@ return [
     'date_time_format' => config('app.locale') == 'pt_BR' ? 'd/m/Y H:i' : 'Y-m-d H:i',
     'time_format' => 'H:i:s',
     'cache_keys' => [
-        'project_app_name' => 'seeder::project::' . config('app.name'),
+        'project_app_name' => 'seeder::project::'.config('app.name'),
         'user_develop' => 'seeder::user::developer',
     ],
     'default_layout' => env('DEFAULT_LAYOUT', 'flowbite'),
     'use' => [
-        'spotlight' => env('USE_SPOTLIGHT', config('app.env') == 'local')
+        'spotlight' => env('USE_SPOTLIGHT', config('app.env') == 'local'),
     ],
     'modules' => [
         'App' => 'DviDev/app-module',

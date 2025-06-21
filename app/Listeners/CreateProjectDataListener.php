@@ -3,8 +3,6 @@
 namespace Modules\Base\Listeners;
 
 use Modules\Base\Events\SeederFinishedEvent;
-use Modules\Project\Database\Seeders\ProjectTableSeeder;
-use \Illuminate\Support\Facades\Artisan;
 
 class CreateProjectDataListener
 {

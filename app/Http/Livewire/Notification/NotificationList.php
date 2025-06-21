@@ -10,6 +10,7 @@ class NotificationList extends Component
     use WithPagination;
 
     protected $paginationTheme = 'bootstrap';
+
     protected $notifications;
 
     public function mount($notifications, $paginationTheme = 'bootstrap')

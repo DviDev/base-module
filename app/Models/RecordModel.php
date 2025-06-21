@@ -10,9 +10,13 @@ use Modules\Base\Factories\BaseFactory;
 
 /**
  * @author Davi Menezes (davimenezes.dev@gmail.com)
+ *
  * @link https://github.com/DaviMenezes
+ *
  * @property-read RecordModel $model
+ *
  * @method RecordEntityModel toEntity()
+ *
  * @mixin Builder
  */
 class RecordModel extends BaseModel
@@ -27,7 +31,8 @@ class RecordModel extends BaseModel
 
     protected static function newFactory(): BaseFactory
     {
-        return new class extends BaseFactory {
+        return new class extends BaseFactory
+        {
             protected $model = RecordModel::class;
         };
     }

@@ -14,16 +14,17 @@ abstract class BaseSeeder extends Seeder
 {
     public static function firstOrCreateUser(UserTypeModel $type): User
     {
-        $user = User::query()->where('email', $type->name . '@site.com')->first();
+        $user = User::query()->where('email', $type->name.'@site.com')->first();
         if ($user) {
             return $user;
         }
 
-        /**@var User $user */
-        $name = str($type->name)->explode('_')->map(fn($word) => str($word)->lower()->ucfirst())->join(' ');
+        /** @var User $user */
+        $name = str($type->name)->explode('_')->map(fn ($word) => str($word)->lower()->ucfirst())->join(' ');
+
         return User::factory()->create([
             'name' => $name,
-            'email' => $type->name . '@site.com',
+            'email' => $type->name.'@site.com',
             'password' => \Hash::make('password'),
             'type_id' => $type->id,
             'person_id' => PersonModel::factory()->create(['name' => $name])->id,
@@ -38,11 +39,12 @@ abstract class BaseSeeder extends Seeder
 
         $progressBar->start();
 
-        $items = new \Illuminate\Database\Eloquent\Collection();
+        $items = new \Illuminate\Database\Eloquent\Collection;
 
         foreach ($collection as $key => $item) {
-            if (!$result = $createCollectionOfOne($item, $key)) {
+            if (! $result = $createCollectionOfOne($item, $key)) {
                 $progressBar->advance();
+
                 continue;
             }
 
@@ -57,13 +59,13 @@ abstract class BaseSeeder extends Seeder
         return $items;
     }
 
-    protected function commandWarn(string $target, string $label = null): void
+    protected function commandWarn(string $target, ?string $label = null): void
     {
-        $this->command->warn(PHP_EOL . collect("🤖")->add($label)->add(str($target)->explode('\\')->last())->add('...')->join(' '));
+        $this->command->warn(PHP_EOL.collect('🤖')->add($label)->add(str($target)->explode('\\')->last())->add('...')->join(' '));
     }
 
-    protected function commandInfo(mixed $string, string $label = null): void
+    protected function commandInfo(mixed $string, ?string $label = null): void
     {
-        $this->command->info(PHP_EOL . collect()->add("🤖")->add($label)->add(str($string)->explode('\\')->last())->join(' '));
+        $this->command->info(PHP_EOL.collect()->add('🤖')->add($label)->add(str($string)->explode('\\')->last())->join(' '));
     }
 }

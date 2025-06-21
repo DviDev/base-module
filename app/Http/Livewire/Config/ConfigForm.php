@@ -11,6 +11,7 @@ use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 class ConfigForm extends Component
 {
     public ?ConfigModel $config;
+
     public $name;
 
     public function mount(ConfigModel $config)
@@ -27,10 +28,11 @@ class ConfigForm extends Component
     public function getRules()
     {
         $config = ConfigEntityModel::props('config', true);
+
         return [
             'name' => ['required', Rule::unique('base_configs')->ignore($this->config->id), 'max:255', 'min:3'],
             $config->value => ['required', 'max:255'],
-            $config->description => 'nullable'
+            $config->description => 'nullable',
         ];
     }
 
@@ -39,14 +41,15 @@ class ConfigForm extends Component
         $this->validate();
 
         $this->config->name = $this->name;
-        if (!$this->config->id) {
+        if (! $this->config->id) {
             $this->config->user_id = auth()->user()->id;
             $this->config->default = false;
         }
         $this->config->save();
 
-        if (!$this->config->wasRecentlyCreated) {
+        if (! $this->config->wasRecentlyCreated) {
             Toastr::instance($this)->preventDuplicates()->success('Item salvo');
+
             return;
         }
         session()->flash('success', 'Item salvo.');

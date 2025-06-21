@@ -6,7 +6,7 @@ class DateFn
 {
     public function validate($date)
     {
-        if (!str_contains($date, 'T')) {
+        if (! str_contains($date, 'T')) {
             return false;
         }
 

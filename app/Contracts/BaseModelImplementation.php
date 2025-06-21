@@ -22,23 +22,25 @@ trait BaseModelImplementation
     /**@return self */
     public static function createFn(\Closure $fn)
     {
-        $entity_class = (new static())->modelEntity();
+        $entity_class = (new static)->modelEntity();
         $attributes = $fn($entity_class::props());
+
         return self::query()->create($attributes);
     }
 
     public static function whereFn(\Closure $fn): Builder
     {
-        $entity_class = (new static())->modelEntity();
+        $entity_class = (new static)->modelEntity();
         $arrays = $fn($entity_class::props());
         $builder = self::query();
 
         foreach ($arrays as $array) {
             $item1 = $array[0];
-            $item2 = !isset($array[2]) ? '=' : $array[1];
+            $item2 = ! isset($array[2]) ? '=' : $array[1];
             $item3 = $array[2] ?? $array[1];
             $builder->where($item1, $item2, $item3);
         }
+
         return $builder;
     }
 
@@ -46,15 +48,15 @@ trait BaseModelImplementation
     {
         static::saving(function (Model $model) {
             $props = $model->props()->toArray();
-            if (in_array('created_at', $props) && !isset($model->created_at)) {
+            if (in_array('created_at', $props) && ! isset($model->created_at)) {
                 $model->created_at = now();
             }
-            if (in_array('updated_at', $props) && !isset($model->updated_at)) {
+            if (in_array('updated_at', $props) && ! isset($model->updated_at)) {
                 $model->updated_at = now();
             }
         });
         static::creating(function (Model $model) {
-            if (in_array('created_at', $model->props()->toArray()) && !isset($model->created_at)) {
+            if (in_array('created_at', $model->props()->toArray()) && ! isset($model->created_at)) {
                 $model->created_at = now();
             }
         });
@@ -75,19 +77,20 @@ trait BaseModelImplementation
 
     protected static function dbTable($table, $alias = null): string
     {
-        return $table . ($alias ? ' as ' . $alias : '');
+        return $table.($alias ? ' as '.$alias : '');
     }
 
     /** @template T
-     * @param class-string<T>|null $entity_class
+     * @param  class-string<T>|null  $entity_class
      * @return T
+     *
      * @throws \ReflectionException
      */
-    public function toEntity(T $entity_class = null)
+    public function toEntity(?T $entity_class = null)
     {
         $entity_class = $this->modelEntity();
 
-        /**@var BaseEntityModel $entity */
+        /** @var BaseEntityModel $entity */
         $entity = $entity_class::props();
         $entity->model = $this;
 
@@ -95,13 +98,14 @@ trait BaseModelImplementation
             $entity->set($prop, $this->$prop, true);
         }
 
-        /**@var $entity T */
+        /** @var $entity T */
         return $entity;
     }
 
     public function repository()
     {
         $entity = $this->modelEntity();
+
         return (new $entity)->repository($this);
     }
 }

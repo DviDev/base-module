@@ -7,6 +7,4 @@ namespace Modules\Base\Entities\RecordRelation;
  * @property $record1
  * @property $record2
  */
-trait RecordRelationProps
-{
-}
+trait RecordRelationProps {}

@@ -25,25 +25,30 @@ use Modules\View\Models\ViewPageStructureModel;
 abstract class BaseComponent extends Component
 {
     public $redirect_after_save = true;
+
     public ?BaseModel $model;
+
     public array $values = [];
+
     public ?ModuleEntityPageModel $page;
+
     protected $visible_rows;
+
     protected $listeners = ['refresh' => '$refresh'];
 
     public function mount()
     {
         $this->setPage();
-        if (!$this->page) {
+        if (! $this->page) {
             return;
         }
-        $fn = fn($value) => toBRL($value);
+        $fn = fn ($value) => toBRL($value);
         $this->transformValues($fn);
         $this->values['dates'] = [];
         foreach ($this->model->attributesToArray() as $attribute => $value) {
             $prop = $this->model->{$attribute};
             if (is_a($prop, Carbon::class)) {
-                /**@var Carbon $value */
+                /** @var Carbon $value */
                 $value = $prop;
                 $this->values['dates'][$attribute] = ['date' => $value->format('Y-m-d'), 'time' => $value->format('H:i')];
             }
@@ -69,29 +74,32 @@ abstract class BaseComponent extends Component
 
     public function elements(): Collection|array
     {
-        if (!$this->page) {
-            Toastr::instance($this)->error(__("view::element.This page does not have a structure"));
+        if (! $this->page) {
+            Toastr::instance($this)->error(__('view::element.This page does not have a structure'));
+
             return [];
         }
-        /**@var ViewPageStructureModel $firstActiveFormStructure */
+        /** @var ViewPageStructureModel $firstActiveFormStructure */
         $firstActiveFormStructure = $this->page?->firstActiveFormStructure();
         $cache_key = $this->elementsCacheKey($firstActiveFormStructure);
+
         return cache()->rememberForever($cache_key, function () use ($firstActiveFormStructure) {
             $elements_ = $firstActiveFormStructure->elements()
                 ->with(['attribute'])
                 ->with('allChildren.attribute')
                 ->with('properties')
                 ->get()->filter(function (ElementModel $e) {
-                    return empty($e->attribute) || !in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
-            });
+                    return empty($e->attribute) || ! in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
+                });
             $children = collect($elements_);
             foreach ($elements_ as $element) {
                 $element->allChildren->filter(function (ElementModel $e) {
-                    return !$e->attribute || !in_array($e->attribute?->name, [
-                            'id', 'created_at', 'updated_at', 'deleted_at'
-                        ]);
-                })->each(fn($item) => $children->push($item));
+                    return ! $e->attribute || ! in_array($e->attribute?->name, [
+                        'id', 'created_at', 'updated_at', 'deleted_at',
+                    ]);
+                })->each(fn ($item) => $children->push($item));
             }
+
             return $children;
         });
     }
@@ -103,22 +111,23 @@ abstract class BaseComponent extends Component
 
     public function getRules()
     {
-        $cache_key = 'model-' . $this->model->id . '-' . auth()->user()->id;
+        $cache_key = 'model-'.$this->model->id.'-'.auth()->user()->id;
         $ttl = now()->addMinutes(30);
         $rules = cache()->remember($cache_key, $ttl, function () {
             return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
         });
+
         return $rules;
     }
 
     public function save()
     {
         try {
-            $fn = fn($value) => toUS($value);
+            $fn = fn ($value) => toUS($value);
             $this->transformValues($fn);
             $this->validate();
             foreach ($this->values['dates'] as $property => $values) {
-                $this->model->{$property} = $values['date'] . ' ' . $values['time'];
+                $this->model->{$property} = $values['date'].' '.$values['time'];
             }
             foreach ($this->model->attributesToArray() as $property => $values) {
                 $trim = trim($values);
@@ -129,18 +138,19 @@ abstract class BaseComponent extends Component
                 session()->flash('success', str(__('the data has been saved'))->ucfirst());
                 session()->flash('only_toastr');
 
-                if (!$this->redirect_after_save) {
+                if (! $this->redirect_after_save) {
                     return;
                 }
                 $route = route($this->page->route, $this->model->id);
                 $this->redirect($route, navigate: true);
+
                 return;
             }
-            $fn = fn($value) => toBRL($value);
+            $fn = fn ($value) => toBRL($value);
             $this->transformValues($fn);
             Toastr::instance($this)->success(str(__('the data has been saved'))->ucfirst());
         } catch (ValidationException $exception) {
-            $fn = fn($value) => toBRL($value);
+            $fn = fn ($value) => toBRL($value);
             $this->transformValues($fn);
             Toastr::instance($this)->error($exception->getMessage());
             throw $exception;
@@ -181,19 +191,21 @@ abstract class BaseComponent extends Component
 
         $entity_name = str($element->structure->page->entity->title);
         $module = $entity_name->explode(' ')->first();
-        $entity_name = $entity_name->explode(' ')->filter(fn($i) => $i !== $module)->join('\\');
+        $entity_name = $entity_name->explode(' ')->filter(fn ($i) => $i !== $module)->join('\\');
         $entity_name = str($entity_name)->singular()->value();
-        /**@var BaseModel $model_class */
-        $model_class = "Modules\\$module\\Models\\$entity_name" . 'Model';
+        /** @var BaseModel $model_class */
+        $model_class = "Modules\\$module\\Models\\$entity_name".'Model';
         if (class_exists($model_class)) {
             $items = $model_class::query();
             if ($projectAttribute->reference_view_name) {
                 $str = str($projectAttribute->reference_view_name);
-                $entity = $str->explode(':')->shift();//Todo check
-//                $items->with($entity);
+                $entity = $str->explode(':')->shift(); // Todo check
+                //                $items->with($entity);
             }
+
             return $items->paginate();
         }
+
         return \DB::table($referenced_table_name)
             ->select($columns)
             ->paginate();
@@ -246,16 +258,17 @@ abstract class BaseComponent extends Component
                             if (isset($relation->{$entity})) {
                                 $relation = $relation->{$entity};
                             }
+
                             continue;
                         }
                         $relation = $relation->{$entity};
                     }
                 }
-                if (!isset($relation->{$prop})) {
+                if (! isset($relation->{$prop})) {
                     $prop = $this->getValue($element);
                 }
                 $value = $relation->{$prop};
-                if (!$value) {
+                if (! $value) {
                     $value = $item->id;
                 }
             } else {
@@ -263,6 +276,7 @@ abstract class BaseComponent extends Component
                 $value = $item->{$prop} ?? $item->id;
             }
             $key = $item->id ?: $item;
+
             return [$key, $value];
         } catch (Exception $exception) {
             throw $exception;
@@ -279,25 +293,23 @@ abstract class BaseComponent extends Component
         } elseif ($table->attributes()->where('name', 'name')->exists()) {
             return 'nome';
         }
+
         return 'id';
     }
 
-    /**
-     * @param ViewPageStructureModel $structure
-     * @return string
-     */
     protected function elementsCacheKey(ViewPageStructureModel $structure): string
     {
-        return 'structure.' . $structure->id . '.allChildren.elements';
+        return 'structure.'.$structure->id.'.allChildren.elements';
     }
 
     protected function setPage(): void
     {
         if (\Request::routeIs('view.entity.page.form')) {
-            if (!$this->model) {
+            if (! $this->model) {
                 throw new Exception(__('Model not found'));
             }
             $this->page = $this->model;
+
             return;
         }
 
@@ -305,7 +317,7 @@ abstract class BaseComponent extends Component
         $entity = ProjectModuleEntityEntityModel::props('entity');
 
         $this->page = ModuleEntityPageModel::query()
-            ->select($page->table_alias . '.*')
+            ->select($page->table_alias.'.*')
             ->from($page->table())
             ->join($entity->table(), $entity->id, $page->entity_id)
             ->where($entity->name, $this->model->getTable())
