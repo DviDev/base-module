@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Contracts;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
@@ -9,11 +10,11 @@ use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 
 abstract class BaseLivewireForm extends Component
 {
-    public $model = null;
+    public Model|null $model = null;
 
     public array $modelAttributes = [];
 
-    public function mount($model)
+    public function mount($model): void
     {
         if (isset($this->model->id)) {
             $this->modelAttributes = $this->getModel()->toArray();
@@ -22,11 +23,11 @@ abstract class BaseLivewireForm extends Component
 
     abstract protected function modelClass(): string;
 
-    abstract protected function getModel();
+    abstract protected function getModel(): Model;
 
-    abstract public function validationAttributes();
+    abstract public function validationAttributes(): array;
 
-    public function save()
+    public function save(): void
     {
         try {
             $this->validate();

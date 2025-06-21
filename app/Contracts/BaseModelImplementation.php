@@ -80,13 +80,7 @@ trait BaseModelImplementation
         return $table.($alias ? ' as '.$alias : '');
     }
 
-    /** @template T
-     * @param  class-string<T>|null  $entity_class
-     * @return T
-     *
-     * @throws \ReflectionException
-     */
-    public function toEntity(?T $entity_class = null)
+    public function toEntity(): BaseEntityModel
     {
         $entity_class = $this->modelEntity();
 
@@ -98,7 +92,6 @@ trait BaseModelImplementation
             $entity->set($prop, $this->$prop, true);
         }
 
-        /** @var $entity T */
         return $entity;
     }
 

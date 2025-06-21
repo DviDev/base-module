@@ -29,7 +29,7 @@ class DispatchBaseEventsCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         \Event::dispatch(new ScanTableEvent);
         //        \Event::dispatch(new DatabaseSeederEvent());

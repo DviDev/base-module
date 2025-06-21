@@ -4,5 +4,5 @@ namespace Modules\Base\Providers;
 
 interface BaseServiceProviderInterface
 {
-    public static function errorTypeClass();
+    public static function errorTypeClass(): string;
 }

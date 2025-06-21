@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Http\Livewire\Notification;
 
+use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -19,7 +20,7 @@ class NotificationList extends Component
         $this->paginationTheme = $paginationTheme;
     }
 
-    public function render()
+    public function render(): View
     {
         return view('base::livewire.notification.notification-list');
     }

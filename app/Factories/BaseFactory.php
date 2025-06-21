@@ -355,7 +355,7 @@ abstract class BaseFactory extends Factory
         });
     }
 
-    protected function validate(array $table_models, string $foreignTableName, BaseEntityModel $entity, ForeignKeyConstraint|array $fk)
+    protected function validate(array $table_models, string $foreignTableName, BaseEntityModel $entity, ForeignKeyConstraint|array $fk): void
     {
         if (! isset($table_models[$foreignTableName]) && config('app.env') == 'local') {
             \Log::info(collect($table_models)->toJson());

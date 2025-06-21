@@ -3,6 +3,7 @@
 namespace Modules\Base\Http\Livewire\Config;
 
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Base\Entities\Config\ConfigEntityModel;
 use Modules\Base\Models\ConfigModel;
@@ -14,18 +15,18 @@ class ConfigForm extends Component
 
     public $name;
 
-    public function mount(ConfigModel $config)
+    public function mount(ConfigModel $config): void
     {
         $this->config = $config;
         $this->name = $config->name;
     }
 
-    public function render()
+    public function render(): View
     {
         return view('base::livewire.config.config-form');
     }
 
-    public function getRules()
+    public function getRules(): array
     {
         $config = ConfigEntityModel::props('config', true);
 
@@ -36,7 +37,7 @@ class ConfigForm extends Component
         ];
     }
 
-    public function save()
+    public function save(): void
     {
         $this->validate();
 

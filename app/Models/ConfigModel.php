@@ -52,7 +52,7 @@ class ConfigModel extends BaseModel
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public static function byValue($name)
+    public static function byValue($name): mixed
     {
         return cache()->rememberForever("config::$name", function () {
             return ConfigModel::firstWhere('name', 'app_logo')?->value;

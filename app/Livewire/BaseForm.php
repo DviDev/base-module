@@ -2,11 +2,12 @@
 
 namespace Modules\Base\Livewire;
 
+use Illuminate\Contracts\View\View;
 use Modules\Base\Http\Livewire\BaseComponent;
 
 class BaseForm extends BaseComponent
 {
-    public function render()
+    public function render(): View
     {
         return view('base::livewire.base-form');
     }
