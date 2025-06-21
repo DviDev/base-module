@@ -5,20 +5,35 @@ namespace Modules\Base\Services\Errors;
 abstract class BaseTypeErrors
 {
     const HTTP_SERVICE_WITHOUT_ENDPOINT = 1000;
+
     const HTTP_SERVICE_DID_NOT_WORK = 1001;
+
     const ERROR_IN_RECORD_INFORMATION = 1002;
+
     const NOT_ALLOWED = 1003;
+
     const ITEM_NOT_FOUND = 1004;
+
     const UNINFORMED_ENTITY = 1005;
+
     const ENTITY_NOT_IMPLEMENTED = 1006;
+
     const ENTITY_TYPE_ERROR = 1007;
+
     const TOKEN_CONFIRMATION_PENDENT = 1008;
+
     const TOKEN_ALREADY_CONFIRMED = 1009;
+
     const TOKEN_CREATE = 1010;
+
     const TOKEN_MINUTE_LIMIT_EXCEEDED = 1011;
+
     const TOKEN_EXPIRED = 1012;
+
     const INVALID_TOKEN = 1013;
+
     const INTERNAL_ERROR = 1014;
+
     const REPOSITORY_CLASS_UNINFORMED = 1015;
 
     public static function errorMessages(): array
@@ -39,7 +54,7 @@ abstract class BaseTypeErrors
             self::TOKEN_EXPIRED => 'Token expirado',
             self::INVALID_TOKEN => 'Token inválido',
             self::INTERNAL_ERROR => 'Erro interno, já estamos averiguando.',
-            self::REPOSITORY_CLASS_UNINFORMED => 'Classe de repositório não informada.'
+            self::REPOSITORY_CLASS_UNINFORMED => 'Classe de repositório não informada.',
         ];
     }
 }

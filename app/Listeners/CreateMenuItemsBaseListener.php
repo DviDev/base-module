@@ -31,8 +31,8 @@ class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
         $p = MenuItemEntityModel::props();
 
         $menu->menuItems()->create([
-            $p->label => ucfirst(trans('config')) . ' (manual)',
-            $p->title => ucfirst(trans('config')) . ' (manual)',
+            $p->label => ucfirst(trans('config')).' (manual)',
+            $p->title => ucfirst(trans('config')).' (manual)',
             $p->num_order => 2,
             $p->url => route('admin.configs'),
             $p->active => true,
@@ -42,7 +42,7 @@ class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
         parent::handle($event);
     }
 
-    function moduleName(): string
+    public function moduleName(): string
     {
         return 'App';
     }
@@ -54,6 +54,7 @@ class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
             ->createCondition(UserType::DEVELOPER)
             ->createCondition(UserType::SUPER_ADMIN)
             ->createCondition(UserType::ADMIN);
+
         return $action;
     }
 

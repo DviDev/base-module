@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\File;
 
 class BaseDatabaseSeeder extends BaseSeeder
 {
-//    use WithoutModelEvents;
+    //    use WithoutModelEvents;
     /**
      * @throws Exception
      */

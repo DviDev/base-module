@@ -9,8 +9,11 @@ use Modules\Base\Factories\BaseFactory;
 
 /**
  * @author Davi Menezes (davimenezes.dev@gmail.com)
+ *
  * @link https://github.com/DaviMenezes
+ *
  * @property-read RecordTypeModel $model
+ *
  * @method RecordTypeEntityModel toEntity()
  */
 class RecordTypeModel extends BaseModel
@@ -25,7 +28,8 @@ class RecordTypeModel extends BaseModel
 
     protected static function newFactory(): BaseFactory
     {
-        return new class extends BaseFactory {
+        return new class extends BaseFactory
+        {
             protected $model = RecordTypeModel::class;
         };
     }

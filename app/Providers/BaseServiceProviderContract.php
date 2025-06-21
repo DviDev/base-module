@@ -45,7 +45,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
      */
     public function registerTranslations(): void
     {
-        $langPath = resource_path('lang/modules/' . $this->getModuleNameLower());
+        $langPath = resource_path('lang/modules/'.$this->getModuleNameLower());
 
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, $this->getModuleNameLower());
@@ -65,7 +65,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
      */
     protected function registerConfig(): void
     {
-        $this->publishes([module_path($this->getModuleName(), 'config/config.php') => config_path($this->getModuleNameLower() . '.php')], 'config');
+        $this->publishes([module_path($this->getModuleName(), 'config/config.php') => config_path($this->getModuleNameLower().'.php')], 'config');
         $this->mergeConfigFrom(module_path($this->getModuleName(), 'config/config.php'), $this->getModuleNameLower());
     }
 
@@ -74,15 +74,15 @@ abstract class BaseServiceProviderContract extends ServiceProvider
      */
     public function registerViews(): void
     {
-        $viewPath = resource_path('views/components/' . $this->getModuleNameLower());
+        $viewPath = resource_path('views/components/'.$this->getModuleNameLower());
         $sourcePath = module_path($this->getModuleName(), 'Resources/views');
         $resourceComponentPath = module_path($this->getModuleName(), 'Resources/components');
 
-        $this->publishes([$sourcePath => $viewPath], ['views', $this->getModuleNameLower() . '-module-views']);
+        $this->publishes([$sourcePath => $viewPath], ['views', $this->getModuleNameLower().'-module-views']);
 
         $paths = array_merge($this->getPublishableViewPaths(), [
             $sourcePath,
-            $resourceComponentPath
+            $resourceComponentPath,
         ]);
         $this->loadViewsFrom(
             $paths,
@@ -90,7 +90,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         );
 
         $config = config('modules.paths.generator.component-class.path');
-        $componentNamespace = str_replace('/', '\\', config('modules.namespace') . '\\' . $this->getModuleName() . '\\App\\View\\Components\\');
+        $componentNamespace = str_replace('/', '\\', config('modules.namespace').'\\'.$this->getModuleName().'\\App\\View\\Components\\');
         Blade::componentNamespace($componentNamespace, $this->getModuleNameLower());
 
         $this->registerComponents();
@@ -100,17 +100,15 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     {
         $paths = [];
         foreach (config('view.paths') as $path) {
-            if (is_dir($path . '/modules/' . $this->getModuleNameLower())) {
-                $paths[] = $path . '/modules/' . $this->getModuleNameLower();
+            if (is_dir($path.'/modules/'.$this->getModuleNameLower())) {
+                $paths[] = $path.'/modules/'.$this->getModuleNameLower();
             }
         }
 
         return $paths;
     }
 
-    protected function registerComponents(): void
-    {
-    }
+    protected function registerComponents(): void {}
 
     /**
      * Get the services provided by the provider.
@@ -133,24 +131,24 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     public function providers(): array
     {
         return [
-            RouteServiceProvider::class
+            RouteServiceProvider::class,
         ];
     }
 
     protected function publishableComponent($name, $class): void
     {
-        $namespace = $this->getModuleNameLower() . "::$name";
+        $namespace = $this->getModuleNameLower()."::$name";
         Blade::component(class: $namespace, alias: $class);
 
-        list($origin, $destination) = $this->originAndDestination($name);
+        [$origin, $destination] = $this->originAndDestination($name);
 
         $this->publishes(
             [$origin => $destination],
             [
                 'views',
                 'publishable-components',
-                $this->getModuleNameLower() . "-publishable-components",
-                $this->getModuleNameLower() . "-component-" . $name,
+                $this->getModuleNameLower().'-publishable-components',
+                $this->getModuleNameLower().'-component-'.$name,
             ]
         );
     }
@@ -160,6 +158,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $component = str($name)->explode('.')->join('/');
         $origin = module_path($this->getModuleName(), "Resources/views/components/$component.blade.php");
         $destination = resource_path("views/vendor/{$this->getModuleNameLower()}/$component.blade.php");
+
         return [$origin, $destination];
     }
 }

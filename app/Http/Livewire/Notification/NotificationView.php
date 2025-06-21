@@ -11,6 +11,7 @@ use Modules\Base\Services\Notification\Action;
 class NotificationView extends Component
 {
     public DatabaseNotification $notification;
+
     public ?User $user;
 
     public function mount()

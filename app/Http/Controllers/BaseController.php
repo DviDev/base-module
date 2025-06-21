@@ -7,6 +7,7 @@ use Exception;
 /**
  * @author     Davi Menezes
  * @copyright  Copyright (c) 2020. (davimenezes.dev@gmail.com)
+ *
  * @see https://github.com/DaviMenezes
  */
 abstract class BaseController
@@ -16,7 +17,8 @@ abstract class BaseController
     public function domain()
     {
         $class = $this->domainClass();
-        return $this->domain = $this->domain ?? new $class();
+
+        return $this->domain = $this->domain ?? new $class;
     }
 
     /**@return string

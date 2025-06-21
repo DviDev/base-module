@@ -6,9 +6,8 @@ use Modules\Base\Services\Date\DateFn;
 
 class Functions
 {
-    static public function date()
+    public static function date()
     {
-        return new DateFn();
+        return new DateFn;
     }
-
 }

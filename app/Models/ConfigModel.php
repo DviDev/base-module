@@ -11,19 +11,22 @@ use Modules\Base\Factories\BaseFactory;
 
 /**
  * @author Davi Menezes (davimenezes.dev@gmail.com)
+ *
  * @link https://github.com/DaviMenezes
+ *
  * @property-read  User $user
+ *
  * @method ConfigEntityModel toEntity()
  */
 class ConfigModel extends BaseModel
 {
-    use HasFactory;
     use ConfigProps;
+    use HasFactory;
 
     public $timestamps = true;
 
     protected $casts = [
-        'updated_at' => 'datetime'
+        'updated_at' => 'datetime',
     ];
 
     public function modelEntity(): string
@@ -33,10 +36,12 @@ class ConfigModel extends BaseModel
 
     protected static function newFactory(): BaseFactory
     {
-        return new class extends BaseFactory {
+        return new class extends BaseFactory
+        {
             protected $model = ConfigModel::class;
         };
     }
+
     public static function table($alias = null): string
     {
         return self::dbTable('base_configs', $alias);
@@ -47,7 +52,7 @@ class ConfigModel extends BaseModel
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    static public function byValue($name)
+    public static function byValue($name)
     {
         return cache()->rememberForever("config::$name", function () {
             return ConfigModel::firstWhere('name', 'app_logo')?->value;

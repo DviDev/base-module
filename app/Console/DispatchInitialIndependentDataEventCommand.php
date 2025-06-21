@@ -13,6 +13,7 @@ class DispatchInitialIndependentDataEventCommand extends Command
      * The name and signature of the console command.
      */
     protected $signature = 'base:dispatch_seed_initial_data_event';
+
     /**
      * The console command description.
      */
@@ -31,7 +32,7 @@ class DispatchInitialIndependentDataEventCommand extends Command
      */
     public function handle()
     {
-        \Event::dispatch(new BaseSeederInitialIndependentDataEvent());
+        \Event::dispatch(new BaseSeederInitialIndependentDataEvent);
     }
 
     /**

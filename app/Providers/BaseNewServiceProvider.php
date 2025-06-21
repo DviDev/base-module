@@ -50,7 +50,7 @@ class BaseNewServiceProvider extends ServiceProvider
      */
     protected function registerCommands(): void
     {
-//         $this->commands([]);
+        //         $this->commands([]);
         $this->commands(FeatureFlushCommand::class);
         $this->commands(InstallModulesCommand::class);
         $this->commands(DispatchInitialIndependentDataEventCommand::class);
@@ -140,7 +140,7 @@ class BaseNewServiceProvider extends ServiceProvider
 
         $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->nameLower);
 
-        Blade::componentNamespace(config('modules.namespace').'\\' . $this->name . '\\View\\Components', $this->nameLower);
+        Blade::componentNamespace(config('modules.namespace').'\\'.$this->name.'\\View\\Components', $this->nameLower);
     }
 
     /**

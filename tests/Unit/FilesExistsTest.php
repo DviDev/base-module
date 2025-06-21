@@ -129,7 +129,7 @@ it('possui todos os arquivos de Comandos', function () {
         DispatchBaseEventsCommand::class,
         DispatchInitialIndependentDataEventCommand::class,
         FeatureFlushCommand::class,
-        InstallModulesCommand::class
+        InstallModulesCommand::class,
     ];
     expectClassesExist($files);
 });
@@ -234,7 +234,7 @@ it('possui todos os arquivos de Livewire', function () {
         NotificationList::class,
         NotificationView::class,
         BaseComponent::class,
-        BaseForm::class
+        BaseForm::class,
     ]);
 });
 it('possui todos os arquivos de Middleware', function () {
@@ -277,7 +277,7 @@ it('possui todos os arquivos de Providers', function () {
 });
 it('possui todos os arquivos de Repositorios', function () {
     expectClassesExist([
-        BaseRepository::class
+        BaseRepository::class,
     ]);
 });
 it('possui todos os arquivos de Rules', function () {
@@ -311,7 +311,7 @@ it('possui todos os arquivos de View', function () {
     ]);
 });
 it('possui arquivos helper', function () {
-    $filename = module_path('base') . '/app/helpers.php';
+    $filename = module_path('base').'/app/helpers.php';
     dump($filename);
     expect(file_exists($filename))->toBeTrue();
 });
@@ -323,7 +323,7 @@ it('possui todos os arquivo em migrations', function () {
         '2022_09_12_145024_create_configs_table.php',
     ];
     foreach ($files as $file) {
-        expect(file_exists(module_path('base') . '/database/migrations/' . $file))->toBeTrue();
+        expect(file_exists(module_path('base').'/database/migrations/'.$file))->toBeTrue();
     }
     expect(class_exists(BaseMigration::class))->toBeTrue();
 });
@@ -337,18 +337,18 @@ it('all seeders files exist', function () {
         SeederEventDTO::class,
     ]);
 });
-it ('all lang files exist', function () {
+it('all lang files exist', function () {
     $files = [
-        "cache.php",
-        "default.php",
-        "form.php",
-        "page.php",
-        "pt_BR.json",
+        'cache.php',
+        'default.php',
+        'form.php',
+        'page.php',
+        'pt_BR.json',
     ];
     foreach ($files as $file) {
-        expect(file_exists(module_path('base') . '/resources/lang/pt_BR/' . $file))->toBeTrue();
+        expect(file_exists(module_path('base').'/resources/lang/pt_BR/'.$file))->toBeTrue();
     }
-    expect(file_exists(module_path('base') . '/resources/lang/pt_BR.json'))->toBeTrue();
+    expect(file_exists(module_path('base').'/resources/lang/pt_BR.json'))->toBeTrue();
 });
 it('all resources livewire files exist', function () {
     $files = [
@@ -377,7 +377,7 @@ it('all layout component views files exists', function () {
 it('all page component views files exists', function () {
     expectFilesExist([
         'resources/views/components/page/notification/notification-list-page.blade.php',
-        'resources/views/components/page/notification/notification-view-page.blade.php'
+        'resources/views/components/page/notification/notification-view-page.blade.php',
     ]);
 });
 it('all livewire views files exists', function () {
@@ -391,6 +391,6 @@ it('all livewire views files exists', function () {
     ]);
 });
 it('readme file exist', function () {
-    $filename = module_path('base') . '/README.md';
+    $filename = module_path('base').'/README.md';
     expect(file_exists($filename))->toBeTrue();
 });

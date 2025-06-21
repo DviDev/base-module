@@ -9,6 +9,4 @@ namespace Modules\Base\Entities\RecordType;
  * @property $updated_at
  * @property $deleted_at
  */
-trait RecordTypeProps
-{
-}
+trait RecordTypeProps {}

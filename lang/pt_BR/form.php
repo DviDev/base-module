@@ -1,4 +1,5 @@
 <?php
+
 return [
     'actions' => 'Ações',
     'The item has been saved' => 'O item foi salvo',

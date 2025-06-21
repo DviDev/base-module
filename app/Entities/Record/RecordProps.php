@@ -10,6 +10,4 @@ namespace Modules\Base\Entities\Record;
  * @property $updated_at
  * @property $deleted_at
  */
-trait RecordProps
-{
-}
+trait RecordProps {}

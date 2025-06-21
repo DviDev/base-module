@@ -25,6 +25,7 @@ use Nwidart\Modules\Facades\Module;
 abstract class BaseFactory extends Factory
 {
     public $for;
+
     public $factory;
 
     public static function getFakeDataViaViewStructureElementType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
@@ -47,10 +48,11 @@ abstract class BaseFactory extends Factory
     {
         if ($key == 'name') {
             $length = max($length, 10);
+
             return fake()->text(random_int(round($length / 2), $length));
         }
         if ($key == 'email') {
-            return random_int(1000, 9999) . '_' . fake()->email();
+            return random_int(1000, 9999).'_'.fake()->email();
         }
         if ($key == 'uuid') {
             return fake()->uuid();
@@ -66,20 +68,23 @@ abstract class BaseFactory extends Factory
         }
         if (str($key)->contains('path')) {
             $extension = collect(['pdf', 'png', 'jpeg', 'jpg'])->random();
-            return UploadedFile::fake()->create('test.' . $extension)->store('temp_seed_files');
+
+            return UploadedFile::fake()->create('test.'.$extension)->store('temp_seed_files');
         }
         if (in_array($key, ['telefone', 'phone'])) {
-            return '1199' . random_int(100, 999) . random_int(10, 99) . random_int(10, 99);
+            return '1199'.random_int(100, 999).random_int(10, 99).random_int(10, 99);
         }
+
         return str(fake()->sentence(3))->substr(0, $length)->value();
     }
 
     public function createFn(\Closure $fn)
     {
-        /**@var BaseModel $model */
+        /** @var BaseModel $model */
         $model = new $this->model;
         $entity_class = $model->modelEntity();
         $entity = new $entity_class;
+
         return parent::create($fn($entity->props()));
     }
 
@@ -93,13 +98,14 @@ abstract class BaseFactory extends Factory
             $related = class_basename($factory);
         }
 
-        if (!$related) {
+        if (! $related) {
             throw new \Exception('factory not found');
         }
         $relationship = $relationship ?? $this->guessRelationship($related);
 
         return $this->newInstance([
-            'for' => $this->for->concat([new class($factory, $relationship) extends BelongsToRelationship {
+            'for' => $this->for->concat([new class($factory, $relationship) extends BelongsToRelationship
+            {
                 public $factory;
             }]),
         ]);
@@ -113,6 +119,7 @@ abstract class BaseFactory extends Factory
                 return $possibility;
             }
         }
+
         return parent::guessRelationship($related);
     }
 
@@ -141,6 +148,7 @@ abstract class BaseFactory extends Factory
             $possibilities[] = Str::plural($camel);
             $possibilities[] = $camel;
         }
+
         return $possibilities;
     }
 
@@ -151,7 +159,7 @@ abstract class BaseFactory extends Factory
 
     protected function getValues($fixed_values = []): array
     {
-        /**@var BaseModel $model */
+        /** @var BaseModel $model */
         $model = $this->model;
         $entity = (new $model)->modelEntity()::props();
 
@@ -162,11 +170,12 @@ abstract class BaseFactory extends Factory
         $merge = array_merge($columns, $another_columns);
         $columns = [];
         foreach ($merge as $key => $item) {
-            if (!collect($item)->keys()->contains('value')) {
+            if (! collect($item)->keys()->contains('value')) {
                 continue;
             }
             $columns[$key] = $item['value'];
         }
+
         return $columns;
     }
 
@@ -180,7 +189,7 @@ abstract class BaseFactory extends Factory
             $column = $fk['columns'][0];
             $columns[$column]['fk'] = true;
 
-            if (!empty($columns[$column]['value'])) {
+            if (! empty($columns[$column]['value'])) {
                 continue;
             }
 
@@ -188,52 +197,59 @@ abstract class BaseFactory extends Factory
                 continue;
             }
             $foreignTableName = $fk['foreign_table'];
-            /**@var BaseModel $fk_model_class */
+            /** @var BaseModel $fk_model_class */
             $fk_model_class = $table_models[$foreignTableName];
             $has_for = $this->for->count() && is_a($this->for->first()->factory, $fk_model_class);
             if ($has_for) {
                 continue;
             }
             if ($this->columnsContain($columns, $column)) {
-                //Verifica se é a mesma tabela
-                //Se houver chave estrangeira para msm tabela irá causar um loop infinito. (é comum em campos como parent_id)
+                // Verifica se é a mesma tabela
+                // Se houver chave estrangeira para msm tabela irá causar um loop infinito. (é comum em campos como parent_id)
                 if ($foreignTableName == $entity->table) {
                     $columns[$column]['value'] = $model::query()->first()->id ?? null;
+
                     continue;
                 }
                 $this->validate($table_models, $foreignTableName, $entity, $fk);
 
                 if ($this->modelIsEmpty($model)) {
                     $columns[$column]['value'] = $this->createRelation($fk_model_class);
+
                     continue;
                 }
 
                 $contain_in_index_unique = $this->containInIndexUnique($indexes, $column);
 
-                if (!$contain_in_index_unique) {
+                if (! $contain_in_index_unique) {
                     $columns[$column]['value'] = $this->randomOrNewRelation($fk_model_class, $model, $column);
+
                     continue;
                 } elseif ($fk_model_class == User::class) {
                     $columns[$column]['value'] = $this->createRelation($fk_model_class);
+
                     continue;
                 }
 
                 $fk_id = $this->randomRelationId($fk_model_class, $model, $column);
 
-                if (!$fk_id) {
+                if (! $fk_id) {
                     $columns[$column]['value'] = $this->createRelation($fk_model_class);
+
                     continue;
                 }
 
                 if ($this->indexIsUniqueMultiple($indexes, $column)) {
-                    //Todo get all unique columns and check if has in $columns with same values
+                    // Todo get all unique columns and check if has in $columns with same values
                     $columns[$column]['value'] = $fk_id;
+
                     continue;
                 }
 
                 $columns[$column]['value'] = $fk_id;
             }
         }
+
         return $columns;
     }
 
@@ -251,9 +267,10 @@ abstract class BaseFactory extends Factory
 
             $columns[$column_name]['obj'] = $column;
             $columns[$column_name]['value'] = $fixed_values[$column_name] ?? null;
-            $columns[$column_name]['required'] = !$column['nullable'];
+            $columns[$column_name]['required'] = ! $column['nullable'];
             $columns[$column_name]['fk'] = null;
         }
+
         return $columns;
     }
 
@@ -265,19 +282,19 @@ abstract class BaseFactory extends Factory
                 throw new \Exception(trans('base::default.Enable any module'));
             }
             $table_model = [];
-            /**@var \Nwidart\Modules\Laravel\Module $module */
+            /** @var \Nwidart\Modules\Laravel\Module $module */
             foreach ($modules as $module) {
                 if ($module->getName() == 'Base') {
                     continue;
                 }
-                $module_model_path = 'Modules/' . $module->getName() . '/Models';
-                if (!is_dir(module_path($module->getName(), 'Models'))) {
+                $module_model_path = 'Modules/'.$module->getName().'/Models';
+                if (! is_dir(module_path($module->getName(), 'Models'))) {
                     continue;
                 }
                 $files = \File::files(module_path($module->getName(), 'Models'));
                 foreach ($files as $file) {
-                    /**@var BaseModel $model */
-                    $model = str($module_model_path . '/' . $file->getFilenameWithoutExtension())->replace('/', '\\')->value();
+                    /** @var BaseModel $model */
+                    $model = str($module_model_path.'/'.$file->getFilenameWithoutExtension())->replace('/', '\\')->value();
                     $reflectionClass = new \ReflectionClass($model);
                     if ($reflectionClass->isSubclassOf(BaseModel::class)) {
                         $table_model[$model::table()] = $model;
@@ -285,11 +302,13 @@ abstract class BaseFactory extends Factory
                 }
             }
 
-            if (!isset($table_model['users'])) {
+            if (! isset($table_model['users'])) {
                 $table_model['users'] = User::class;
             }
+
             return $table_model;
         };
+
         return $fn();
     }
 
@@ -300,22 +319,27 @@ abstract class BaseFactory extends Factory
                 $result = $i();
                 if ($value = $result[$column] ?? null) {
                     $columns[$column]['value'] = $value;
+
                     return true;
                 }
             }
             if (is_a($i, Sequence::class)) {
-                /**@var Sequence $i */
+                /** @var Sequence $i */
                 $all = collect($i)->all();
+
                 return collect($all)->contains(function ($k, $v) use ($column, &$columns, $i) {
-                    return collect($k)->contains(function ($v2, $key) use ($column, $i, $k) {
+                    return collect($k)->contains(function ($v2, $key) use ($column, $i) {
                         if (is_a($v2, Closure::class)) {
                             $result = $v2($i);
+
                             return isset($result[$column]);
                         }
+
                         return isset($v2[$column]);
                     });
                 });
             }
+
             return false;
         });
     }
@@ -323,19 +347,20 @@ abstract class BaseFactory extends Factory
     protected function columnsContain(array $columns, string $column): bool
     {
         return collect($columns)->contains(function ($col) use ($column) {
-            if (!isset($col['obj'])) {
+            if (! isset($col['obj'])) {
                 return false;
             }
+
             return $col['obj']['name'] == $column;
         });
     }
 
     protected function validate(array $table_models, string $foreignTableName, BaseEntityModel $entity, ForeignKeyConstraint|array $fk)
     {
-        if (!isset($table_models[$foreignTableName]) && config('app.env') == 'local') {
+        if (! isset($table_models[$foreignTableName]) && config('app.env') == 'local') {
             \Log::info(collect($table_models)->toJson());
         }
-        if (!isset($table_models[$foreignTableName])) {
+        if (! isset($table_models[$foreignTableName])) {
             $name = is_object($fk) ? $fk->getName() : $fk['name'];
             throw new Exception("analisar foreignTableName $entity->table. ' '. $foreignTableName em {$name} ");
         }
@@ -343,14 +368,14 @@ abstract class BaseFactory extends Factory
 
     protected function modelIsEmpty(string $model): bool
     {
-        /**@var BaseModel $model */
+        /** @var BaseModel $model */
         return $model::query()->count() == 0;
     }
 
     protected function createRelation(string $model_class): int
     {
         $attributes = [];
-        /**@var BaseModel $model_class */
+        /** @var BaseModel $model_class */
         if ($model_class === User::class && $default = config('person.seed.user.types.default')) {
             $attributes = ['type_id' => $default];
         }
@@ -363,7 +388,7 @@ abstract class BaseFactory extends Factory
         $contain_in_index_unique = false;
 
         foreach ($indexes as $index) {
-            if (!$index['unique']) {
+            if (! $index['unique']) {
                 continue;
             }
             foreach ($index['columns'] as $_column) {
@@ -372,14 +397,13 @@ abstract class BaseFactory extends Factory
                 }
             }
         }
+
         return $contain_in_index_unique;
     }
 
     /**
-     * @param string|BaseModel $fk_model_class
-     * @param string|BaseModel $model_class
-     * @param string $attribute_id
-     * @return int
+     * @param  string|BaseModel  $fk_model_class
+     * @param  string|BaseModel  $model_class
      */
     protected function randomOrNewRelation(string $fk_model_class, string $model_class, string $attribute_id): int
     {
@@ -392,21 +416,19 @@ abstract class BaseFactory extends Factory
     }
 
     /**
-     * @param string|BaseModel $fk_model_class
-     * @param string|BaseModel $model_class
-     * @param string $attribute_id
-     * @return int|null
+     * @param  string|BaseModel  $fk_model_class
+     * @param  string|BaseModel  $model_class
      */
-    protected function randomRelationId(string $fk_model_class, string $model_class, string $attribute_id): int|null
+    protected function randomRelationId(string $fk_model_class, string $model_class, string $attribute_id): ?int
     {
         if ($fk_model_class == UserTypeModel::class) {
             return config('person.seed.user.types.default');
         }
 
-        /**@var BaseModel $fk_model_class */
-        return $fk_model_class::query()->select($fk_model_class::table() . '.*')
-            ->leftJoin($model_class::table() . ' as tb1', 'tb1.' . $attribute_id, $fk_model_class::table() . '.id')
-            ->whereNull('tb1.' . $attribute_id)
+        /** @var BaseModel $fk_model_class */
+        return $fk_model_class::query()->select($fk_model_class::table().'.*')
+            ->leftJoin($model_class::table().' as tb1', 'tb1.'.$attribute_id, $fk_model_class::table().'.id')
+            ->whereNull('tb1.'.$attribute_id)
             ->limit(1)->first()
             ->id ?? null;
     }
@@ -421,13 +443,14 @@ abstract class BaseFactory extends Factory
                 $columns = $index->getColumns();
             }
             $contains = collect($columns)->contains($column);
+
             return isset($index['unique']) && $contains && count($columns) > 1;
         });
     }
 
     protected function defineValuesForOptionalFields(array $columns, mixed $fixed_values): array
     {
-        $another_columns = collect($columns)->filter(fn($c) => empty($c['value']) && empty($c['fk']))->toArray();
+        $another_columns = collect($columns)->filter(fn ($c) => empty($c['value']) && empty($c['fk']))->toArray();
         foreach ($another_columns as $key => $item) {
             $obj = $item['obj'];
 
@@ -437,11 +460,13 @@ abstract class BaseFactory extends Factory
 
             if (isset($fixed_values[$key])) {
                 $another_columns[$key]['value'] = $fixed_values[$key];
+
                 continue;
             }
 
             if ($obj['name'] == 'remember_token') {
                 $another_columns[$key]['value'] = Str::random(10);
+
                 continue;
             }
 
@@ -475,18 +500,18 @@ abstract class BaseFactory extends Factory
                 $another_columns[$key]['value'] = null;
             }
         }
+
         return $another_columns;
     }
 
     public static function getFakeDataViaTableAttributeType(
         ViewStructureComponentType $type,
-                                   $length,
+        $length,
         int|string $key,
-                                   $value_default = null,
-                                   $num_scale = null,
-                                   $num_precision = null
-    )
-    {
+        $value_default = null,
+        $num_scale = null,
+        $num_precision = null
+    ) {
         return match ($type) {
             ViewStructureComponentType::datetime => now()->toDateTimeLocalString(),
             ViewStructureComponentType::date => now()->toDateString(),
@@ -517,17 +542,17 @@ abstract class BaseFactory extends Factory
     protected function getEmail(string $name): string
     {
         return str(iconv('UTF-8', 'ASCII//TRANSLIT', $this->removeAbreviations($name)))
-                ->lower()
-                ->explode(' ')
-                ->shift(3)
-                ->join('_')
-            . '@gmail.com';
+            ->lower()
+            ->explode(' ')
+            ->shift(3)
+            ->join('_')
+            .'@gmail.com';
     }
 
     protected function throwBadMethod(string $related, array $available_methods)
     {
         $str = sprintf('Call to undefined method %s::%s()', static::class, $related);
-        $str .= ". Available methods: " . json_encode($available_methods);
+        $str .= '. Available methods: '.json_encode($available_methods);
         throw new BadMethodCallException($str);
     }
 
@@ -541,24 +566,25 @@ abstract class BaseFactory extends Factory
                 if ($index->isUnique()) {
                     continue;
                 }
-                if ($contain_unique = collect($index->getColumns())->contains(fn($c) => $c == $fk_column)) {
+                if ($contain_unique = collect($index->getColumns())->contains(fn ($c) => $c == $fk_column)) {
                     break;
                 }
             }
-            if (!$contain_unique) {
+            if (! $contain_unique) {
                 continue;
             }
-            /**@var BaseModel|string $table */
+            /** @var BaseModel|string $table */
             $table = $fk->getForeignTableName();
             $class = $table_models[$table];
             $amount_table_foreign_keys[$table] = $class::query()->count();
         }
+
         return $amount_table_foreign_keys;
     }
 
     protected function relationIsEmpty(string $class): bool
     {
-        /**@var BaseModel $class */
+        /** @var BaseModel $class */
         return $class::query()->count() == 0;
     }
 }

@@ -14,7 +14,7 @@ use Modules\Base\Services\Errors\ExceptionBaseResponse;
  */
 abstract class BaseEntityModel extends BaseEntity implements EntityModelInterface
 {
-    /**@var self|BaseModel */
+    /** @var self|BaseModel */
     public $model;
 
     public string $table;
@@ -27,7 +27,7 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
 
     protected static function setTable($table, $alias = null): string
     {
-        return $table . ($alias ? ' as ' . $alias : '');
+        return $table.($alias ? ' as '.$alias : '');
     }
 
     protected function repositoryClass(): ?string
@@ -35,18 +35,19 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
         return null;
     }
 
-    public function repository(BaseModel $model = null): BaseRepository
+    public function repository(?BaseModel $model = null): BaseRepository
     {
-        if (!$class = $this->repositoryClass()) {
-            throw new \Exception(BaseTypeErrors::errorMessages()[BaseTypeErrors::REPOSITORY_CLASS_UNINFORMED]. '('.get_called_class().')');
+        if (! $class = $this->repositoryClass()) {
+            throw new \Exception(BaseTypeErrors::errorMessages()[BaseTypeErrors::REPOSITORY_CLASS_UNINFORMED].'('.get_called_class().')');
         }
-        /**@var BaseRepository $repository */
+        /** @var BaseRepository $repository */
         $repository = new $class($model);
         $repository->setEntity($this);
-        if (!is_a($repository, BaseRepository::class)) {
-            ExceptionBaseResponse::throw(BaseTypeErrors::ENTITY_TYPE_ERROR, 'A classe '.$class.' deve ser do tipo ' .
+        if (! is_a($repository, BaseRepository::class)) {
+            ExceptionBaseResponse::throw(BaseTypeErrors::ENTITY_TYPE_ERROR, 'A classe '.$class.' deve ser do tipo '.
                 BaseRepository::class);
         }
+
         return $repository;
     }
 
@@ -55,6 +56,7 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
         if (array_key_exists($name, $this->attributes_)) {
             return $this->attributes_[$name];
         }
+
         return $this->model->$name ?? null;
     }
 
@@ -63,16 +65,18 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
         if ($this->repositoryClass()) {
             $repository = $this->repository();
             $table = $repository->modelClass()::table();
-            return !$this->table_alias ? $table : $table.' as ' .$this->table_alias;
+
+            return ! $this->table_alias ? $table : $table.' as '.$this->table_alias;
         }
         $vars = str(get_called_class())->explode('\\');
         $entity = $vars[3];
         $vars[2] = 'Models';
-        $vars[3] = $entity . 'Model';
+        $vars[3] = $entity.'Model';
         unset($vars[4]);
-        /**@var BaseModel $model_class*/
+        /** @var BaseModel $model_class */
         $model_class = $vars->join('\\');
         $table = $model_class::table();
-        return !$this->table_alias ? $table : $table.' as ' .$this->table_alias;
+
+        return ! $this->table_alias ? $table : $table.' as '.$this->table_alias;
     }
 }
