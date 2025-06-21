@@ -4,6 +4,7 @@ namespace Modules\Base\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Entities\Record\RecordEntityModel;
 use Modules\Base\Entities\Record\RecordProps;
 use Modules\Base\Factories\BaseFactory;
@@ -37,7 +38,7 @@ class RecordModel extends BaseModel
         };
     }
 
-    public function modelEntity(): string
+    public function modelEntity(): string|BaseEntityModel
     {
         return RecordEntityModel::class;
     }

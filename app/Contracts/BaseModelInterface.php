@@ -6,7 +6,7 @@ use Modules\Base\Entities\BaseEntityModel;
 
 interface BaseModelInterface
 {
-    public function modelEntity(): EntityInterface|string|BaseEntityModel;
+    public function modelEntity(): string|BaseEntityModel;
 
     public function toEntity(): BaseEntityModel;
 

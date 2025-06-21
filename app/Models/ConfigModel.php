@@ -5,6 +5,7 @@ namespace Modules\Base\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Entities\Config\ConfigEntityModel;
 use Modules\Base\Entities\Config\ConfigProps;
 use Modules\Base\Factories\BaseFactory;
@@ -29,7 +30,7 @@ class ConfigModel extends BaseModel
         'updated_at' => 'datetime',
     ];
 
-    public function modelEntity(): string
+    public function modelEntity(): string|BaseEntityModel
     {
         return ConfigEntityModel::class;
     }
