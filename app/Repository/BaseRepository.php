@@ -84,9 +84,6 @@ abstract class BaseRepository
         return new $class;
     }
 
-    /**
-     * @return bool|object
-     */
     public function create(array $data): object|bool
     {
         return $this->modelClass()::query()->create($data);
@@ -106,7 +103,7 @@ abstract class BaseRepository
         return $this->firstOrNew($query);
     }
 
-    public function remove($id):mixed
+    public function remove($id): mixed
     {
         return $this->modelClass()::query()
             ->where('id', '=', $id)->delete();

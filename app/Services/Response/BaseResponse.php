@@ -16,7 +16,7 @@ class BaseResponse implements \JsonSerializable, Jsonable
 
     protected array $data = [];
 
-    public function addError(int|string $code, string $msg = null): BaseResponse
+    public function addError(int|string $code, ?string $msg = null): BaseResponse
     {
         $this->errors[] = new Error($code, $msg);
 
@@ -71,9 +71,6 @@ class BaseResponse implements \JsonSerializable, Jsonable
         return $this->data;
     }
 
-    /**
-     * @return JsonResponse
-     */
     public function httpResponse(): JsonResponse
     {
         $code = $this->hasError() ? 400 : 200;
