@@ -2,7 +2,7 @@
 
 namespace Modules\Base\Livewire;
 
-use Illuminate\Contracts\View\View;
+use Illuminate\View\View;
 use Modules\Base\Http\Livewire\BaseComponent;
 
 class BaseForm extends BaseComponent

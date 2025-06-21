@@ -23,7 +23,7 @@ abstract class BaseLivewireForm extends Component
 
     abstract protected function modelClass(): string;
 
-    abstract protected function getModel(): Model;
+    abstract protected function getModel(): ?BaseModelInterface;
 
     abstract public function validationAttributes(): array;
 
