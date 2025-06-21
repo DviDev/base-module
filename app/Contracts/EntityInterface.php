@@ -16,5 +16,5 @@ interface EntityInterface
      */
     public static function props($alias = null): object;
 
-    public function isChanged($attribute): bool;
+    public function isChanged(string $attribute): bool;
 }

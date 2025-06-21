@@ -8,15 +8,15 @@ use Modules\Base\Services\Errors\Error;
 
 class BaseResponse implements \JsonSerializable, Jsonable
 {
-    protected $errors = [];
+    protected array $errors = [];
 
-    protected $message;
+    protected string $message;
 
-    protected $type;
+    protected string $type;
 
-    protected $data = [];
+    protected array $data = [];
 
-    public function addError($code, $msg = null): BaseResponse
+    public function addError(int|string $code, string $msg = null): BaseResponse
     {
         $this->errors[] = new Error($code, $msg);
 
@@ -40,7 +40,7 @@ class BaseResponse implements \JsonSerializable, Jsonable
         return $this;
     }
 
-    public function addData(string $key, $value): BaseResponse
+    public function addData(string $key, mixed $value): BaseResponse
     {
         $this->data[$key] = $value;
 
@@ -52,7 +52,7 @@ class BaseResponse implements \JsonSerializable, Jsonable
         return $this->data;
     }
 
-    public function setMsg($msg)
+    public function setMsg(string $msg): static
     {
         $this->message = $msg;
 
@@ -65,7 +65,7 @@ class BaseResponse implements \JsonSerializable, Jsonable
         if (count($this->errors) > 0) {
             $this->data['errors'] = collect($this->errors)->toArray();
             $this->data['errors']['type'] = $this->type;
-            $this->data['errors'] = collect($this->data['errors'])->reject(fn ($value) => empty($value))->all();
+            $this->data['errors'] = collect($this->data['errors'])->reject(fn (mixed $value) => empty($value))->all();
         }
 
         return $this->data;
@@ -74,7 +74,7 @@ class BaseResponse implements \JsonSerializable, Jsonable
     /**
      * @return JsonResponse
      */
-    public function httpResponse()
+    public function httpResponse(): JsonResponse
     {
         $code = $this->hasError() ? 400 : 200;
 
@@ -86,7 +86,7 @@ class BaseResponse implements \JsonSerializable, Jsonable
         return $this->toArray();
     }
 
-    public function toJson($options = 0)
+    public function toJson($options = 0): false|string
     {
         return json_encode($this->toArray(), JSON_UNESCAPED_UNICODE);
     }

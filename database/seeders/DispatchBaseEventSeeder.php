@@ -6,7 +6,7 @@ use Nwidart\Modules\Facades\Module;
 
 class DispatchBaseEventSeeder extends BaseSeeder
 {
-    public function run() {}
+    public function run(): void {}
 
     protected function classModuleSeeders(): void
     {

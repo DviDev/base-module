@@ -7,11 +7,11 @@ use Nwidart\Modules\Module;
 
 class ErrorMessages
 {
-    public static function getMessageDefault($code)
+    public static function getMessageDefault($code): string
     {
         $errors = collect([]);
-        $fn = function ($array) use ($errors) {
-            collect($array)->map(fn ($value, $key) => $errors->put($key, $value));
+        $fn = function (array $array) use ($errors) {
+            collect($array)->map(fn (string $value, int|string $key) => $errors->put($key, $value));
         };
         $modules = \Module::allEnabled();
         /** @var Module $module */

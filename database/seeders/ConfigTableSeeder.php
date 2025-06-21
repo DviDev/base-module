@@ -13,7 +13,7 @@ class ConfigTableSeeder extends BaseSeeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         Model::unguard();
 

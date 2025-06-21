@@ -4,7 +4,7 @@ namespace Modules\Base\Services\Date;
 
 class DateFn
 {
-    public function validate($date)
+    public function validate(string $date): bool
     {
         if (! str_contains($date, 'T')) {
             return false;
@@ -17,8 +17,6 @@ class DateFn
         $year = $newDate[0];
         $month = $newDate[1];
         $day = explode(' ', $newDate[2])[0];
-        $dateValidate = checkdate($month, $day, $year);
-
-        return $dateValidate;
+        return checkdate($month, $day, $year);
     }
 }

@@ -31,22 +31,22 @@ abstract class BaseEntity implements Arrayable, EntityInterface, JsonSerializabl
         return $this->attributes_;
     }
 
-    public function isChanged($attribute): bool
+    public function isChanged(string $attribute): bool
     {
         return in_array($attribute, $this->changed);
     }
 
-    public function __get($name)
+    public function __get(string $name)
     {
         return $this->attributes_[$name] ?? null;
     }
 
-    public function __set($name, $value)
+    public function __set(string $name, mixed $value)
     {
         $this->set($name, $value);
     }
 
-    public function __call($method, $parameters): BaseEntity
+    public function __call(string $method, array $parameters): BaseEntity
     {
         if (str_starts_with($method, 'set')) {
             $prop = strtolower(substr($method, 3));
@@ -60,7 +60,7 @@ abstract class BaseEntity implements Arrayable, EntityInterface, JsonSerializabl
         return $this;
     }
 
-    public function __isset($name)
+    public function __isset(int|string $name)
     {
         return array_key_exists($name, $this->attributes_);
     }
@@ -70,7 +70,7 @@ abstract class BaseEntity implements Arrayable, EntityInterface, JsonSerializabl
         return json_encode($this->attributes_, JSON_UNESCAPED_UNICODE);
     }
 
-    public function set(string $prop, $value, $model_to_entity = false): BaseEntity
+    public function set(string $prop, mixed $value, bool $model_to_entity = false): BaseEntity
     {
         $changing = ! isset($this->attributes_[$prop]) ||
             (isset($this->attributes_[$prop]) && $this->attributes_[$prop] !== $value);
@@ -94,12 +94,12 @@ abstract class BaseEntity implements Arrayable, EntityInterface, JsonSerializabl
         return $this->toArray();
     }
 
-    public function toArray()
+    public function toArray(): array
     {
         return $this->attributes_;
     }
 
-    public function arrayValues()
+    public function arrayValues(): array
     {
         return array_values($this->attributes_);
     }

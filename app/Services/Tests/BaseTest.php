@@ -21,7 +21,7 @@ abstract class BaseTest extends TestCase
         );
     }
 
-    public function tableHasExpectedColumns()
+    public function tableHasExpectedColumns(): void
     {
         $this->assertTrue(
             Schema::hasColumns($this->getModelClass()::table(),
@@ -44,7 +44,7 @@ abstract class BaseTest extends TestCase
         $this->assertInstanceOf($model_class, $model);
     }
 
-    public function shouldSave($attributes = null): void
+    public function shouldSave(array $attributes = null): void
     {
         if (! $attributes) {
             $modelClass = $this->getModelClass();
@@ -64,7 +64,7 @@ abstract class BaseTest extends TestCase
         $this->assertDatabaseHas($this->getModelClass()::table(), $attributes);
     }
 
-    public function shouldUpdate($attributes = null): void
+    public function shouldUpdate(array $attributes = null): void
     {
         if (! $attributes) {
             $model = $this->create();
@@ -72,7 +72,7 @@ abstract class BaseTest extends TestCase
             $model->update($make->attributesToArray());
             $attributes = $model->getAttributes();
         }
-        $attributes = $this->fixtimestamps($attributes);
+        $attributes = $this->fixTimestamps($attributes);
         $this->assertDatabaseHas($this->getModelClass()::table(), $attributes);
     }
 
@@ -81,7 +81,7 @@ abstract class BaseTest extends TestCase
         $model = $this->create();
         $model->delete();
         $attributes = $model->attributesToArray();
-        $attributes = $this->fixtimestamps($attributes);
+        $attributes = $this->fixTimestamps($attributes);
         $this->assertDatabaseMissing($this->getModelClass()::table(), $attributes);
     }
 
@@ -90,7 +90,7 @@ abstract class BaseTest extends TestCase
         return $this->getModelClass()::factory()->create();
     }
 
-    protected function fixtimestamps(mixed $attributes): mixed
+    protected function fixTimestamps(mixed $attributes): mixed
     {
         if (isset($attributes['created_at'])) {
             $attributes['created_at'] = is_a($attributes['created_at'], Carbon::class)

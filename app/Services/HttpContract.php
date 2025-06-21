@@ -3,6 +3,8 @@
 namespace Modules\Base\Services;
 
 use Exception;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -14,34 +16,27 @@ use Modules\Base\Services\Response\ResponseType;
 
 abstract class HttpContract
 {
-    protected $data;
+    protected mixed $data;
 
-    /**
-     * @var Response
-     */
-    public $serviceResponse;
+    public Response $serviceResponse;
 
-    /**
-     * @var BaseResponse
-     */
-    public $baseResponse;
+    public BaseResponse $baseResponse;
 
-    public function __construct($data = [])
+    public function __construct(mixed $data = [])
     {
         $this->data = $data;
         $this->baseResponse = new BaseResponse;
     }
 
-    /** @return HttpContract */
-    abstract public function run();
+    abstract public function run(): HttpContract;
 
-    abstract protected function endPoint();
+    abstract protected function endPoint(): string;
 
     abstract protected function errorType(): int;
 
-    abstract protected function url();
+    abstract protected function url(): string;
 
-    abstract protected function loginContract();
+    abstract protected function loginContract(): mixed;
 
     abstract protected function moduleName(): string;
 
@@ -65,7 +60,7 @@ abstract class HttpContract
         return $token->token;
     }
 
-    protected function getParams()
+    protected function getParams(): array
     {
         if (is_a($this->data, BaseEntity::class)) {
             return $this->data->toArray();
@@ -74,10 +69,12 @@ abstract class HttpContract
         return $this->data;
     }
 
-    /**@param array|string|null $query
-     * @throws Exception
+    /**
+     * @param array|string|null $query
+     * @return HttpContract
+     * @throws ConnectionException
      */
-    protected function get($query = null)
+    protected function get(array|null|string $query = null): static
     {
         $this->serviceResponse = $this->http()->get(
             $this->url().$this->endPoint(),
@@ -89,10 +86,8 @@ abstract class HttpContract
         return $this;
     }
 
-    /**
-     * @return HttpContract
-     */
-    protected function post(array $data = [])
+
+    protected function post(array $data = []): static
     {
         $this->serviceResponse = $this->http()->post(
             $this->url().$this->endPoint(),
@@ -104,14 +99,14 @@ abstract class HttpContract
         return $this;
     }
 
-    protected function http()
+    protected function http(): PendingRequest
     {
         $this->validateUrl();
 
         return Http::withHeaders($this->getHeaders());
     }
 
-    protected function getHeaders()
+    protected function getHeaders(): array
     {
         $array = [
             'Content-Type' => 'application/json',
@@ -130,7 +125,7 @@ abstract class HttpContract
             : $this->serviceResponse->body();
     }
 
-    protected function checkIfFailed()
+    protected function checkIfFailed(): void
     {
         if (! $this->serviceResponse->failed()) {
             return;
@@ -140,7 +135,7 @@ abstract class HttpContract
         $this->baseResponse->setType(ResponseType::DANGER);
     }
 
-    protected function setData()
+    protected function setData(): void
     {
         if ($this->serviceResponse && $this->serviceResponse->failed()) {
             return;
