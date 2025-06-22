@@ -24,7 +24,7 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
         $this->table = $this->table();
     }
 
-    protected static function setTable(string $table, string $alias = null): string
+    protected static function setTable(string $table, ?string $alias = null): string
     {
         return $table.($alias ? ' as '.$alias : '');
     }

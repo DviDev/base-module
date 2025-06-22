@@ -2,7 +2,6 @@
 
 namespace Modules\Base\Services;
 
-use Exception;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
@@ -70,8 +69,8 @@ abstract class HttpContract
     }
 
     /**
-     * @param array|string|null $query
      * @return HttpContract
+     *
      * @throws ConnectionException
      */
     protected function get(array|null|string $query = null): static
@@ -85,7 +84,6 @@ abstract class HttpContract
 
         return $this;
     }
-
 
     protected function post(array $data = []): static
     {

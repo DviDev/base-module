@@ -44,7 +44,7 @@ abstract class BaseTest extends TestCase
         $this->assertInstanceOf($model_class, $model);
     }
 
-    public function shouldSave(array $attributes = null): void
+    public function shouldSave(?array $attributes = null): void
     {
         if (! $attributes) {
             $modelClass = $this->getModelClass();
@@ -64,7 +64,7 @@ abstract class BaseTest extends TestCase
         $this->assertDatabaseHas($this->getModelClass()::table(), $attributes);
     }
 
-    public function shouldUpdate(array $attributes = null): void
+    public function shouldUpdate(?array $attributes = null): void
     {
         if (! $attributes) {
             $model = $this->create();

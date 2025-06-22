@@ -118,8 +118,6 @@ class BaseServiceProvider extends BaseServiceProviderContract
 
     /**
      * Register an additional directory of factories.
-     *
-     * @return void
      */
     public function registerFactories(): void
     {
