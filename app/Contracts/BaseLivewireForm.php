@@ -10,7 +10,7 @@ use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 
 abstract class BaseLivewireForm extends Component
 {
-    public Model|null $model = null;
+    public ?Model $model = null;
 
     public array $modelAttributes = [];
 

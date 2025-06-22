@@ -22,9 +22,6 @@ class NotifyException extends Notification
 
     /**
      * Get the notification's delivery channels.
-     *
-     * @param  mixed  $notifiable
-     * @return array
      */
     public function via(mixed $notifiable): array
     {
@@ -33,11 +30,8 @@ class NotifyException extends Notification
 
     /**
      * Get the mail representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
      */
-    public function toMail(mixed$notifiable): MailMessage
+    public function toMail(mixed $notifiable): MailMessage
     {
         return (new MailMessage)
             ->line('The introduction to the notification.')
@@ -47,9 +41,6 @@ class NotifyException extends Notification
 
     /**
      * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
      */
     public function toArray(mixed $notifiable): array
     {

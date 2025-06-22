@@ -17,6 +17,7 @@ class DateFn
         $year = $newDate[0];
         $month = $newDate[1];
         $day = explode(' ', $newDate[2])[0];
+
         return checkdate($month, $day, $year);
     }
 }

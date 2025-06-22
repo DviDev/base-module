@@ -14,7 +14,6 @@ class MinWords implements ValidationRule
      */
     public function __construct(public $min, public $attribute = null) {}
 
-
     /**
      * Run the validation rule.
      */

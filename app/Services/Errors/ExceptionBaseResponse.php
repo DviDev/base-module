@@ -26,7 +26,7 @@ class ExceptionBaseResponse extends Exception
     /**
      * @throws ExceptionBaseResponse
      */
-    public static function throw(int $errorCode, string $msg = null, object $exception = null): ExceptionBaseResponse
+    public static function throw(int $errorCode, ?string $msg = null, ?object $exception = null): ExceptionBaseResponse
     {
         if (is_a($exception, ExceptionBaseResponse::class)) {
             /** @var ExceptionBaseResponse $exception */

@@ -13,7 +13,7 @@ class BaseService implements Arrayable
         return $this->attributes;
     }
 
-    public function __get(int|string$name)
+    public function __get(int|string $name)
     {
         return $this->attributes[$name] ?? null;
     }
