@@ -4,11 +4,14 @@ namespace Modules\Base\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 use Modules\Base\Console\DispatchBaseEventsCommand;
 use Modules\Base\Console\DispatchInitialIndependentDataEventCommand;
 use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Console\InstallModulesCommand;
+use Modules\Base\Livewire\Notification\NotificationList;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
+use Modules\Base\Livewire\Notification\NotificationView;
 use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
@@ -32,6 +35,8 @@ class BaseNewServiceProvider extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
+
+        $this->registerComponents();
     }
 
     /**
@@ -134,9 +139,13 @@ class BaseNewServiceProvider extends ServiceProvider
     public function registerViews(): void
     {
         $viewPath = resource_path('views/modules/'.$this->nameLower);
+
         $sourcePath = module_path($this->name, 'resources/views');
 
-        $this->publishes([$sourcePath => $viewPath], ['views', $this->nameLower.'-module-views']);
+        $this->publishes(
+            [$sourcePath => $viewPath],
+            ['views', $this->nameLower.'-module-views']
+        );
 
         $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->nameLower);
 
@@ -169,5 +178,11 @@ class BaseNewServiceProvider extends ServiceProvider
         if (config('base.use.spotlight')) {
             $router->pushMiddlewareToGroup('web', UseSpotlightMiddleware::class);
         }
+    }
+
+    private function registerComponents()
+    {
+        Livewire::component('base::notification.notification-list', NotificationList::class);
+        Livewire::component('base::notification.notification-view', NotificationView::class);
     }
 }
