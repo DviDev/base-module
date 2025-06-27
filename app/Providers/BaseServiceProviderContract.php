@@ -51,8 +51,8 @@ abstract class BaseServiceProviderContract extends ServiceProvider
             $this->loadTranslationsFrom($langPath, $this->getModuleNameLower());
             $this->loadJsonTranslationsFrom($langPath);
         } else {
-            $this->loadTranslationsFrom(module_path($this->getModuleName(), 'lang'), $this->getModuleNameLower());
-            $this->loadJsonTranslationsFrom(module_path($this->getModuleName(), 'lang'));
+            $this->loadTranslationsFrom($this->langPath(), $this->getModuleNameLower());
+            $this->loadJsonTranslationsFrom($this->langPath());
         }
     }
 
@@ -160,5 +160,10 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $destination = resource_path("views/vendor/{$this->getModuleNameLower()}/$component.blade.php");
 
         return [$origin, $destination];
+    }
+
+    protected function langPath(): string
+    {
+        return module_path($this->getModuleName(), 'lang');
     }
 }
