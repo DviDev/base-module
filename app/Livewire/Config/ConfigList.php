@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Base\Http\Livewire\Config;
+namespace Modules\Base\Livewire\Config;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Gate;

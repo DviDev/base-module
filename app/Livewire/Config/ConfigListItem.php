@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Base\Http\Livewire\Config;
+namespace Modules\Base\Livewire\Config;
 
 use Illuminate\View\View;
 use Livewire\Component;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Base\Http\Livewire\Notification;
+namespace Modules\Base\Livewire\Notification;
 
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;

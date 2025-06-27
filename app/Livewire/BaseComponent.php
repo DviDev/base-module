@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Base\Http\Livewire;
+namespace Modules\Base\Livewire;
 
 use Carbon\Carbon;
 use Exception;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Base\Http\Livewire\Notification;
+namespace Modules\Base\Livewire\Notification;
 
 use Illuminate\View\View;
 use Livewire\Component;
