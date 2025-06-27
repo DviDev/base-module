@@ -39,8 +39,16 @@ abstract class BaseDomain
 
     public function __call($name, $arguments)
     {
-        if ((new ReflectionObject($this))->hasMethod($name)) {
-            $this->repository()->$name($arguments);
+        $repositoryClass = $this->repositoryClass();
+        if (!$repositoryClass && (new \ReflectionClass($repositoryClass))->hasMethod($name)) {
+            return $this->repository()->$name($arguments);
+        }
+    }
+
+    public static function __callStatic($name, $arguments)
+    {
+        if (!(new \ReflectionClass(static::class))->hasMethod($name)) {
+            return (new static())->repository()->$name(...$arguments);
         }
     }
 }
