@@ -3,6 +3,8 @@
 namespace Modules\Base\Console;
 
 use Illuminate\Console\Command;
+use Nwidart\Modules\Contracts\RepositoryInterface;
+use Nwidart\Modules\Facades\Module;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Console\Input\InputOption;
@@ -27,6 +29,16 @@ class ReleaseModulesCommand extends Command
     public function handle()
     {
         $this->info('Iniciando o processo de release de módulos...');
+
+        // Debug: Imprimir o PATH do ambiente do processo
+        /*$process = new Process(['env']); // Ou 'echo $PATH' no Linux
+        $process->run();
+        if ($process->isSuccessful()) {
+            $this->info("PATH do Processo:\n" . $process->getOutput());
+        } else {
+            $this->error("Não foi possível obter o PATH do processo.");
+        }
+        dd("debug");*/
 
         $this->modulesPath = config('base.modules.paths') ?? [base_path('Modules')];
 
@@ -241,21 +253,35 @@ class ReleaseModulesCommand extends Command
             $this->warn("Release para '{$moduleName}' cancelada.");
             return;
         }
-        dd($newVersion);
 
         $this->info("Iniciando release {$newVersion} para {$moduleName}...");
         $this->runProcess(['git', 'flow', 'release', 'start', $newVersion], $modulePath);
 
+        if (!$this->confirm(
+            "A branch de release 'release/{$newVersion}' foi iniciada para '{$moduleName}'. Deseja finalizar o release agora, ou você tem mais trabalhos (testes, documentação, etc.) a fazer antes de prosseguir com o merge e o push para o remoto?",
+            true // Default para 'sim' para continuar o fluxo padrão
+        )) {
+            $this->warn("Finalização do release para '{$moduleName}' adiada. A branch 'release/{$newVersion}' permanece ativa. Você pode finalizá-la manualmente com 'git flow release finish {$newVersion}'.");
+            return; // Interrompe o script para este módulo
+        }
+
         $mergeMessage = $this->askForMergeMessage($newVersion);
 
         $this->info("Finalizando release {$newVersion} para {$moduleName}...");
+        $this->runProcess(['git', 'checkout', 'main'], $modulePath);
+        $this->runProcess(['git', 'pull'], $modulePath);
+        $this->runProcess(['git', 'checkout', 'release/' . $newVersion], $modulePath);
         $this->runProcess(['git', 'flow', 'release', 'finish', $newVersion, '-m', $mergeMessage], $modulePath);
 
         $this->info("Release '{$newVersion}' finalizada com sucesso para o módulo '{$moduleName}'.");
 
-        $this->updateComposerDependency($moduleName, $newVersion);
+        $this->info("Enviando alterações e tags para o repositório remoto...");
+        $this->runProcess(['git', 'push', '--follow-tags', 'origin', 'develop', 'main'], $modulePath); // Envia develop e main e tags
+        $this->info("Alterações e tags de release enviadas para o remoto para '{$moduleName}'.");
 
-        $this->cleanVendor($modulePath);
+        $this->updateComposerDependency($moduleName, $modulePath, $newVersion);
+
+        $this->cleanVendor();
     }
 
     /**
@@ -389,48 +415,155 @@ class ReleaseModulesCommand extends Command
      * @param string $newVersion
      * @return void
      */
-    protected function updateComposerDependency(string $moduleName, string $newVersion): void
+    protected function updateComposerDependency(string $moduleName, string $modulePath, string $newVersion): void
     {
-        // O modules_statuses.json é um arquivo comum para rastrear módulos.
-        // Você precisa adaptar o caminho e o formato do arquivo para o seu projeto.
-        $modulesStatusFile = base_path('modules_statuses.json');
+        // 1. Obter/confirmar o nome do pacote Composer
+        $vendorPackageName = $this->getComposerPackageName($moduleName, $modulePath);
 
-        if (File::exists($modulesStatusFile)) {
-            $statuses = json_decode(File::get($modulesStatusFile), true);
+        // 2. Verificar se o módulo está ativo
+        if (!$this->isModuleActive($moduleName)) {
+            $this->info("Módulo '{$moduleName}' não está ativo. Pulando atualização da dependência Composer.");
+            return;
+        }
 
-            // Adapte esta lógica para como o nome do seu pacote Composer é
-            // Ex: Se seu módulo "Blog" se torna "vendor/blog-module"
-            $vendorPackageName = 'vendor/' . strtolower($moduleName) . '-module';
-
-            if (isset($statuses[$moduleName]) && $statuses[$moduleName] === true) { // Supondo que 'true' significa ativo
-                if ($this->confirm("O módulo '{$moduleName}' parece estar ativo no projeto principal. Deseja atualizar sua dependência no composer.json para '{$newVersion}'?", true)) {
-                    $this->info("Atualizando dependência do Composer para '{$vendorPackageName}:{$newVersion}'...");
-                    $this->runProcess(['sail', 'composer', 'require', "{$vendorPackageName}:{$newVersion}"], base_path());
-                    $this->info("Dependência do Composer atualizada com sucesso.");
-                }
-            }
+        // 3. Confirmar e executar a atualização do Composer
+        if ($this->confirm("O módulo '{$moduleName}' parece estar ativo no projeto principal. Deseja atualizar sua dependência no composer.json para '{$vendorPackageName}:{$newVersion}'?", true)) {
+            $this->info("Atualizando dependência do Composer para '{$vendorPackageName}:{$newVersion}'...");
+            // Usamos 'sail' composer require, assumindo que você está usando Laravel Sail.
+            // Se não estiver, apenas 'composer require'.
+            $this->runProcess(['./vendor/bin/sail', 'composer', 'require', "{$vendorPackageName}:{$newVersion}"], base_path());
+            $this->info("Dependência do Composer atualizada com sucesso.");
+        } else {
+            $this->warn("Atualização da dependência Composer para '{$moduleName}' cancelada.");
         }
     }
 
     /**
-     * Remove projetos com sufixo "-module" de vendor/dvidev.
+     * Obtém o nome do pacote Composer de um módulo, preferencialmente do composer.json.
+     * Caso contrário, infere o nome e pede confirmação ao usuário.
      *
-     * @param string $modulePath
-     * @return void
+     * @param string $moduleName O nome do diretório do módulo.
+     * @param string $modulePath O caminho completo para o diretório do módulo.
+     * @return string O nome do pacote Composer (ex: "vendor/package-name").
      */
-    protected function cleanVendor(string $modulePath): void
+    protected function getComposerPackageName(string $moduleName, string $modulePath): string
     {
-        $dvidevPath = $modulePath . '/vendor/dvidev';
+        $composerJsonPath = "{$modulePath}/composer.json";
+        $vendorPackageName = null;
 
-        if (File::exists($dvidevPath) && File::isDirectory($dvidevPath)) {
-            $this->info("Verificando e removendo módulos obsoletos em {$dvidevPath}...");
-            foreach (File::directories($dvidevPath) as $packageDir) {
-                $packageName = basename($packageDir);
-                if (str_ends_with($packageName, '-module')) {
-                    $this->warn("Removendo diretório obsoleto: {$packageDir}");
-                    File::deleteDirectory($packageDir);
+        if (File::exists($composerJsonPath)) {
+            try {
+                $composerContent = json_decode(File::get($composerJsonPath), true);
+                if (isset($composerContent['name'])) {
+                    $vendorPackageName = $composerContent['name'];
                 }
+            } catch (\Exception $e) {
+                $this->warn("Não foi possível ler ou parsear o composer.json de '{$moduleName}'. Erro: " . $e->getMessage());
             }
         }
+
+        if (empty($vendorPackageName)) {
+            $inferredName = 'vendor/' . strtolower($moduleName) . '-module'; // Sua convenção
+            $this->info("Não foi possível encontrar o nome do pacote no composer.json do módulo '{$moduleName}'.");
+            $vendorPackageName = $this->ask(
+                "Por favor, confirme o nome do pacote Composer para '{$moduleName}' (inferido: {$inferredName}):",
+                $inferredName
+            );
+        } else {
+            $vendorPackageName = $this->ask(
+                "Confirmar o nome do pacote Composer para '{$moduleName}' (encontrado: {$vendorPackageName}):",
+                $vendorPackageName
+            );
+        }
+
+        return $vendorPackageName;
+    }
+
+    /**
+     * Verifica se um módulo está ativo usando o pacote nwidart/laravel-modules.
+     *
+     * @param string $moduleName O nome do módulo (ex: 'BlogModule').
+     * @return bool
+     */
+    protected function isModuleActive(string $moduleName): bool
+    {
+        // Certifique-se de que o pacote nwidart/laravel-modules está instalado
+        // e que o facade Module está registrado ou o contract Repository pode ser resolvido.
+        if (!class_exists(Module::class) && !interface_exists(RepositoryInterface::class)) {
+            $this->warn('O pacote nwidart/laravel-modules não parece estar instalado ou configurado. Não é possível verificar o status do módulo. Assumindo inativo para segurança.');
+            return false;
+        }
+
+        // No Laravel 10+, é comum usar o Facade.
+        // Para versões anteriores ou injeção de dependência, você injetaria `Nwidart\Modules\Contracts\Repository`.
+        return \Module::isEnabled($moduleName);
+    }
+
+
+    /**
+     * Remove projetos com sufixo "-module" .
+     *
+     * @return void
+     */
+    protected function cleanVendor(): void
+    {
+        // Certifica-se de que estamos em ambiente de desenvolvimento
+        if (app()->environment('production', 'staging', 'testing')) {
+            $this->info("Não removendo módulos da pasta vendor em ambiente de " . app()->environment() . ".");
+            return;
+        }
+
+        $this->info("Iniciando limpeza dos módulos locais da pasta vendor...");
+
+        // Supondo que você tem uma propriedade ou método para obter o caminho da pasta Modules
+        // Exemplo: $this->modulesPath (assumindo que já está definido e contém o caminho base)
+        $modulesRootPath = $this->modulesPath[0] ?? base_path('Modules'); // Garanta que este caminho está correto
+
+        if (!File::isDirectory($modulesRootPath)) {
+            $this->warn("Diretório de módulos '{$modulesRootPath}' não encontrado. Pulando limpeza da pasta vendor.");
+            return;
+        }
+
+        $moduleDirectories = File::directories($modulesRootPath);
+
+        if (empty($moduleDirectories)) {
+            $this->info("Nenhum módulo encontrado em '{$modulesRootPath}'. Nenhuma limpeza necessária.");
+            return;
+        }
+
+        foreach ($moduleDirectories as $moduleDir) {
+            $moduleName = basename($moduleDir);
+            $composerJsonPath = "{$moduleDir}/composer.json";
+            $vendorPackageName = null;
+
+            if (File::exists($composerJsonPath)) {
+                try {
+                    $composerContent = json_decode(File::get($composerJsonPath), true);
+                    if (isset($composerContent['name'])) {
+                        $vendorPackageName = $composerContent['name'];
+                    }
+                } catch (\Exception $e) {
+                    $this->warn("Não foi possível ler ou parsear o composer.json de '{$moduleName}'. Erro: " . $e->getMessage());
+                    // Se não conseguir ler o composer.json, pula este módulo
+                    continue;
+                }
+            }
+
+            if (empty($vendorPackageName)) {
+                $this->warn("Não foi possível determinar o nome do pacote Composer para o módulo '{$moduleName}'. Pulando remoção da pasta vendor.");
+                continue;
+            }
+
+            list($vendorPrefix, $packageName) = explode('/', $vendorPackageName, 2);
+            $fullPathInVendor = base_path("vendor/{$vendorPrefix}/{$packageName}");
+
+            if (File::isDirectory($fullPathInVendor)) {
+                $this->info("Removendo '{$vendorPackageName}' de '{$fullPathInVendor}' para evitar duplicidade.");
+                File::deleteDirectory($fullPathInVendor);
+            } else {
+                $this->info("Diretório de vendor para '{$vendorPackageName}' ('{$fullPathInVendor}') não encontrado ou já removido.");
+            }
+        }
+        $this->info("Limpeza da pasta vendor concluída.");
     }
 }
