@@ -431,7 +431,7 @@ class ReleaseModulesCommand extends Command
             $this->info("Atualizando dependência do Composer para '{$vendorPackageName}:{$newVersion}'...");
             // Usamos 'sail' composer require, assumindo que você está usando Laravel Sail.
             // Se não estiver, apenas 'composer require'.
-            $this->runProcess(['./vendor/bin/sail', 'composer', 'require', "{$vendorPackageName}:{$newVersion}"], base_path());
+            $this->runProcess(['composer', 'require', "{$vendorPackageName}:{$newVersion}"], base_path());
             $this->info("Dependência do Composer atualizada com sucesso.");
         } else {
             $this->warn("Atualização da dependência Composer para '{$moduleName}' cancelada.");
