@@ -21,6 +21,11 @@ class ReleaseModulesCommand extends Command
 
     protected array $modulesPath = [];
 
+    /**
+     * @var array Variáveis de ambiente para a execução de comandos Git.
+     */
+    protected array $gitEnv = [];
+
     public function __construct()
     {
         parent::__construct();
@@ -258,7 +263,7 @@ class ReleaseModulesCommand extends Command
         $this->runProcess(['git', 'flow', 'release', 'start', $newVersion], $modulePath);
 
         if (!$this->confirm(
-            "A branch de release 'release/{$newVersion}' foi iniciada para '{$moduleName}'. Deseja finalizar o release agora, ou você tem mais trabalhos (testes, documentação, etc.) a fazer antes de prosseguir com o merge e o push para o remoto?",
+            "Deseja finalizar o release e prosseguir com o merge e o push para o remoto?",
             true // Default para 'sim' para continuar o fluxo padrão
         )) {
             $this->warn("Finalização do release para '{$moduleName}' adiada. A branch 'release/{$newVersion}' permanece ativa. Você pode finalizá-la manualmente com 'git flow release finish {$newVersion}'.");
@@ -285,19 +290,118 @@ class ReleaseModulesCommand extends Command
     }
 
     /**
+     * Configura a identidade do Git para o processo atual.
+     *
+     * @return void
+     */
+    protected function setupGitIdentity(): void
+    {
+        // Se $this->gitEnv já está populado, significa que setupGitIdentity já rodou uma vez
+        // e os valores já foram lidos ou perguntados.
+        if (!empty($this->gitEnv)) {
+            return;
+        }
+
+        $userName = env('GIT_USER_NAME');
+        $userEmail = env('GIT_USER_EMAIL');
+
+        $variablesToSave = [];
+
+        // Verifica e solicita o nome de usuário
+        if (empty($userName)) {
+            $userName = $this->ask("Por favor, informe seu nome para o Git (será salvo no .env):", 'Laravel Developer');
+            $variablesToSave['GIT_USER_NAME'] = $userName;
+        }
+
+        // Verifica e solicita o e-mail do usuário
+        if (empty($userEmail)) {
+            $userEmail = $this->ask("Por favor, informe seu e-mail para o Git (será salvo no .env):", 'dev@laravel.com');
+            $variablesToSave['GIT_USER_EMAIL'] = $userEmail;
+        }
+
+        // Se alguma variável foi solicitada, salve-as todas de uma vez no .env
+        if (!empty($variablesToSave)) {
+            $this->info("Salvando credenciais Git no arquivo .env...");
+            $this->updateDotEnv($variablesToSave);
+        }
+
+        $this->info("Configurando identidade Git para o processo: {$userName} <{$userEmail}>");
+
+        $this->gitEnv = [
+            'GIT_AUTHOR_NAME' => $userName,
+            'GIT_AUTHOR_EMAIL' => $userEmail,
+            'GIT_COMMITTER_NAME' => $userName,
+            'GIT_COMMITTER_EMAIL' => $userEmail,
+        ];
+    }
+
+    /**
+     * Atualiza variáveis no arquivo .env.
+     * @param array $variables Associative array of key => value.
+     */
+    protected function updateDotEnv(array $variables): void
+    {
+        $envPath = base_path('.env');
+        if (!File::exists($envPath)) {
+            $this->error(".env file not found at {$envPath}. Cannot save Git credentials.");
+            return;
+        }
+
+        $contents = File::get($envPath);
+        foreach ($variables as $key => $value) {
+            // Substitui a linha se ela já existe
+            if (str_contains($contents, "{$key}=")) {
+                $contents = preg_replace("/^{$key}=.*\n/m", "{$key}=\"{$value}\"\n", $contents);
+            } else {
+                // Adiciona a linha ao final do arquivo se não existe
+                $contents .= "\n{$key}=\"{$value}\"";
+            }
+        }
+        File::put($envPath, $contents);
+        // Recarregar variáveis de ambiente após modificação do .env
+        // Isso é importante para que `env()` na mesma execução já veja os novos valores
+        $this->loadDotEnv();
+    }
+
+    /**
+     * Recarrega o arquivo .env.
+     */
+    protected function loadDotEnv(): void
+    {
+        $dotenv = \Dotenv\Dotenv::createImmutable(base_path());
+        $dotenv->load();
+        // Opcional: Para Laravel 10+, se quiser que a Config::get() reflita imediatamente
+        // \Illuminate\Support\Env::reload(); // Se esta disponível
+    }
+
+    /**
      * Executa um processo no terminal.
      *
      * @param array $command
      * @param string $cwd
      * @return void
      */
-    protected function runProcess(array $command, string $cwd): void
+    protected function runProcess(array $command, string $cwd, array $env = []): void
     {
-        $process = new Process($command, $cwd);
+        // NOVO: Chama a configuração da identidade Git apenas UMA VEZ, na primeira execução
+        // ou se $this->gitEnv não foi populado por alguma razão (ex: erro no setup inicial).
+        $this->setupGitIdentity();
+
+        // Mescla as variáveis de ambiente do Git (agora armazenadas em $this->gitEnv)
+        // com as variáveis de ambiente do servidor e quaisquer variáveis adicionais passadas.
+        $processEnv = array_merge($_SERVER, $_ENV, $this->gitEnv, $env);
+
+        $process = new Process($command, $cwd, $processEnv);
         $process->setTimeout(3600); // Aumenta o timeout para operações de git mais longas
         $process->run(function ($type, $buffer) {
             if (Process::ERR === $type) {
-                $this->error('ERRO: ' . $buffer);
+                // Verifica se o comando realmente falhou
+                if (str_contains(strtolower($buffer), 'fatal:') || str_contains(strtolower($buffer), 'error:')) {
+                    $this->error('ERRO: ' . $buffer);
+                } else {
+                    // É apenas uma mensagem de status do Git, mostre como mensagem normal
+                    $this->line($buffer);
+                }
             } else {
                 $this->line($buffer);
             }
@@ -334,13 +438,17 @@ class ReleaseModulesCommand extends Command
     {
         $process = new Process(['git', 'describe', '--tags', '--abbrev=0', '--match', 'v*.*.*'], $path);
         $process->run();
-
         if (!$process->isSuccessful()) {
             // No tags found, return initial version
             return 'v0.0.0';
         }
 
-        return trim($process->getOutput());
+        $tag = trim($process->getOutput());
+        if (!str_starts_with($tag, 'v')) {
+            $tag = 'v' . explode('-', $tag)[0];
+        }
+
+        return $tag;
     }
 
     /**
@@ -422,15 +530,18 @@ class ReleaseModulesCommand extends Command
 
         // 2. Verificar se o módulo está ativo
         if (!$this->isModuleActive($moduleName)) {
-            $this->info("Módulo '{$moduleName}' não está ativo. Pulando atualização da dependência Composer.");
             return;
         }
 
         // 3. Confirmar e executar a atualização do Composer
-        if ($this->confirm("O módulo '{$moduleName}' parece estar ativo no projeto principal. Deseja atualizar sua dependência no composer.json para '{$vendorPackageName}:{$newVersion}'?", true)) {
+        if ($this->confirm("O módulo '{$moduleName}' está ativo. Deseja atualizar sua dependência no composer.json para '{$vendorPackageName}:{$newVersion}'?", true)) {
             $this->info("Atualizando dependência do Composer para '{$vendorPackageName}:{$newVersion}'...");
             // Usamos 'sail' composer require, assumindo que você está usando Laravel Sail.
             // Se não estiver, apenas 'composer require'.
+            $vendorPackageName = $this->ask(
+                "Confirmar o nome do pacote Composer para '{$moduleName}' (encontrado: {$vendorPackageName}):",
+                $vendorPackageName
+            );
             $this->runProcess(['composer', 'require', "{$vendorPackageName}:{$newVersion}"], base_path());
             $this->info("Dependência do Composer atualizada com sucesso.");
         } else {
@@ -469,11 +580,6 @@ class ReleaseModulesCommand extends Command
                 "Por favor, confirme o nome do pacote Composer para '{$moduleName}' (inferido: {$inferredName}):",
                 $inferredName
             );
-        } else {
-            $vendorPackageName = $this->ask(
-                "Confirmar o nome do pacote Composer para '{$moduleName}' (encontrado: {$vendorPackageName}):",
-                $vendorPackageName
-            );
         }
 
         return $vendorPackageName;
@@ -496,7 +602,7 @@ class ReleaseModulesCommand extends Command
 
         // No Laravel 10+, é comum usar o Facade.
         // Para versões anteriores ou injeção de dependência, você injetaria `Nwidart\Modules\Contracts\Repository`.
-        return \Module::isEnabled($moduleName);
+        return  \Module::find($moduleName) && \Module::isEnabled($moduleName);
     }
 
 
@@ -513,7 +619,7 @@ class ReleaseModulesCommand extends Command
             return;
         }
 
-        $this->info("Iniciando limpeza dos módulos locais da pasta vendor...");
+
 
         // Supondo que você tem uma propriedade ou método para obter o caminho da pasta Modules
         // Exemplo: $this->modulesPath (assumindo que já está definido e contém o caminho base)
@@ -527,10 +633,10 @@ class ReleaseModulesCommand extends Command
         $moduleDirectories = File::directories($modulesRootPath);
 
         if (empty($moduleDirectories)) {
-            $this->info("Nenhum módulo encontrado em '{$modulesRootPath}'. Nenhuma limpeza necessária.");
             return;
         }
 
+        $modulesPathInVendor = [];
         foreach ($moduleDirectories as $moduleDir) {
             $moduleName = basename($moduleDir);
             $composerJsonPath = "{$moduleDir}/composer.json";
@@ -555,15 +661,29 @@ class ReleaseModulesCommand extends Command
             }
 
             list($vendorPrefix, $packageName) = explode('/', $vendorPackageName, 2);
-            $fullPathInVendor = base_path("vendor/{$vendorPrefix}/{$packageName}");
+            $vendorPath = "vendor/{$vendorPrefix}/{$packageName}";
 
-            if (File::isDirectory($fullPathInVendor)) {
-                $this->info("Removendo '{$vendorPackageName}' de '{$fullPathInVendor}' para evitar duplicidade.");
-                File::deleteDirectory($fullPathInVendor);
-            } else {
-                $this->info("Diretório de vendor para '{$vendorPackageName}' ('{$fullPathInVendor}') não encontrado ou já removido.");
+            if (File::isDirectory(base_path($vendorPath))) {
+                $modulesPathInVendor[$packageName] = $vendorPath;
             }
         }
-        $this->info("Limpeza da pasta vendor concluída.");
+
+        if (count($modulesPathInVendor) == 0) {
+            return;
+        }
+
+        $this->info("Iniciando limpeza dos módulos locais da pasta vendor...");
+
+        foreach ($modulesPathInVendor as $packageName => $modulePathInVendor) {
+            if (!$this->confirm('Confirma remoção de ' .mb_strtoupper($packageName).' em '. $modulePathInVendor, true)) {
+                continue;
+            }
+            File::deleteDirectory(base_path($modulePathInVendor));
+            $this->info("{$modulePathInVendor}' removido para evitar duplicidade.");
+        }
+
+        $this->info("Limpeza de módulos da pasta vendor concluída.");
+
+        $this->runProcess(['composer', 'dump-autoload'], base_path());
     }
 }
