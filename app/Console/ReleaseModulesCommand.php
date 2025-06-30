@@ -548,7 +548,7 @@ class ReleaseModulesCommand extends Command
      */
     protected function cleanVendor(): void
     {
-        if (!app()->isLocal()) {
+        if (! app()->isLocal()) {
             return;
         }
 
