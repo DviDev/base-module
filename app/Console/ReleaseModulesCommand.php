@@ -470,28 +470,21 @@ class ReleaseModulesCommand extends Command
      */
     protected function updateComposerDependency(string $moduleName, string $modulePath, string $newVersion): void
     {
-        // 1. Obter/confirmar o nome do pacote Composer
         $vendorPackageName = $this->getComposerPackageName($moduleName, $modulePath);
 
-        // 2. Verificar se o módulo está ativo
         if (! $this->isModuleActive($moduleName)) {
             return;
         }
 
-        // 3. Confirmar e executar a atualização do Composer
         if ($this->confirm("O módulo '{$moduleName}' está ativo. Deseja atualizar sua dependência no composer.json para '{$vendorPackageName}:{$newVersion}'?", true)) {
             $this->info("Atualizando dependência do Composer para '{$vendorPackageName}:{$newVersion}'...");
-            // Usamos 'sail' composer require, assumindo que você está usando Laravel Sail.
-            // Se não estiver, apenas 'composer require'.
-            $vendorPackageName = $this->ask(
-                "Confirmar o nome do pacote Composer para '{$moduleName}' (encontrado: {$vendorPackageName}):",
-                $vendorPackageName
-            );
             $this->runProcess(['composer', 'require', "{$vendorPackageName}:{$newVersion}"], base_path());
             $this->info('Dependência do Composer atualizada com sucesso.');
-        } else {
-            $this->warn("Atualização da dependência Composer para '{$moduleName}' cancelada.");
+
+            return;
         }
+
+        $this->warn("Atualização da dependência Composer para '{$moduleName}' cancelada.");
     }
 
     /**
@@ -555,16 +548,11 @@ class ReleaseModulesCommand extends Command
      */
     protected function cleanVendor(): void
     {
-        // Certifica-se de que estamos em ambiente de desenvolvimento
-        if (app()->environment('production', 'staging', 'testing')) {
-            $this->info('Não removendo módulos da pasta vendor em ambiente de '.app()->environment().'.');
-
+        if (! app()->isLocal()) {
             return;
         }
 
-        // Supondo que você tem uma propriedade ou método para obter o caminho da pasta Modules
-        // Exemplo: $this->modulesPath (assumindo que já está definido e contém o caminho base)
-        $modulesRootPath = $this->modulesPath[0] ?? base_path('Modules'); // Garanta que este caminho está correto
+        $modulesRootPath = $this->modulesPath[0] ?? base_path('Modules');
 
         if (! File::isDirectory($modulesRootPath)) {
             $this->warn("Diretório de módulos '{$modulesRootPath}' não encontrado. Pulando limpeza da pasta vendor.");
@@ -593,7 +581,6 @@ class ReleaseModulesCommand extends Command
                 } catch (\Exception $e) {
                     $this->warn("Não foi possível ler ou parsear o composer.json de '{$moduleName}'. Erro: ".$e->getMessage());
 
-                    // Se não conseguir ler o composer.json, pula este módulo
                     continue;
                 }
             }
@@ -616,17 +603,14 @@ class ReleaseModulesCommand extends Command
             return;
         }
 
-        $this->info('Iniciando limpeza dos módulos locais da pasta vendor...');
+        $this->info('🤖 Limpando módulos locais da pasta vendor...');
 
         foreach ($modulesPathInVendor as $packageName => $modulePathInVendor) {
-            if (! $this->confirm('Confirma remoção de '.mb_strtoupper($packageName).' em '.$modulePathInVendor, true)) {
-                continue;
-            }
             File::deleteDirectory(base_path($modulePathInVendor));
             $this->info("{$modulePathInVendor}' removido para evitar duplicidade.");
         }
 
-        $this->info('Limpeza de módulos da pasta vendor concluída.');
+        $this->info('🤖✔️ Limpando módulos da pasta vendor concluída.');
 
         $this->runProcess(['composer', 'dump-autoload'], base_path());
     }
