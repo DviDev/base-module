@@ -606,9 +606,6 @@ class ReleaseModulesCommand extends Command
         $this->info('🤖 Limpando módulos locais da pasta vendor...');
 
         foreach ($modulesPathInVendor as $packageName => $modulePathInVendor) {
-            if (! $this->confirm('Confirma remoção de '.mb_strtoupper($packageName).' em '.$modulePathInVendor, true)) {
-                continue;
-            }
             File::deleteDirectory(base_path($modulePathInVendor));
             $this->info("{$modulePathInVendor}' removido para evitar duplicidade.");
         }
