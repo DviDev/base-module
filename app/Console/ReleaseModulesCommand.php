@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Console;
 
+use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Nwidart\Modules\Contracts\RepositoryInterface;
@@ -183,7 +184,6 @@ class ReleaseModulesCommand extends Command
             $options[] = $name;
         }
 
-        // Usando multiSelect ao invés de choice com multiple choice
         return multiselect(
             label: 'Selecione os módulos para release:',
             options: $options
@@ -195,7 +195,8 @@ class ReleaseModulesCommand extends Command
      */
     protected function processModuleRelease(string $moduleName): void
     {
-        $modulePath = $this->modulesPath[0].'/'.$moduleName; // Assuming single modules path for now
+        // Assuming single modules path for now
+        $modulePath = $this->modulesPath[0].'/'.$moduleName;
 
         $this->newLine();
         $this->info("Processando módulo: {$moduleName} em {$modulePath}");
@@ -230,11 +231,11 @@ class ReleaseModulesCommand extends Command
 
         if (! $this->confirm(
             'Deseja finalizar o release e prosseguir com o merge e o push para o remoto?',
-            true // Default para 'sim' para continuar o fluxo padrão
+            true
         )) {
             $this->warn("Finalização do release para '{$moduleName}' adiada. A branch 'release/{$newVersion}' permanece ativa. Você pode finalizá-la manualmente com 'git flow release finish {$newVersion}'.");
 
-            return; // Interrompe o script para este módulo
+            return;
         }
 
         $mergeMessage = $this->askForMergeMessage($newVersion);
@@ -248,8 +249,8 @@ class ReleaseModulesCommand extends Command
         $this->info("Release '{$newVersion}' finalizada com sucesso para o módulo '{$moduleName}'.");
 
         $this->info('Enviando alterações e tags para o repositório remoto...');
-        $this->runProcess(['git', 'push', '--follow-tags', 'origin', 'develop', 'main'], $modulePath); // Envia develop e main e tags
-        $this->info("Alterações e tags de release enviadas para o remoto para '{$moduleName}'.");
+        $this->runProcess(['git', 'push', '--follow-tags', 'origin', 'develop', 'main'], $modulePath);
+        $this->info("Alterações e tags de release enviadas para '{$moduleName}' remoto.");
 
         $this->updateComposerDependency($moduleName, $modulePath, $newVersion);
 
@@ -261,8 +262,6 @@ class ReleaseModulesCommand extends Command
      */
     protected function setupGitIdentity(): void
     {
-        // Se $this->gitEnv já está populado, significa que setupGitIdentity já rodou uma vez
-        // e os valores já foram lidos ou perguntados.
         if (! empty($this->gitEnv)) {
             return;
         }
@@ -272,19 +271,16 @@ class ReleaseModulesCommand extends Command
 
         $variablesToSave = [];
 
-        // Verifica e solicita o nome de usuário
         if (empty($userName)) {
             $userName = $this->ask('Por favor, informe seu nome para o Git (será salvo no .env):', 'Laravel Developer');
             $variablesToSave['GIT_USER_NAME'] = $userName;
         }
 
-        // Verifica e solicita o e-mail do usuário
         if (empty($userEmail)) {
             $userEmail = $this->ask('Por favor, informe seu e-mail para o Git (será salvo no .env):', 'dev@laravel.com');
             $variablesToSave['GIT_USER_EMAIL'] = $userEmail;
         }
 
-        // Se alguma variável foi solicitada, salve-as todas de uma vez no .env
         if (! empty($variablesToSave)) {
             $this->info('Salvando credenciais Git no arquivo .env...');
             $this->updateDotEnv($variablesToSave);
@@ -316,8 +312,8 @@ class ReleaseModulesCommand extends Command
 
         $contents = File::get($envPath);
         foreach ($variables as $key => $value) {
-            // Substitui a linha se ela já existe
             if (str_contains($contents, "{$key}=")) {
+                // Substitui a linha se ela já existe
                 $contents = preg_replace("/^{$key}=.*\n/m", "{$key}=\"{$value}\"\n", $contents);
             } else {
                 // Adiciona a linha ao final do arquivo se não existe
@@ -325,8 +321,7 @@ class ReleaseModulesCommand extends Command
             }
         }
         File::put($envPath, $contents);
-        // Recarregar variáveis de ambiente após modificação do .env
-        // Isso é importante para que `env()` na mesma execução já veja os novos valores
+
         $this->loadDotEnv();
     }
 
@@ -335,10 +330,8 @@ class ReleaseModulesCommand extends Command
      */
     protected function loadDotEnv(): void
     {
-        $dotenv = \Dotenv\Dotenv::createImmutable(base_path());
+        $dotenv = Dotenv::createImmutable(base_path());
         $dotenv->load();
-        // Opcional: Para Laravel 10+, se quiser que a Config::get() reflita imediatamente
-        // \Illuminate\Support\Env::reload(); // Se esta disponível
     }
 
     /**
@@ -346,28 +339,25 @@ class ReleaseModulesCommand extends Command
      */
     protected function runProcess(array $command, string $cwd, array $env = []): void
     {
-        // NOVO: Chama a configuração da identidade Git apenas UMA VEZ, na primeira execução
-        // ou se $this->gitEnv não foi populado por alguma razão (ex: erro no setup inicial).
         $this->setupGitIdentity();
 
-        // Mescla as variáveis de ambiente do Git (agora armazenadas em $this->gitEnv)
-        // com as variáveis de ambiente do servidor e quaisquer variáveis adicionais passadas.
         $processEnv = array_merge($_SERVER, $_ENV, $this->gitEnv, $env);
 
         $process = new Process($command, $cwd, $processEnv);
         $process->setTimeout(3600); // Aumenta o timeout para operações de git mais longas
         $process->run(function ($type, $buffer) {
-            if ($type === Process::ERR) {
-                // Verifica se o comando realmente falhou
-                if (str_contains(strtolower($buffer), 'fatal:') || str_contains(strtolower($buffer), 'error:')) {
-                    $this->error('ERRO: '.$buffer);
-                } else {
-                    // É apenas uma mensagem de status do Git, mostre como mensagem normal
-                    $this->line($buffer);
-                }
-            } else {
+            if ($type !== Process::ERR) {
                 $this->line($buffer);
+                return;
             }
+            // Verifica se o comando realmente falhou
+            if (str_contains(strtolower($buffer), 'fatal:') || str_contains(strtolower($buffer), 'error:')) {
+                $this->error('ERRO: '.$buffer);
+                return;
+            }
+
+            // É apenas uma mensagem de status do Git, mostre como mensagem normal
+            $this->line($buffer);
         });
 
         if (! $process->isSuccessful()) {
@@ -476,7 +466,7 @@ class ReleaseModulesCommand extends Command
             return;
         }
 
-        if ($this->confirm("O módulo '{$moduleName}' está ativo. Deseja atualizar sua dependência no composer.json para '{$vendorPackageName}:{$newVersion}'?", true)) {
+        if ($this->confirm("Atualizar sua dependência no composer.json para '{$vendorPackageName}:{$newVersion}'?", true)) {
             $this->info("Atualizando dependência do Composer para '{$vendorPackageName}:{$newVersion}'...");
             $this->runProcess(['composer', 'require', "{$vendorPackageName}:{$newVersion}"], base_path());
             $this->info('Dependência do Composer atualizada com sucesso.');
@@ -512,7 +502,7 @@ class ReleaseModulesCommand extends Command
         }
 
         if (empty($vendorPackageName)) {
-            $inferredName = 'vendor/'.strtolower($moduleName).'-module'; // Sua convenção
+            $inferredName = 'vendor/'.strtolower($moduleName).'-module';
             $this->info("Não foi possível encontrar o nome do pacote no composer.json do módulo '{$moduleName}'.");
             $vendorPackageName = $this->ask(
                 "Por favor, confirme o nome do pacote Composer para '{$moduleName}' (inferido: {$inferredName}):",
@@ -530,17 +520,16 @@ class ReleaseModulesCommand extends Command
      */
     protected function isModuleActive(string $moduleName): bool
     {
-        // Certifique-se de que o pacote nwidart/laravel-modules está instalado
-        // e que o facade Module está registrado ou o contract Repository pode ser resolvido.
-        if (! class_exists(Module::class) && ! interface_exists(RepositoryInterface::class)) {
+        if (! class_exists(Module::class)) {
             $this->warn('O pacote nwidart/laravel-modules não parece estar instalado ou configurado. Não é possível verificar o status do módulo. Assumindo inativo para segurança.');
 
             return false;
         }
 
-        // No Laravel 10+, é comum usar o Facade.
-        // Para versões anteriores ou injeção de dependência, você injetaria `Nwidart\Modules\Contracts\Repository`.
-        return \Module::find($moduleName) && \Module::isEnabled($moduleName);
+        if (!$module = \Module::find($moduleName)) {
+            return false;
+        }
+        return $module->isEnabled();
     }
 
     /**
