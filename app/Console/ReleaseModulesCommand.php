@@ -27,24 +27,9 @@ class ReleaseModulesCommand extends Command
      */
     protected array $gitEnv = [];
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    public function handle()
+    public function handle(): int
     {
         $this->info('Iniciando o processo de release de módulos...');
-
-        // Debug: Imprimir o PATH do ambiente do processo
-        /*$process = new Process(['env']); // Ou 'echo $PATH' no Linux
-        $process->run();
-        if ($process->isSuccessful()) {
-            $this->info("PATH do Processo:\n" . $process->getOutput());
-        } else {
-            $this->error("Não foi possível obter o PATH do processo.");
-        }
-        dd("debug");*/
 
         $this->modulesPath = config('base.modules.paths') ?? [base_path('Modules')];
 
@@ -85,9 +70,6 @@ class ReleaseModulesCommand extends Command
         ];
     }
 
-    /**
-     * Obtém os módulos sem commits pendentes.
-     */
     protected function getModulesWithoutPendingCommits(): array
     {
         $modules = [];
@@ -109,17 +91,11 @@ class ReleaseModulesCommand extends Command
         return $modules;
     }
 
-    /**
-     * Verifica se um diretório é um repositório Git.
-     */
     protected function isGitRepository(string $path): bool
     {
         return File::exists($path.'/.git');
     }
 
-    /**
-     * Verifica se um repositório tem commits pendentes.
-     */
     protected function hasPendingCommits(string $path): bool
     {
         $process = new Process(['git', 'status', '--porcelain'], $path);
