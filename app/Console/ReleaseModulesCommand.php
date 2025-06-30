@@ -549,8 +549,6 @@ class ReleaseModulesCommand extends Command
     protected function cleanVendor(): void
     {
         if (!app()->isLocal()) {
-            $this->info('Não removendo módulos da pasta vendor em ambiente de '.app()->environment().'.');
-
             return;
         }
 
@@ -583,7 +581,6 @@ class ReleaseModulesCommand extends Command
                 } catch (\Exception $e) {
                     $this->warn("Não foi possível ler ou parsear o composer.json de '{$moduleName}'. Erro: ".$e->getMessage());
 
-                    // Se não conseguir ler o composer.json, pula este módulo
                     continue;
                 }
             }
@@ -606,7 +603,7 @@ class ReleaseModulesCommand extends Command
             return;
         }
 
-        $this->info('Iniciando limpeza dos módulos locais da pasta vendor...');
+        $this->info('🤖 Limpando módulos locais da pasta vendor...');
 
         foreach ($modulesPathInVendor as $packageName => $modulePathInVendor) {
             if (! $this->confirm('Confirma remoção de '.mb_strtoupper($packageName).' em '.$modulePathInVendor, true)) {
@@ -616,7 +613,7 @@ class ReleaseModulesCommand extends Command
             $this->info("{$modulePathInVendor}' removido para evitar duplicidade.");
         }
 
-        $this->info('Limpeza de módulos da pasta vendor concluída.');
+        $this->info('🤖✔️ Limpando módulos da pasta vendor concluída.');
 
         $this->runProcess(['composer', 'dump-autoload'], base_path());
     }
