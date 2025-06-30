@@ -468,7 +468,7 @@ class ReleaseModulesCommand extends Command
 
         if ($this->confirm("Atualizar sua dependência no composer.json para '{$vendorPackageName}:{$newVersion}'?", true)) {
             $this->info("Atualizando dependência do Composer para '{$vendorPackageName}:{$newVersion}'...");
-            $this->runProcess(['composer', 'require', "{$vendorPackageName}:{$newVersion}"], base_path());
+            $this->runProcess(['composer', 'require', "{$vendorPackageName}:^{$newVersion}"], base_path());
             $this->info('Dependência do Composer atualizada com sucesso.');
 
             return;
