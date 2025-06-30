@@ -3,13 +3,14 @@
 namespace Modules\Base\Console;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Nwidart\Modules\Contracts\RepositoryInterface;
 use Nwidart\Modules\Facades\Module;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Input\InputArgument;
-use Illuminate\Support\Facades\File;
+use Symfony\Component\Console\Input\InputOption;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+use Symfony\Component\Process\Process;
+
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\select;
 
@@ -20,6 +21,11 @@ class ReleaseModulesCommand extends Command
     protected $description = 'Gerencia o versionamento e release de módulos com Git Flow.';
 
     protected array $modulesPath = [];
+
+    /**
+     * @var array Variáveis de ambiente para a execução de comandos Git.
+     */
+    protected array $gitEnv = [];
 
     public function __construct()
     {
@@ -46,17 +52,17 @@ class ReleaseModulesCommand extends Command
 
         if (empty($availableModules)) {
             $this->warn('Nenhum módulo encontrado sem commits pendentes.');
+
             return Command::SUCCESS;
         }
-
 
         $selectedModules = $this->selectModules($availableModules);
 
         if (empty($selectedModules)) {
             $this->info('Nenhum módulo selecionado. Encerrando.');
+
             return Command::SUCCESS;
         }
-
 
         foreach ($selectedModules as $module) {
             $this->processModuleRelease($module);
@@ -81,8 +87,6 @@ class ReleaseModulesCommand extends Command
 
     /**
      * Obtém os módulos sem commits pendentes.
-     *
-     * @return array
      */
     protected function getModulesWithoutPendingCommits(): array
     {
@@ -93,7 +97,7 @@ class ReleaseModulesCommand extends Command
                     $moduleName = basename($moduleDir);
                     if (
                         $this->isGitRepository($moduleDir) &&
-                        !$this->hasPendingCommits($moduleDir) &&
+                        ! $this->hasPendingCommits($moduleDir) &&
                         $this->hasUnpushedCommits($moduleDir)
                     ) {
                         $modules[$moduleName] = $moduleDir;
@@ -101,43 +105,35 @@ class ReleaseModulesCommand extends Command
                 }
             }
         }
+
         return $modules;
     }
 
     /**
      * Verifica se um diretório é um repositório Git.
-     *
-     * @param string $path
-     * @return bool
      */
     protected function isGitRepository(string $path): bool
     {
-        return File::exists($path . '/.git');
+        return File::exists($path.'/.git');
     }
 
     /**
      * Verifica se um repositório tem commits pendentes.
-     *
-     * @param string $path
-     * @return bool
      */
     protected function hasPendingCommits(string $path): bool
     {
         $process = new Process(['git', 'status', '--porcelain'], $path);
         $process->run();
 
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
 
-        return !empty(trim($process->getOutput()));
+        return ! empty(trim($process->getOutput()));
     }
 
     /**
      * Verifica se a branch atual tem commits que ainda não foram enviados (pushed) para o remoto.
-     *
-     * @param string $path
-     * @return bool
      */
     protected function hasUnpushedCommits(string $path): bool
     {
@@ -147,7 +143,7 @@ class ReleaseModulesCommand extends Command
         $processInitial = new Process(['git', 'rev-list', '@{u}..HEAD', '--count'], $path);
         $processInitial->run();
 
-        if (!$processInitial->isSuccessful()) {
+        if (! $processInitial->isSuccessful()) {
             // Se falhar (ex: branch sem upstream), não podemos ter certeza.
             // Para não bloquear, emitimos um aviso e assumimos que pode haver commits.
             $this->warn("Não foi possível realizar a verificação inicial de commits não enviados para '{$path}'.");
@@ -173,13 +169,15 @@ class ReleaseModulesCommand extends Command
         try {
             $processUpdate = new Process(['git', 'remote', 'update', 'origin'], $path);
             $processUpdate->run();
-            if (!$processUpdate->isSuccessful()) {
-                $this->warn("Falha ao sincronizar remoto para '{$path}' durante verificação de push: " . $processUpdate->getErrorOutput());
+            if (! $processUpdate->isSuccessful()) {
+                $this->warn("Falha ao sincronizar remoto para '{$path}' durante verificação de push: ".$processUpdate->getErrorOutput());
+
                 // Se a sincronização falhar, somos conservadores e retornamos true para forçar verificação manual.
                 return true;
             }
         } catch (ProcessFailedException $e) {
-            $this->warn("Erro ao sincronizar remoto para '{$path}' durante verificação de push: " . $e->getMessage());
+            $this->warn("Erro ao sincronizar remoto para '{$path}' durante verificação de push: ".$e->getMessage());
+
             return true;
         }
 
@@ -188,8 +186,9 @@ class ReleaseModulesCommand extends Command
         $processFinal = new Process(['git', 'rev-list', '@{u}..HEAD', '--count'], $path);
         $processFinal->run();
 
-        if (!$processFinal->isSuccessful()) {
+        if (! $processFinal->isSuccessful()) {
             $this->warn("Não foi possível realizar a verificação final de commits não enviados para '{$path}'. Assumindo que existem.");
+
             return true;
         }
 
@@ -200,9 +199,6 @@ class ReleaseModulesCommand extends Command
 
     /**
      * Permite ao usuário selecionar múltiplos módulos.
-     *
-     * @param array $modules
-     * @return array
      */
     protected function selectModules(array $modules): array
     {
@@ -220,13 +216,10 @@ class ReleaseModulesCommand extends Command
 
     /**
      * Processa a release para um módulo específico.
-     *
-     * @param string $moduleName
-     * @return void
      */
     protected function processModuleRelease(string $moduleName): void
     {
-        $modulePath = $this->modulesPath[0] . '/' . $moduleName; // Assuming single modules path for now
+        $modulePath = $this->modulesPath[0].'/'.$moduleName; // Assuming single modules path for now
 
         $this->newLine();
         $this->info("Processando módulo: {$moduleName} em {$modulePath}");
@@ -235,33 +228,36 @@ class ReleaseModulesCommand extends Command
 
         if ($currentBranch !== 'develop') {
             $this->warn("A branch atual de '{$moduleName}' é '{$currentBranch}'. Para iniciar uma release, é recomendado estar na branch 'develop'.");
-            if (!$this->confirm("Deseja mudar para 'develop'? (Se 'não', o processo será abortado para este módulo)", true)) {
+            if (! $this->confirm("Deseja mudar para 'develop'? (Se 'não', o processo será abortado para este módulo)", true)) {
                 $this->warn('cancelado');
+
                 return;
             }
             $this->runProcess(['git', 'checkout', 'develop'], $modulePath);
         }
 
         $currentVersion = $this->getCurrentTag($modulePath);
-        $this->info("Versão atual do módulo {$moduleName}: " . ($currentVersion ?: 'N/A'));
+        $this->info("Versão atual do módulo {$moduleName}: ".($currentVersion ?: 'N/A'));
 
         $releaseType = $this->askForReleaseType($currentVersion);
 
         $newVersion = $this->calculateNewVersion($currentVersion, $releaseType);
 
-        if (!$this->confirm("Deseja criar a tag '{$newVersion}' para o módulo '{$moduleName}'?", true)) {
+        if (! $this->confirm("Deseja criar a tag '{$newVersion}' para o módulo '{$moduleName}'?", true)) {
             $this->warn("Release para '{$moduleName}' cancelada.");
+
             return;
         }
 
         $this->info("Iniciando release {$newVersion} para {$moduleName}...");
         $this->runProcess(['git', 'flow', 'release', 'start', $newVersion], $modulePath);
 
-        if (!$this->confirm(
-            "A branch de release 'release/{$newVersion}' foi iniciada para '{$moduleName}'. Deseja finalizar o release agora, ou você tem mais trabalhos (testes, documentação, etc.) a fazer antes de prosseguir com o merge e o push para o remoto?",
+        if (! $this->confirm(
+            'Deseja finalizar o release e prosseguir com o merge e o push para o remoto?',
             true // Default para 'sim' para continuar o fluxo padrão
         )) {
             $this->warn("Finalização do release para '{$moduleName}' adiada. A branch 'release/{$newVersion}' permanece ativa. Você pode finalizá-la manualmente com 'git flow release finish {$newVersion}'.");
+
             return; // Interrompe o script para este módulo
         }
 
@@ -270,12 +266,12 @@ class ReleaseModulesCommand extends Command
         $this->info("Finalizando release {$newVersion} para {$moduleName}...");
         $this->runProcess(['git', 'checkout', 'main'], $modulePath);
         $this->runProcess(['git', 'pull'], $modulePath);
-        $this->runProcess(['git', 'checkout', 'release/' . $newVersion], $modulePath);
+        $this->runProcess(['git', 'checkout', 'release/'.$newVersion], $modulePath);
         $this->runProcess(['git', 'flow', 'release', 'finish', $newVersion, '-m', $mergeMessage], $modulePath);
 
         $this->info("Release '{$newVersion}' finalizada com sucesso para o módulo '{$moduleName}'.");
 
-        $this->info("Enviando alterações e tags para o repositório remoto...");
+        $this->info('Enviando alterações e tags para o repositório remoto...');
         $this->runProcess(['git', 'push', '--follow-tags', 'origin', 'develop', 'main'], $modulePath); // Envia develop e main e tags
         $this->info("Alterações e tags de release enviadas para o remoto para '{$moduleName}'.");
 
@@ -285,79 +281,170 @@ class ReleaseModulesCommand extends Command
     }
 
     /**
-     * Executa um processo no terminal.
-     *
-     * @param array $command
-     * @param string $cwd
-     * @return void
+     * Configura a identidade do Git para o processo atual.
      */
-    protected function runProcess(array $command, string $cwd): void
+    protected function setupGitIdentity(): void
     {
-        $process = new Process($command, $cwd);
+        // Se $this->gitEnv já está populado, significa que setupGitIdentity já rodou uma vez
+        // e os valores já foram lidos ou perguntados.
+        if (! empty($this->gitEnv)) {
+            return;
+        }
+
+        $userName = env('GIT_USER_NAME');
+        $userEmail = env('GIT_USER_EMAIL');
+
+        $variablesToSave = [];
+
+        // Verifica e solicita o nome de usuário
+        if (empty($userName)) {
+            $userName = $this->ask('Por favor, informe seu nome para o Git (será salvo no .env):', 'Laravel Developer');
+            $variablesToSave['GIT_USER_NAME'] = $userName;
+        }
+
+        // Verifica e solicita o e-mail do usuário
+        if (empty($userEmail)) {
+            $userEmail = $this->ask('Por favor, informe seu e-mail para o Git (será salvo no .env):', 'dev@laravel.com');
+            $variablesToSave['GIT_USER_EMAIL'] = $userEmail;
+        }
+
+        // Se alguma variável foi solicitada, salve-as todas de uma vez no .env
+        if (! empty($variablesToSave)) {
+            $this->info('Salvando credenciais Git no arquivo .env...');
+            $this->updateDotEnv($variablesToSave);
+        }
+
+        $this->info("Configurando identidade Git para o processo: {$userName} <{$userEmail}>");
+
+        $this->gitEnv = [
+            'GIT_AUTHOR_NAME' => $userName,
+            'GIT_AUTHOR_EMAIL' => $userEmail,
+            'GIT_COMMITTER_NAME' => $userName,
+            'GIT_COMMITTER_EMAIL' => $userEmail,
+        ];
+    }
+
+    /**
+     * Atualiza variáveis no arquivo .env.
+     *
+     * @param  array  $variables  Associative array of key => value.
+     */
+    protected function updateDotEnv(array $variables): void
+    {
+        $envPath = base_path('.env');
+        if (! File::exists($envPath)) {
+            $this->error(".env file not found at {$envPath}. Cannot save Git credentials.");
+
+            return;
+        }
+
+        $contents = File::get($envPath);
+        foreach ($variables as $key => $value) {
+            // Substitui a linha se ela já existe
+            if (str_contains($contents, "{$key}=")) {
+                $contents = preg_replace("/^{$key}=.*\n/m", "{$key}=\"{$value}\"\n", $contents);
+            } else {
+                // Adiciona a linha ao final do arquivo se não existe
+                $contents .= "\n{$key}=\"{$value}\"";
+            }
+        }
+        File::put($envPath, $contents);
+        // Recarregar variáveis de ambiente após modificação do .env
+        // Isso é importante para que `env()` na mesma execução já veja os novos valores
+        $this->loadDotEnv();
+    }
+
+    /**
+     * Recarrega o arquivo .env.
+     */
+    protected function loadDotEnv(): void
+    {
+        $dotenv = \Dotenv\Dotenv::createImmutable(base_path());
+        $dotenv->load();
+        // Opcional: Para Laravel 10+, se quiser que a Config::get() reflita imediatamente
+        // \Illuminate\Support\Env::reload(); // Se esta disponível
+    }
+
+    /**
+     * Executa um processo no terminal.
+     */
+    protected function runProcess(array $command, string $cwd, array $env = []): void
+    {
+        // NOVO: Chama a configuração da identidade Git apenas UMA VEZ, na primeira execução
+        // ou se $this->gitEnv não foi populado por alguma razão (ex: erro no setup inicial).
+        $this->setupGitIdentity();
+
+        // Mescla as variáveis de ambiente do Git (agora armazenadas em $this->gitEnv)
+        // com as variáveis de ambiente do servidor e quaisquer variáveis adicionais passadas.
+        $processEnv = array_merge($_SERVER, $_ENV, $this->gitEnv, $env);
+
+        $process = new Process($command, $cwd, $processEnv);
         $process->setTimeout(3600); // Aumenta o timeout para operações de git mais longas
         $process->run(function ($type, $buffer) {
-            if (Process::ERR === $type) {
-                $this->error('ERRO: ' . $buffer);
+            if ($type === Process::ERR) {
+                // Verifica se o comando realmente falhou
+                if (str_contains(strtolower($buffer), 'fatal:') || str_contains(strtolower($buffer), 'error:')) {
+                    $this->error('ERRO: '.$buffer);
+                } else {
+                    // É apenas uma mensagem de status do Git, mostre como mensagem normal
+                    $this->line($buffer);
+                }
             } else {
                 $this->line($buffer);
             }
         });
 
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
     }
 
     /**
      * Obtém a branch atual de um repositório Git.
-     *
-     * @param string $path
-     * @return string
      */
     protected function getCurrentBranch(string $path): string
     {
         $process = new Process(['git', 'rev-parse', '--abbrev-ref', 'HEAD'], $path);
         $process->run();
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             throw new ProcessFailedException($process);
         }
+
         return trim($process->getOutput());
     }
 
     /**
      * Obtém a última tag de versão semântica.
-     *
-     * @param string $path
-     * @return string|null
      */
     protected function getCurrentTag(string $path): ?string
     {
         $process = new Process(['git', 'describe', '--tags', '--abbrev=0', '--match', 'v*.*.*'], $path);
         $process->run();
-
-        if (!$process->isSuccessful()) {
+        if (! $process->isSuccessful()) {
             // No tags found, return initial version
             return 'v0.0.0';
         }
 
-        return trim($process->getOutput());
+        $tag = trim($process->getOutput());
+        if (! str_starts_with($tag, 'v')) {
+            $tag = 'v'.explode('-', $tag)[0];
+        }
+
+        return $tag;
     }
 
     /**
      * Pergunta ao usuário o tipo de alteração da release.
-     *
-     * @param string|null $currentVersion
-     * @return string
      */
     protected function askForReleaseType(?string $currentVersion): string
     {
         $currentVersion = ltrim($currentVersion, 'v');
-        list($major, $minor, $patch) = array_pad(explode('.', $currentVersion), 3, 0);
+        [$major, $minor, $patch] = array_pad(explode('.', $currentVersion), 3, 0);
 
         $options = [
-            "major" => "Major (Nova versão não compatível): v" . ($major + 1) . ".0.0",
-            "minor" => "Feature (Adição de funcionalidade): v" . $major . "." . ($minor + 1) . ".0",
-            "patch" => "Patch (Correção de bugs/melhorias): v" . $major . "." . $minor . "." . ($patch + 1),
+            'major' => 'Major (Nova versão não compatível): v'.($major + 1).'.0.0',
+            'minor' => 'Feature (Adição de funcionalidade): v'.$major.'.'.($minor + 1).'.0',
+            'patch' => 'Patch (Correção de bugs/melhorias): v'.$major.'.'.$minor.'.'.($patch + 1),
         ];
 
         return select(
@@ -368,27 +455,23 @@ class ReleaseModulesCommand extends Command
 
     /**
      * Calcula a nova versão semântica.
-     *
-     * @param string|null $currentVersion
-     * @param string $releaseType
-     * @return string
      */
     protected function calculateNewVersion(?string $currentVersion, string $releaseType): string
     {
         $currentVersion = ltrim($currentVersion, 'v');
-        list($major, $minor, $patch) = array_pad(explode('.', $currentVersion), 3, 0);
+        [$major, $minor, $patch] = array_pad(explode('.', $currentVersion), 3, 0);
 
         switch ($releaseType) {
-            case (str_contains($releaseType, 'Major')):
+            case str_contains($releaseType, 'Major'):
                 $major++;
                 $minor = 0;
                 $patch = 0;
                 break;
-            case (str_contains($releaseType, 'Feature')):
+            case str_contains($releaseType, 'Feature'):
                 $minor++;
                 $patch = 0;
                 break;
-            case (str_contains($releaseType, 'Patch')):
+            case str_contains($releaseType, 'Patch'):
                 $patch++;
                 break;
         }
@@ -398,22 +481,16 @@ class ReleaseModulesCommand extends Command
 
     /**
      * Pergunta a mensagem de merge para a release.
-     *
-     * @param string $newVersion
-     * @return string
      */
     protected function askForMergeMessage(string $newVersion): string
     {
         $defaultMessage = "Release {$newVersion}";
+
         return $this->ask("Qual a mensagem para o merge da release? (Padrão: '{$defaultMessage}')", $defaultMessage);
     }
 
     /**
      * Atualiza a dependência do Composer no projeto principal.
-     *
-     * @param string $moduleName
-     * @param string $newVersion
-     * @return void
      */
     protected function updateComposerDependency(string $moduleName, string $modulePath, string $newVersion): void
     {
@@ -421,18 +498,21 @@ class ReleaseModulesCommand extends Command
         $vendorPackageName = $this->getComposerPackageName($moduleName, $modulePath);
 
         // 2. Verificar se o módulo está ativo
-        if (!$this->isModuleActive($moduleName)) {
-            $this->info("Módulo '{$moduleName}' não está ativo. Pulando atualização da dependência Composer.");
+        if (! $this->isModuleActive($moduleName)) {
             return;
         }
 
         // 3. Confirmar e executar a atualização do Composer
-        if ($this->confirm("O módulo '{$moduleName}' parece estar ativo no projeto principal. Deseja atualizar sua dependência no composer.json para '{$vendorPackageName}:{$newVersion}'?", true)) {
+        if ($this->confirm("O módulo '{$moduleName}' está ativo. Deseja atualizar sua dependência no composer.json para '{$vendorPackageName}:{$newVersion}'?", true)) {
             $this->info("Atualizando dependência do Composer para '{$vendorPackageName}:{$newVersion}'...");
             // Usamos 'sail' composer require, assumindo que você está usando Laravel Sail.
             // Se não estiver, apenas 'composer require'.
+            $vendorPackageName = $this->ask(
+                "Confirmar o nome do pacote Composer para '{$moduleName}' (encontrado: {$vendorPackageName}):",
+                $vendorPackageName
+            );
             $this->runProcess(['composer', 'require', "{$vendorPackageName}:{$newVersion}"], base_path());
-            $this->info("Dependência do Composer atualizada com sucesso.");
+            $this->info('Dependência do Composer atualizada com sucesso.');
         } else {
             $this->warn("Atualização da dependência Composer para '{$moduleName}' cancelada.");
         }
@@ -442,8 +522,8 @@ class ReleaseModulesCommand extends Command
      * Obtém o nome do pacote Composer de um módulo, preferencialmente do composer.json.
      * Caso contrário, infere o nome e pede confirmação ao usuário.
      *
-     * @param string $moduleName O nome do diretório do módulo.
-     * @param string $modulePath O caminho completo para o diretório do módulo.
+     * @param  string  $moduleName  O nome do diretório do módulo.
+     * @param  string  $modulePath  O caminho completo para o diretório do módulo.
      * @return string O nome do pacote Composer (ex: "vendor/package-name").
      */
     protected function getComposerPackageName(string $moduleName, string $modulePath): string
@@ -458,21 +538,16 @@ class ReleaseModulesCommand extends Command
                     $vendorPackageName = $composerContent['name'];
                 }
             } catch (\Exception $e) {
-                $this->warn("Não foi possível ler ou parsear o composer.json de '{$moduleName}'. Erro: " . $e->getMessage());
+                $this->warn("Não foi possível ler ou parsear o composer.json de '{$moduleName}'. Erro: ".$e->getMessage());
             }
         }
 
         if (empty($vendorPackageName)) {
-            $inferredName = 'vendor/' . strtolower($moduleName) . '-module'; // Sua convenção
+            $inferredName = 'vendor/'.strtolower($moduleName).'-module'; // Sua convenção
             $this->info("Não foi possível encontrar o nome do pacote no composer.json do módulo '{$moduleName}'.");
             $vendorPackageName = $this->ask(
                 "Por favor, confirme o nome do pacote Composer para '{$moduleName}' (inferido: {$inferredName}):",
                 $inferredName
-            );
-        } else {
-            $vendorPackageName = $this->ask(
-                "Confirmar o nome do pacote Composer para '{$moduleName}' (encontrado: {$vendorPackageName}):",
-                $vendorPackageName
             );
         }
 
@@ -482,55 +557,52 @@ class ReleaseModulesCommand extends Command
     /**
      * Verifica se um módulo está ativo usando o pacote nwidart/laravel-modules.
      *
-     * @param string $moduleName O nome do módulo (ex: 'BlogModule').
-     * @return bool
+     * @param  string  $moduleName  O nome do módulo (ex: 'BlogModule').
      */
     protected function isModuleActive(string $moduleName): bool
     {
         // Certifique-se de que o pacote nwidart/laravel-modules está instalado
         // e que o facade Module está registrado ou o contract Repository pode ser resolvido.
-        if (!class_exists(Module::class) && !interface_exists(RepositoryInterface::class)) {
+        if (! class_exists(Module::class) && ! interface_exists(RepositoryInterface::class)) {
             $this->warn('O pacote nwidart/laravel-modules não parece estar instalado ou configurado. Não é possível verificar o status do módulo. Assumindo inativo para segurança.');
+
             return false;
         }
 
         // No Laravel 10+, é comum usar o Facade.
         // Para versões anteriores ou injeção de dependência, você injetaria `Nwidart\Modules\Contracts\Repository`.
-        return \Module::isEnabled($moduleName);
+        return \Module::find($moduleName) && \Module::isEnabled($moduleName);
     }
-
 
     /**
      * Remove projetos com sufixo "-module" .
-     *
-     * @return void
      */
     protected function cleanVendor(): void
     {
         // Certifica-se de que estamos em ambiente de desenvolvimento
         if (app()->environment('production', 'staging', 'testing')) {
-            $this->info("Não removendo módulos da pasta vendor em ambiente de " . app()->environment() . ".");
+            $this->info('Não removendo módulos da pasta vendor em ambiente de '.app()->environment().'.');
+
             return;
         }
-
-        $this->info("Iniciando limpeza dos módulos locais da pasta vendor...");
 
         // Supondo que você tem uma propriedade ou método para obter o caminho da pasta Modules
         // Exemplo: $this->modulesPath (assumindo que já está definido e contém o caminho base)
         $modulesRootPath = $this->modulesPath[0] ?? base_path('Modules'); // Garanta que este caminho está correto
 
-        if (!File::isDirectory($modulesRootPath)) {
+        if (! File::isDirectory($modulesRootPath)) {
             $this->warn("Diretório de módulos '{$modulesRootPath}' não encontrado. Pulando limpeza da pasta vendor.");
+
             return;
         }
 
         $moduleDirectories = File::directories($modulesRootPath);
 
         if (empty($moduleDirectories)) {
-            $this->info("Nenhum módulo encontrado em '{$modulesRootPath}'. Nenhuma limpeza necessária.");
             return;
         }
 
+        $modulesPathInVendor = [];
         foreach ($moduleDirectories as $moduleDir) {
             $moduleName = basename($moduleDir);
             $composerJsonPath = "{$moduleDir}/composer.json";
@@ -543,7 +615,8 @@ class ReleaseModulesCommand extends Command
                         $vendorPackageName = $composerContent['name'];
                     }
                 } catch (\Exception $e) {
-                    $this->warn("Não foi possível ler ou parsear o composer.json de '{$moduleName}'. Erro: " . $e->getMessage());
+                    $this->warn("Não foi possível ler ou parsear o composer.json de '{$moduleName}'. Erro: ".$e->getMessage());
+
                     // Se não conseguir ler o composer.json, pula este módulo
                     continue;
                 }
@@ -551,19 +624,34 @@ class ReleaseModulesCommand extends Command
 
             if (empty($vendorPackageName)) {
                 $this->warn("Não foi possível determinar o nome do pacote Composer para o módulo '{$moduleName}'. Pulando remoção da pasta vendor.");
+
                 continue;
             }
 
-            list($vendorPrefix, $packageName) = explode('/', $vendorPackageName, 2);
-            $fullPathInVendor = base_path("vendor/{$vendorPrefix}/{$packageName}");
+            [$vendorPrefix, $packageName] = explode('/', $vendorPackageName, 2);
+            $vendorPath = "vendor/{$vendorPrefix}/{$packageName}";
 
-            if (File::isDirectory($fullPathInVendor)) {
-                $this->info("Removendo '{$vendorPackageName}' de '{$fullPathInVendor}' para evitar duplicidade.");
-                File::deleteDirectory($fullPathInVendor);
-            } else {
-                $this->info("Diretório de vendor para '{$vendorPackageName}' ('{$fullPathInVendor}') não encontrado ou já removido.");
+            if (File::isDirectory(base_path($vendorPath))) {
+                $modulesPathInVendor[$packageName] = $vendorPath;
             }
         }
-        $this->info("Limpeza da pasta vendor concluída.");
+
+        if (count($modulesPathInVendor) == 0) {
+            return;
+        }
+
+        $this->info('Iniciando limpeza dos módulos locais da pasta vendor...');
+
+        foreach ($modulesPathInVendor as $packageName => $modulePathInVendor) {
+            if (! $this->confirm('Confirma remoção de '.mb_strtoupper($packageName).' em '.$modulePathInVendor, true)) {
+                continue;
+            }
+            File::deleteDirectory(base_path($modulePathInVendor));
+            $this->info("{$modulePathInVendor}' removido para evitar duplicidade.");
+        }
+
+        $this->info('Limpeza de módulos da pasta vendor concluída.');
+
+        $this->runProcess(['composer', 'dump-autoload'], base_path());
     }
 }

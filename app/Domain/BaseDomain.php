@@ -4,7 +4,6 @@ namespace Modules\Base\Domain;
 
 use Modules\Base\Repository\BaseRepository;
 use Modules\Base\Services\Response\BaseResponse;
-use ReflectionObject;
 
 /**
  * @author     Davi Menezes
@@ -40,15 +39,15 @@ abstract class BaseDomain
     public function __call($name, $arguments)
     {
         $repositoryClass = $this->repositoryClass();
-        if (!$repositoryClass && (new \ReflectionClass($repositoryClass))->hasMethod($name)) {
+        if (! $repositoryClass && (new \ReflectionClass($repositoryClass))->hasMethod($name)) {
             return $this->repository()->$name($arguments);
         }
     }
 
     public static function __callStatic($name, $arguments)
     {
-        if (!(new \ReflectionClass(static::class))->hasMethod($name)) {
-            return (new static())->repository()->$name(...$arguments);
+        if (! (new \ReflectionClass(static::class))->hasMethod($name)) {
+            return (new static)->repository()->$name(...$arguments);
         }
     }
 }

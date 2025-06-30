@@ -41,5 +41,5 @@ return [
             'View' => 'DviDev/view_structure-module',
             'Workspace' => 'DviDev/workspace-module',
         ],
-    ]
+    ],
 ];
