@@ -5,7 +5,6 @@ namespace Modules\Base\Console;
 use Dotenv\Dotenv;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Nwidart\Modules\Contracts\RepositoryInterface;
 use Nwidart\Modules\Facades\Module;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -348,11 +347,13 @@ class ReleaseModulesCommand extends Command
         $process->run(function ($type, $buffer) {
             if ($type !== Process::ERR) {
                 $this->line($buffer);
+
                 return;
             }
             // Verifica se o comando realmente falhou
             if (str_contains(strtolower($buffer), 'fatal:') || str_contains(strtolower($buffer), 'error:')) {
                 $this->error('ERRO: '.$buffer);
+
                 return;
             }
 
@@ -526,9 +527,10 @@ class ReleaseModulesCommand extends Command
             return false;
         }
 
-        if (!$module = \Module::find($moduleName)) {
+        if (! $module = \Module::find($moduleName)) {
             return false;
         }
+
         return $module->isEnabled();
     }
 
