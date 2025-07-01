@@ -251,11 +251,11 @@ class ReleaseModulesCommand extends Command
         $this->runProcess(['git', 'push', '--follow-tags', 'origin', 'develop', 'main'], $modulePath);
         $this->info("Alterações e tags de release enviadas para '{$moduleName}' remoto.");
 
-        $this->backupModulesPath();
+//        $this->backupModulesPath();
         $this->updateComposerDependency($moduleName, $modulePath, $newVersion);
-        $this->restoreBackupPath();
+//        $this->restoreBackupPath();
 
-        //$this->cleanVendor();
+        // $this->cleanVendor();
     }
 
     /**
@@ -618,6 +618,7 @@ class ReleaseModulesCommand extends Command
             // Renomeia a pasta Modules para Modules_backup
             File::move($modulesPath, $modulesBackupPath);
             $this->info("Diretório 'Modules' movido para 'Modules_backup'.");
+
             return;
         }
         $this->warn("Diretório 'Modules' não encontrado. Nenhuma ação de backup necessária.");
@@ -629,7 +630,7 @@ class ReleaseModulesCommand extends Command
         $modulesPath = base_path('Modules'); // Supondo que seus módulos estão em `base_path('Modules')`
         $modulesBackupPath = base_path('Modules_backup');
 
-        $this->info("Verificando módulos recém-instalados em Modules/ e removendo-os...");
+        $this->info('Verificando módulos recém-instalados em Modules/ e removendo-os...');
         if (File::isDirectory($modulesPath)) {
             File::deleteDirectory($modulesPath); // CUIDADO: Isso apaga o módulo.
             /*$newlyInstalledModules = File::directories($modulesPath); // Obtém todos os subdiretórios
@@ -650,6 +651,7 @@ class ReleaseModulesCommand extends Command
             $this->info("Restaurando diretório 'Modules' do backup...");
             File::move($modulesBackupPath, $modulesPath);
             $this->info("Diretório 'Modules' restaurado com sucesso.");
+
             return;
         }
         $this->error("Backup de 'Modules' não encontrado para restauração!");
