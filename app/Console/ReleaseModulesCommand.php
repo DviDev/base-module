@@ -251,9 +251,11 @@ class ReleaseModulesCommand extends Command
         $this->runProcess(['git', 'push', '--follow-tags', 'origin', 'develop', 'main'], $modulePath);
         $this->info("Alterações e tags de release enviadas para '{$moduleName}' remoto.");
 
+        $this->backupModulesPath();
         $this->updateComposerDependency($moduleName, $modulePath, $newVersion);
+        $this->restoreBackupPath();
 
-        $this->cleanVendor();
+        //$this->cleanVendor();
     }
 
     /**
@@ -604,5 +606,53 @@ class ReleaseModulesCommand extends Command
         $this->info('🤖✔️ Limpando módulos da pasta vendor concluída.');
 
         $this->runProcess(['composer', 'dump-autoload'], base_path());
+    }
+
+    protected function backupModulesPath(): void
+    {
+        $modulesPath = base_path('Modules'); // Supondo que seus módulos estão em `base_path('Modules')`
+        $modulesBackupPath = base_path('Modules_backup');
+
+        if (File::isDirectory($modulesPath)) {
+            $this->info("Detectado diretório 'Modules'. Criando backup para evitar sobrescrita...");
+            // Renomeia a pasta Modules para Modules_backup
+            File::move($modulesPath, $modulesBackupPath);
+            $this->info("Diretório 'Modules' movido para 'Modules_backup'.");
+            return;
+        }
+        $this->warn("Diretório 'Modules' não encontrado. Nenhuma ação de backup necessária.");
+        // Não há Modules para fazer backup
+    }
+
+    protected function restoreBackupPath(): void
+    {
+        $modulesPath = base_path('Modules'); // Supondo que seus módulos estão em `base_path('Modules')`
+        $modulesBackupPath = base_path('Modules_backup');
+
+        $this->info("Verificando módulos recém-instalados em Modules/ e removendo-os...");
+        if (File::isDirectory($modulesPath)) {
+            File::deleteDirectory($modulesPath); // CUIDADO: Isso apaga o módulo.
+            /*$newlyInstalledModules = File::directories($modulesPath); // Obtém todos os subdiretórios
+            foreach ($newlyInstalledModules as $moduleDir) {
+                $moduleName = basename($moduleDir);
+                // Você pode precisar de uma lógica mais inteligente aqui para identificar
+                // quais módulos vieram do vendor vs. se algum outro processo criou pastas.
+                // Uma heurística: se não existe uma pasta com o mesmo nome em Modules_backup
+                // OU se o módulo não tem um .git interno.
+                $this->info("Removendo módulo recém-instalado via composer: {$moduleName}");
+                File::deleteDirectory($moduleDir); // CUIDADO: Isso apaga o módulo.
+            }*/
+            $this->info("Módulos recém-instalados removidos da pasta 'Modules' temporária.");
+        }
+
+        // Renomeia o backup de volta
+        if (File::isDirectory($modulesBackupPath)) {
+            $this->info("Restaurando diretório 'Modules' do backup...");
+            File::move($modulesBackupPath, $modulesPath);
+            $this->info("Diretório 'Modules' restaurado com sucesso.");
+            return;
+        }
+        $this->error("Backup de 'Modules' não encontrado para restauração!");
+        // Considere um fallback ou aviso grave aqui
     }
 }
