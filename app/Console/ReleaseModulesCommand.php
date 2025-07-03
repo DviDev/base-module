@@ -279,95 +279,230 @@ class ReleaseModulesCommand extends Command
         $vendorPackageName = $this->getComposerPackageName($moduleName, $moduleGitPath); // Ainda precisa do path do módulo para buscar o nome do pacote
         $composerJsonPath = base_path('composer.json');
         $composerLockPath = base_path('composer.lock');
-        $composerLocalJsonPath = base_path('composer.local.json');
-        $composerLocalJsonBackupPath = base_path('composer.local.json.TEMP_DISABLED');
+        $composerLocalJsonPath = base_path('composer-local.json');
+        $composerLocalJsonBackupPath = base_path('composer-local.json.TEMP_DISABLED');
 
         $this->info('--- Iniciando atualização de dependências no Composer para a release do projeto principal ---');
 
+        // Loop principal para todas as operações do Composer
         try {
-            // 1. Atualizar a versão do pacote no composer.json principal
-            $this->info('1. Atualizando a versão do pacote principal para a nova release...');
-            $composerJsonContent = json_decode(File::get($composerJsonPath), true);
-            $composerJsonContent['require'][$vendorPackageName] = "^" . ltrim($newVersion, 'v'); // Garante formato ^X.Y.Z
-            File::put($composerJsonPath, json_encode($composerJsonContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
-            $this->info('composer.json principal atualizado.');
-
-            // 2. Preparar o ambiente Composer para gerar um composer.lock limpo (para produção)
-            $this->info('2. Desativando temporariamente composer.local.json e limpando caches do Composer...');
-            if (File::exists($composerLocalJsonPath)) {
-                $this->runShellCommand("mv {$composerLocalJsonPath} {$composerLocalJsonBackupPath}", 'Renomeando composer.local.json');
-            } else {
-                $this->info('composer.local.json não encontrado, pulando renomeação.');
-            }
-
-            if (File::exists($composerLockPath)) {
-                $this->runShellCommand("rm -f {$composerLockPath}", 'Removendo composer.lock existente');
-            } else {
-                $this->info('composer.lock não encontrado.');
-            }
-
-            $this->runSailCommand('rm -f vendor/composer/autoload_*.php', 'Removendo arquivos de autoloading do Composer');
-            $this->runSailCommand('composer clear-cache', 'Limpando cache interno do Composer');
-
-            // 3. Gerar um novo composer.lock "limpo" para produção (com a nova versão tageada)
-            $this->info('3. Gerando novo composer.lock para produção com a nova versão...');
-            $this->runSailCommand("composer update {$vendorPackageName} --no-dev --lock --with-dependencies", 'Executando composer update --lock');
-
-            // 4. Comitar as alterações do composer.json e composer.lock
-            $this->info('4. Comitando composer.json e composer.lock para o repositório...');
-            //$this->runShellCommand('git add composer.json composer.lock', 'Adicionando arquivos ao Git');
-            //$this->runShellCommand("git commit -m \"feat(release): Update main project to {$vendorPackageName} {$newVersion}\"", 'Criando commit para o projeto principal');
-            // IMPORTANTE: O push final do projeto principal pode ser gerenciado externamente pelo CI/CD.
-            // Se precisar do push aqui, descomente a linha abaixo e configure as credenciais Git no ambiente.
-            // $this->runShellCommand('git push', 'Enviando alterações para o repositório remoto do projeto principal');
-            //$this->info('composer.json e composer.lock commitados com sucesso no projeto principal.');
-
-            // 5. Instalar as dependências com base no novo composer.lock em produção
-            $this->info('5. Instalando dependências de produção...');
-            $this->runSailCommand('composer install --no-dev', 'Executando composer install para dependências de produção');
-
-            // 6. Limpar os caches da aplicação para que a nova versão seja utilizada
-            $this->info('6. Limpando caches da aplicação e módulos...');
-            $this->runSailCommand('artisan cache:clear', 'Limpando cache geral da aplicação');
-            $this->runSailCommand('artisan config:clear', 'Limpando cache de configuração');
-            $this->runSailCommand('artisan route:clear', 'Limpando cache de rotas');
-            $this->runSailCommand('artisan view:clear', 'Limpando cache de views');
-            $this->runShellCommand('rm -f storage/app/modules.json', 'Limpando cache de módulos Nwidart (v11.1)');
-            $this->runSailCommand('artisan optimize:clear', 'Limpando otimização do Laravel (opcional)');
-
-            // 7. Restaurar o composer.local.json para o ambiente de desenvolvimento
-            $this->info('7. Restaurando composer.local.json para continuar o desenvolvimento...');
+            // Chame o novo método auxiliar
+            $this->runComposerOperationsWithRetry(
+                $vendorPackageName,
+                $newVersion, // Certifique-se que $newVersion está definida antes
+                $moduleName,
+                $composerJsonPath,
+                $composerLockPath,
+                $composerLocalJsonPath,
+                $composerLocalJsonBackupPath
+            );
+        } catch (\Exception $e) {
+            $this->error("O processo de atualização das dependências do Composer falhou: " . $e->getMessage());
+            // Garante que o composer.local.json seja restaurado mesmo se uma exceção for lançada
             if (File::exists($composerLocalJsonBackupPath)) {
-                $this->runShellCommand("mv {$composerLocalJsonBackupPath} {$composerLocalJsonPath}", 'Restaurando composer.local.json');
-            } else {
-                $this->info('Nenhum composer.local.json de backup encontrado para restaurar.');
-            }
-
-            // 8. Reinstalar dependências para o ambiente de desenvolvimento (religar ModDev)
-            $this->info('8. Reinstalando dependências para o ambiente de desenvolvimento (religando ModDev/)...');
-            $this->runSailCommand('composer install', 'Executando composer install para desenvolvimento');
-            $this->runSailCommand('composer dump-autoload -o', 'Otimizando autoloading do Composer'); // Essencial para reconhecer links de ModDev
-            // Não precisa limpar o cache de módulos aqui, pois o composer install já o fará ou o próximo passo garantirá.
-
-            // 9. Reiniciar o Sail para aplicar as novas dependências e caches
-            $this->info('9. Reiniciando Sail para aplicar as mudanças...');
-            $this->runSailCommand('down', 'Parando contêineres Sail');
-            $this->runSailCommand('up -d', 'Iniciando contêineres Sail em segundo plano');
-
-            $this->info("--- Concluída a atualização de dependências e restauração do ambiente ---");
-
-        } catch (ProcessFailedException $exception) {
-            $this->error("Ocorreu um erro durante a atualização das dependências do Composer: " . $exception->getMessage());
-            $this->error("Output: " . $exception->getProcess()->getOutput());
-            $this->error("Error Output: " . $exception->getProcess()->getErrorOutput());
-            // Tentativa de restaurar composer.local.json em caso de falha
-            if (File::exists($composerLocalJsonBackupPath)) {
-                $this->warn('Tentando restaurar composer.local.json após erro...');
+                $this->warn('Tentando restaurar composer.local.json após erro fatal...');
                 rename($composerLocalJsonBackupPath, $composerLocalJsonPath);
             }
-            throw $exception; // Relança a exceção para indicar falha no comando
+            throw $e; // Re-lança a exceção para indicar a falha no processo de release
         }
 
+        // 9. Reiniciar o Sail para aplicar as novas dependências e caches
+        $this->info('9. Reiniciando Sail para aplicar as mudanças...');
+//        $this->runShellCommand('./vendor/bin/sail down', 'Parando contêineres Sail');
+//        $this->runShellCommand('./vendor/bin/sail up -d', 'Iniciando contêineres Sail em segundo plano');
+
+        $this->info("--- Concluída a atualização de dependências e restauração do ambiente ---");
+    }
+
+    /**
+     * Tenta executar uma série de operações Composer com lógica de retentativa para erros de autenticação.
+     *
+     * @param string $vendorPackageName Nome do pacote do vendor (ex: 'dvidev/blog-module').
+     * @param string $newVersion A nova versão do módulo.
+     * @param string $moduleName O nome do módulo (para mensagens ao usuário).
+     * @param string $composerJsonPath Caminho para o composer.json.
+     * @param string $composerLockPath Caminho para o composer.lock.
+     * @param string $composerLocalJsonPath Caminho para o composer.local.json.
+     * @param string $composerLocalJsonBackupPath Caminho para o backup do composer.local.json.
+     * @throws \RuntimeException Se as operações do Composer falharem após as retentativas.
+     */
+    private function runComposerOperationsWithRetry(
+        string $vendorPackageName,
+        string $newVersion,
+        string $moduleName,
+        string $composerJsonPath,
+        string $composerLockPath,
+        string $composerLocalJsonPath,
+        string $composerLocalJsonBackupPath
+    ): void {
+        $maxComposerAttempts = 2; // Permite uma tentativa inicial + 1 retentativa
+
+        for ($attempt = 1; $attempt <= $maxComposerAttempts; $attempt++) {
+            try {
+                $this->info("Tentativa {$attempt}/{$maxComposerAttempts}: Iniciando operações do Composer...");
+
+                // 1. Atualizar a versão do pacote no composer.json principal
+                $this->info('1. Atualizando a versão do pacote principal para a nova release...');
+                $composerJsonContent = json_decode(File::get($composerJsonPath), true);
+                $composerJsonContent['require'][$vendorPackageName] = "^" . ltrim($newVersion, 'v'); // Garante formato ^X.Y.Z
+                File::put($composerJsonPath, json_encode($composerJsonContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+                $this->info('composer.json principal atualizado.');
+
+                // 2. Preparar o ambiente Composer para gerar um composer.lock limpo (para produção)
+                $this->info('2. Desativando temporariamente composer.local.json e limpando caches do Composer...');
+                if (File::exists($composerLocalJsonPath)) {
+                    $this->runShellCommand("mv {$composerLocalJsonPath} {$composerLocalJsonBackupPath}", 'Renomeando composer.local.json');
+                } else {
+                    $this->info('composer.local.json não encontrado, pulando renomeação.');
+                }
+
+                // Remove o composer.lock para garantir uma regeneração limpa na próxima etapa (composer install).
+                if (File::exists($composerLockPath)) {
+                    $this->runShellCommand("rm -f {$composerLockPath}", 'Removendo composer.lock existente');
+                } else {
+                    $this->info('composer.lock não encontrado ou já removido.');
+                }
+
+                $this->runShellCommand('rm -f vendor/composer/autoload_*.php', 'Removendo arquivos de autoloading do Composer');
+                $this->runShellCommand('composer clear-cache', 'Limpando cache interno do Composer');
+
+                // 3. Gerar um novo composer.lock "limpo" para produção (com a nova versão tageada)
+                // IMPORTANTE: Esta é a sequência CORRIGIDA que comprovadamente funciona para o seu caso.
+                $this->info('3. Gerando novo composer.lock para produção com a nova versão (usando sequência de remoção/adição/instalação)...');
+                $this->runShellCommand(
+                    "composer remove {$vendorPackageName} --no-update",
+                    'Removendo temporariamente o módulo do composer.json/lock para forçar a atualização.'
+                );
+                $this->runShellCommand(
+                    "composer require {$vendorPackageName}:\"^" . ltrim($newVersion, 'v') . "\" --no-update",
+                    'Adicionando a nova versão do módulo ao composer.json sem atualizar dependências.'
+                );
+                $this->runShellCommand(
+                    "composer install --no-dev",
+                    'Gerando composer.lock limpo para produção com a nova versão do módulo (usando install).'
+                );
+                // Fim da sequência para a etapa 3.
+
+                // 4. Comitar as alterações do composer.json e composer.lock
+                $this->info('4. Comitando composer.json e composer.lock para o repositório...');
+//                $this->runShellCommand('git add composer.json composer.lock', 'Adicionando arquivos ao Git');
+//                $this->runShellCommand("git commit -m \"feat(release): Update main project to {$vendorPackageName} {$newVersion}\"", 'Criando commit para o projeto principal');
+//                $this->info('composer.json e composer.lock commitados com sucesso no projeto principal.');
+
+                // 5. Instalar as dependências com base no novo composer.lock em produção
+                $this->info('5. Instalando dependências de produção...');
+                $this->runShellCommand('composer install --no-dev', 'Executando composer install para dependências de produção');
+
+                // 6. Limpar os caches da aplicação para que a nova versão seja utilizada
+                $this->info('6. Limpando caches da aplicação e módulos...');
+                $this->runShellCommand('artisan cache:clear', 'Limpando cache geral da aplicação');
+                $this->runShellCommand('artisan config:clear', 'Limpando cache de configuração');
+                $this->runShellCommand('artisan route:clear', 'Limpando cache de rotas');
+                $this->runShellCommand('artisan view:clear', 'Limpando cache de views');
+                $this->runShellCommand('rm -f storage/app/modules.json', 'Limpando cache de módulos Nwidart (v11.1)');
+                $this->runShellCommand('artisan optimize:clear', 'Limpando otimização do Laravel (opcional)');
+
+                // 7. Restaurar o composer.local.json para o ambiente de desenvolvimento
+                $this->info('7. Restaurando composer.local.json para continuar o desenvolvimento...');
+                if (File::exists($composerLocalJsonBackupPath)) {
+                    $this->runShellCommand("mv {$composerLocalJsonBackupPath} {$composerLocalJsonPath}", 'Restaurando composer.local.json');
+                } else {
+                    $this->info('Nenhum composer.local.json de backup encontrado para restaurar.');
+                }
+
+                // 8. Reinstalar dependências para o ambiente de desenvolvimento (religar ModDev)
+                $this->info('8. Reinstalando dependências para o ambiente de desenvolvimento (religando ModDev/)...');
+//                $this->runShellCommand('composer install', 'Executando composer install para desenvolvimento');
+//                $this->runShellCommand('composer dump-autoload -o', 'Otimizando autoloading do Composer');
+
+                // Se chegou até aqui, todas as operações do Composer foram bem-sucedidas. Saia do método.
+                return;
+
+            } catch (ProcessFailedException $e) {
+                $errorOutput = $e->getProcess()->getErrorOutput();
+
+                // Caso 1: Erro de autenticação de repositório privado
+                if (
+                    str_contains($errorOutput, 'Could not authenticate against github.com') ||
+                    str_contains($errorOutput, 'Failed to authenticate package') ||
+                    str_contains($errorOutput, ' Root composer.json requires '.$vendorPackageName.', it could not be found in any version')
+
+                ) {
+                    if ($attempt < $maxComposerAttempts) {
+                        $this->warn("Falha de autenticação detectada para um pacote. Tentando resolver...");
+                        if ($this->confirm("O módulo '{$moduleName}' é um repositório privado no GitHub que precisa ser adicionado ao composer.json?", true)) {
+                            // Certifique-se de que o método addVcsRepositoryToComposerJson está definido na sua classe.
+                            $this->addVcsRepositoryToComposerJson($vendorPackageName);
+                            $this->info("Repositório VSC para '{$vendorPackageName}' adicionado ao composer.json. Retentando as operações do Composer...");
+                            // O loop 'for' continuará automaticamente para a próxima tentativa
+                        } else {
+                            $this->error("Autenticação para pacote privado necessária e não resolvida. Encerrando o processo de release para este módulo.");
+                            throw $e; // Re-lança a exceção se o usuário não quiser adicionar o repositório
+                        }
+                    } else {
+                        $this->error("Máximo de tentativas de autenticação para pacote privado atingido. Encerrando o processo de release para este módulo.");
+                        throw $e; // Re-lança a exceção após exaustão das tentativas
+                    }
+                } else {
+                    // Caso 2: Qualquer outro tipo de ProcessFailedException que não seja de autenticação
+                    $this->error("Ocorreu um erro durante as operações do Composer: " . $e->getMessage());
+                    $this->error("Output: " . $e->getProcess()->getOutput());
+                    $this->error("Error Output: " . $e->getProcess()->getErrorOutput());
+                    // Tentativa de restaurar composer.local.json em caso de falha
+                    if (File::exists($composerLocalJsonBackupPath)) {
+                        $this->warn('Tentando restaurar composer.local.json após erro...');
+                        rename($composerLocalJsonBackupPath, $composerLocalJsonPath);
+                    }
+                    throw $e; // Relança a exceção para indicar falha no comando e sair do loop
+                }
+            }
+        }
+        // Se o loop terminou sem um 'return' (sucesso) ou um 'throw' explícito
+        $this->error("As operações do Composer falharam após várias tentativas ou por um erro não recuperável. Por favor, verifique o erro acima.");
+        throw new \RuntimeException("Falha crítica nas operações do Composer para o módulo '{$moduleName}'.");
+    }
+
+    /**
+     * Adiciona uma entrada de repositório VCS para um pacote privado no composer.json.
+     *
+     * @param string $packageName O nome completo do pacote (ex: 'vendor/modulename-module').
+     */
+    private function addVcsRepositoryToComposerJson(string $packageName): void
+    {
+        $composerJsonPath = base_path('composer.json');
+        $composerJsonContent = json_decode(File::get($composerJsonPath), true);
+
+        // Extrai o vendor e o nome do módulo do packageName
+        list($vendor, $module) = explode('/', $packageName, 2);
+        // Assume o formato do URL do repositório Git no GitHub
+        $repoUrl = "git@github.com:{$vendor}/{$module}.git";
+
+        $newRepository = [
+            'type' => 'vcs',
+            'url' => $repoUrl
+        ];
+
+        // Garante que a seção 'repositories' existe
+        if (!isset($composerJsonContent['repositories'])) {
+            $composerJsonContent['repositories'] = [];
+        }
+
+        // Verifica se o repositório já existe para evitar duplicações
+        $exists = false;
+        foreach ($composerJsonContent['repositories'] as $repo) {
+            if (isset($repo['url']) && $repo['url'] === $repoUrl) {
+                $exists = true;
+                break;
+            }
+        }
+
+        if (!$exists) {
+            $composerJsonContent['repositories'][] = $newRepository;
+            File::put($composerJsonPath, json_encode($composerJsonContent, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+            $this->info("Repositório VSC '{$repoUrl}' adicionado ao composer.json.");
+        } else {
+            $this->warn("Repositório VSC '{$repoUrl}' já existe no composer.json.");
+        }
     }
 
     /**
@@ -396,28 +531,6 @@ class ReleaseModulesCommand extends Command
         throw new \RuntimeException("Módulo '{$moduleName}' não encontrado ou não é um repositório Git válido em ModDev/ nem em nenhum dos caminhos configurados em base.modules.paths.");
     }
 
-    /**
-     * Executa um comando via Sail.
-     *
-     * @param string $command Comando Sail a ser executado (ex: 'artisan cache:clear', 'composer install').
-     * @param string $message Mensagem para exibir ao usuário.
-     * @throws ProcessFailedException Se o comando falhar.
-     */
-    protected function runSailCommand(string $command, string $message): void
-    {
-        $this->line("-> {$message}");
-        $fullCommand = "./vendor/bin/sail {$command}";
-        $process = Process::fromShellCommandline($fullCommand, base_path());
-        $process->setTimeout(3600); // Aumenta timeout para comandos mais longos
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            $this->error("Erro ao executar: {$fullCommand}");
-            $this->error($process->getErrorOutput());
-            throw new ProcessFailedException($process);
-        }
-        $this->line($process->getOutput()); // Exibe a saída do comando
-    }
 
     /**
      * Executa um comando de shell direto (sem Sail).
