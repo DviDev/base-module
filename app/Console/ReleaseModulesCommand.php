@@ -378,9 +378,13 @@ class ReleaseModulesCommand extends Command
                     'Adicionando a nova versão do módulo ao composer.json sem atualizar dependências.'
                 );
                 $this->runShellCommand(
-                    "composer install --no-dev",
+                    "composer install",
                     'Gerando composer.lock limpo para produção com a nova versão do módulo (usando install).'
                 );
+                /*$this->runShellCommand(
+                    "composer install --no-dev",
+                    'Gerando composer.lock limpo para produção com a nova versão do módulo (usando install).'
+                );*/
                 // Fim da sequência para a etapa 3.
 
                 // 4. Comitar as alterações do composer.json e composer.lock
