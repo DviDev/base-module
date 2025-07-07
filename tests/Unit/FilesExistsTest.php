@@ -311,8 +311,7 @@ it('possui todos os arquivos de View', function () {
     ]);
 });
 it('possui arquivos helper', function () {
-    $filename = module_path('base').'/app/helpers.php';
-    dump($filename);
+    $filename = module_path('base').'/app/Helpers/helpers.php';
     expect(file_exists($filename))->toBeTrue();
 });
 it('possui todos os arquivo em migrations', function () {
