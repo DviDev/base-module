@@ -9,7 +9,6 @@ use Modules\Base\Console\DispatchBaseEventsCommand;
 use Modules\Base\Console\DispatchInitialIndependentDataEventCommand;
 use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Console\InstallModulesCommand;
-use Modules\Base\Console\ReleaseModulesCommand;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Livewire\Notification\NotificationList;
 use Modules\Base\Livewire\Notification\NotificationView;
@@ -61,7 +60,6 @@ class BaseNewServiceProvider extends ServiceProvider
         $this->commands(InstallModulesCommand::class);
         $this->commands(DispatchInitialIndependentDataEventCommand::class);
         $this->commands(DispatchBaseEventsCommand::class);
-        $this->commands(ReleaseModulesCommand::class);
     }
 
     /**
