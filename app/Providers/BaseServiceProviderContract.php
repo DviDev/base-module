@@ -14,6 +14,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     public function boot(): void
     {
         $this->registerCommands();
+        $this->configureCommands();
         $this->registerCommandSchedules();
         $this->registerTranslations();
         $this->registerConfig();
@@ -165,5 +166,12 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     protected function langPath(): string
     {
         return module_path($this->getModuleName(), 'lang');
+    }
+
+    private function configureCommands(): void
+    {
+        \DB::prohibitDestructiveCommands(
+            $this->app->isProduction()
+        );
     }
 }
