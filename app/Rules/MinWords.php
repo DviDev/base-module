@@ -19,8 +19,8 @@ class MinWords implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        if (str($value)->explode(' ')->count() >= $this->min) {
-            $fail('O campo '.$attribute.' deve ter o mínimo de '.$value.' palavras');
+        if (str($value)->explode(' ')->count() < $this->min) {
+            $fail('O campo '.$attribute.' deve ter o mínimo de '.$this->min.' palavras');
         }
     }
 }
