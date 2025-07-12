@@ -58,7 +58,7 @@ abstract class BaseMigration extends Migration
             $attributes = $entity->entityAttributes()->with('relationship.secondModelEntity')->orderBy('id')->get()->all();
             foreach ($attributes as $attribute) {
                 if (! array_key_exists($attribute->typeEnum()->name, $map)) {
-                    dd('🤖 Missing '.AttributeTypeEnum::from($attribute->type_id)->name.' class Factory');
+                    throw new \Exception('🤖 Missing '.AttributeTypeEnum::from($attribute->type_id)->name.' class Factory');
                 }
                 $class = $map[$attribute->typeEnum()->name];
                 if (is_subclass_of($class, AttributeFactory::class)) {

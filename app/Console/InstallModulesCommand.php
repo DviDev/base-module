@@ -117,7 +117,7 @@ class InstallModulesCommand extends Command
         exec($command, $output);
         if ($output) {
             $this->error($output);
-            dd($output);
+            throw new \Exception($output);
         }
     }
 

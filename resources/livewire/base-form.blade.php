@@ -75,7 +75,6 @@
                                                         wire:model="model.{{$properties['id']}}"/>
                                 @endif
                                 @if($component_->type->enum() == ViewStructureComponentType::html)
-                                    @dd($component_->type->enum())
                                     <!-- component html -->
                                     <x-lte::form.summernote :attr="$properties"/>
                                 @endif
