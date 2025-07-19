@@ -84,7 +84,7 @@ abstract class BaseRepository
         return new $class;
     }
 
-    public function create(array $data): object|bool
+    public function create(array $data): object
     {
         return $this->modelClass()::query()->create($data);
     }
