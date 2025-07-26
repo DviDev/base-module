@@ -19,6 +19,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
+        $this->registerComponents();
         $this->loadMigrationsFrom(module_path($this->getModuleName(), 'Database/migrations'));
     }
 
@@ -128,8 +129,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         foreach ($this->providers() as $provider) {
             $this->app->register($provider);
         }
-
-        $this->registerComponents();
     }
 
     public function providers(): array
@@ -153,7 +152,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
 
     protected function publishableComponent($name, $class): void
     {
-        Blade::component(class: $class, alias: $name, prefix: $this->getModuleNameLower() . '::');
+        Blade::component(class: $class, alias: $this->getModuleNameLower() . '::'.$name);
 
         [$origin, $destination] = $this->originAndDestination($name);
 
@@ -173,11 +172,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $component = str($name)->explode('.')->join('/');
         $path = "Resources/views/components/$component.blade.php";
         $moduleName = $this->getModuleName();
-        try {
-            $origin = module_path($moduleName, $path);
-        } catch (\Exception $e) {
-            dd($moduleName, $path, $e->getMessage());
-        }
+        $origin = module_path($moduleName, $path);
         $destination = resource_path("views/{$this->getModuleNameLower()}/components/$component.blade.php");
 
         return [$origin, $destination];
