@@ -3,6 +3,7 @@
 namespace Modules\Base\View\Components\Page\Notification;
 
 use Illuminate\View\View;
+use Modules\DvUi\Enums\DvuiComponentAlias;
 use Modules\DvUi\View\BaseBladeComponent;
 
 class NotificationViewPage extends BaseBladeComponent
@@ -17,5 +18,10 @@ class NotificationViewPage extends BaseBladeComponent
         }
 
         return view('base::components.page.notification.notification-view-page');
+    }
+
+    public function componentAlias(): DvuiComponentAlias
+    {
+        return DvuiComponentAlias::NotificationViewPage;
     }
 }

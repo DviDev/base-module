@@ -19,6 +19,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
+        $this->registerComponents();
         $this->loadMigrationsFrom(module_path($this->getModuleName(), 'Database/migrations'));
     }
 
@@ -92,17 +93,20 @@ abstract class BaseServiceProviderContract extends ServiceProvider
 
         $this->publishes([$sourcePath => $viewPath], ['views', $this->getModuleNameLower() . '-module-views']);
 
+        $path = array_merge(
+            // Primeiro tenta carregar as views publicadas
+            [$viewPath],
+            // Depois tenta carregar as views do módulo
+            [$sourcePath],
+        );
         $this->loadViewsFrom(
-            array_merge(
-                [$viewPath],      // Primeiro tenta carregar as views publicadas
-                [$sourcePath]     // Depois tenta carregar as views do módulo
-            ),
+            $path,
             $this->getModuleNameLower()
         );
 
-        Blade::componentNamespace(config('modules.namespace').'\\' . $this->getModuleName() . '\\View\\Components', $this->getModuleNameLower());
+        Blade::componentNamespace(config('modules.namespace') . '\\' . $this->getModuleName() . '\\View\\Components', $this->getModuleNameLower());
 
-        $this->registerComponents();
+
     }
 
     protected function registerComponents(): void
@@ -148,7 +152,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
 
     protected function publishableComponent($name, $class): void
     {
-        Blade::component(class: $class, alias: $name, prefix: $this->getModuleNameLower() . '::');
+        Blade::component(class: $class, alias: $this->getModuleNameLower() . '::'.$name);
 
         [$origin, $destination] = $this->originAndDestination($name);
 
@@ -166,7 +170,9 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     protected function originAndDestination($name): array
     {
         $component = str($name)->explode('.')->join('/');
-        $origin = module_path($this->getModuleName(), "Resources/views/components/$component.blade.php");
+        $path = "Resources/views/components/$component.blade.php";
+        $moduleName = $this->getModuleName();
+        $origin = module_path($moduleName, $path);
         $destination = resource_path("views/{$this->getModuleNameLower()}/components/$component.blade.php");
 
         return [$origin, $destination];
