@@ -92,17 +92,20 @@ abstract class BaseServiceProviderContract extends ServiceProvider
 
         $this->publishes([$sourcePath => $viewPath], ['views', $this->getModuleNameLower() . '-module-views']);
 
+        $path = array_merge(
+            // Primeiro tenta carregar as views publicadas
+            [$viewPath],
+            // Depois tenta carregar as views do módulo
+            [$sourcePath],
+        );
         $this->loadViewsFrom(
-            array_merge(
-                [$viewPath],      // Primeiro tenta carregar as views publicadas
-                [$sourcePath]     // Depois tenta carregar as views do módulo
-            ),
+            $path,
             $this->getModuleNameLower()
         );
 
-        Blade::componentNamespace(config('modules.namespace').'\\' . $this->getModuleName() . '\\View\\Components', $this->getModuleNameLower());
+        Blade::componentNamespace(config('modules.namespace') . '\\' . $this->getModuleName() . '\\View\\Components', $this->getModuleNameLower());
 
-        $this->registerComponents();
+
     }
 
     protected function registerComponents(): void
@@ -125,6 +128,8 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         foreach ($this->providers() as $provider) {
             $this->app->register($provider);
         }
+
+        $this->registerComponents();
     }
 
     public function providers(): array
@@ -166,7 +171,13 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     protected function originAndDestination($name): array
     {
         $component = str($name)->explode('.')->join('/');
-        $origin = module_path($this->getModuleName(), "Resources/views/components/$component.blade.php");
+        $path = "Resources/views/components/$component.blade.php";
+        $moduleName = $this->getModuleName();
+        try {
+            $origin = module_path($moduleName, $path);
+        } catch (\Exception $e) {
+            dd($moduleName, $path, $e->getMessage());
+        }
         $destination = resource_path("views/{$this->getModuleNameLower()}/components/$component.blade.php");
 
         return [$origin, $destination];
