@@ -8,6 +8,8 @@ use Modules\Flowbite\Providers\RouteServiceProvider;
 
 abstract class BaseServiceProviderContract extends ServiceProvider
 {
+    use PublishableComponents;
+
     /**
      * Boot the application events.
      */
@@ -65,14 +67,10 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         }
     }
 
-    abstract public function getModuleNameLower(): string;
-
     protected function langPath(): string
     {
         return module_path($this->getModuleName(), 'lang');
     }
-
-    abstract public function getModuleName(): string;
 
     /**
      * Register config.
@@ -105,8 +103,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         );
 
         Blade::componentNamespace(config('modules.namespace') . '\\' . $this->getModuleName() . '\\View\\Components', $this->getModuleNameLower());
-
-
     }
 
     protected function registerComponents(): void
@@ -148,33 +144,5 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         }
 
         return $paths;
-    }
-
-    protected function publishableComponent($name, $class): void
-    {
-        Blade::component(class: $class, alias: $this->getModuleNameLower() . '::'.$name);
-
-        [$origin, $destination] = $this->originAndDestination($name);
-
-        $this->publishes(
-            [$origin => $destination],
-            [
-                'views',
-                'publishable-components',
-                $this->getModuleNameLower() . '-publishable-components',
-                $this->getModuleNameLower() . '-component-' . $name,
-            ]
-        );
-    }
-
-    protected function originAndDestination($name): array
-    {
-        $component = str($name)->explode('.')->join('/');
-        $path = "Resources/views/components/$component.blade.php";
-        $moduleName = $this->getModuleName();
-        $origin = module_path($moduleName, $path);
-        $destination = resource_path("views/{$this->getModuleNameLower()}/components/$component.blade.php");
-
-        return [$origin, $destination];
     }
 }
