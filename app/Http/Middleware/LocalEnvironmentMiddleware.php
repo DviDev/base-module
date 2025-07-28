@@ -3,8 +3,8 @@
 namespace Modules\Base\Http\Middleware;
 
 use Closure;
-use http\Client\Response;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class LocalEnvironmentMiddleware
 {
