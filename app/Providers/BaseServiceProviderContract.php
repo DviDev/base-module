@@ -109,7 +109,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
 
         Blade::componentNamespace(config('modules.namespace') . '\\' . $this->getModuleName() . '\\View\\Components', $this->getModuleNameLower());
 
-
     }
 
     protected function registerComponents(): void
