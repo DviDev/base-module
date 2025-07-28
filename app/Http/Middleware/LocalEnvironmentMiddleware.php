@@ -8,9 +8,6 @@ use Illuminate\Http\Response;
 
 class LocalEnvironmentMiddleware
 {
-    /**
-     * Handle an incoming request.
-     */
     public function handle(Request $request, Closure $next): Response
     {
         if (! app()->isLocal()) {
