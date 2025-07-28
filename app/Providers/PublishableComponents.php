@@ -1,6 +1,6 @@
 <?php
 
-namespace Base\Providers;
+namespace Modules\Base\Providers;
 
 use Illuminate\Support\Facades\Blade;
 
@@ -22,4 +22,20 @@ trait PublishableComponents
             ]
         );
     }
+
+    protected function originAndDestination($name): array
+    {
+        $component = str($name)->explode('.')->join('/');
+        $path = "Resources/views/components/$component.blade.php";
+        $moduleName = $this->getModuleName();
+        $origin = module_path($moduleName, $path);
+        $destination = resource_path("views/{$this->getModuleNameLower()}/components/$component.blade.php");
+
+        return [$origin, $destination];
+    }
+
+    abstract public function getModuleName(): string;
+
+    abstract public function getModuleNameLower(): string;
+
 }

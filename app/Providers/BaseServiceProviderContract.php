@@ -2,7 +2,6 @@
 
 namespace Modules\Base\Providers;
 
-use Base\Providers\PublishableComponents;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Modules\Flowbite\Providers\RouteServiceProvider;
@@ -68,14 +67,10 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         }
     }
 
-    abstract public function getModuleNameLower(): string;
-
     protected function langPath(): string
     {
         return module_path($this->getModuleName(), 'lang');
     }
-
-    abstract public function getModuleName(): string;
 
     /**
      * Register config.
@@ -108,7 +103,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         );
 
         Blade::componentNamespace(config('modules.namespace') . '\\' . $this->getModuleName() . '\\View\\Components', $this->getModuleNameLower());
-
     }
 
     protected function registerComponents(): void
@@ -150,16 +144,5 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         }
 
         return $paths;
-    }
-
-    protected function originAndDestination($name): array
-    {
-        $component = str($name)->explode('.')->join('/');
-        $path = "Resources/views/components/$component.blade.php";
-        $moduleName = $this->getModuleName();
-        $origin = module_path($moduleName, $path);
-        $destination = resource_path("views/{$this->getModuleNameLower()}/components/$component.blade.php");
-
-        return [$origin, $destination];
     }
 }
