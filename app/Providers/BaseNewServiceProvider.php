@@ -10,6 +10,7 @@ use Modules\Base\Console\DispatchInitialIndependentDataEventCommand;
 use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Console\InstallModulesCommand;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
+use Modules\Base\Livewire\Config\ConfigList;
 use Modules\Base\Livewire\Notification\NotificationList;
 use Modules\Base\Livewire\Notification\NotificationView;
 use Nwidart\Modules\Traits\PathNamespace;
@@ -46,6 +47,7 @@ class BaseNewServiceProvider extends ServiceProvider
     {
         $this->app->register(EventServiceProvider::class);
         $this->app->register(RouteServiceProvider::class);
+        $this->app->register(BaseEventServiceProvider::class);
 
         $this->registerGlobalWebMiddlewares();
     }
@@ -184,5 +186,7 @@ class BaseNewServiceProvider extends ServiceProvider
     {
         Livewire::component('base::notification.notification-list', NotificationList::class);
         Livewire::component('base::notification.notification-view', NotificationView::class);
+
+        Livewire::component('base::config.config-list', ConfigList::class);
     }
 }
