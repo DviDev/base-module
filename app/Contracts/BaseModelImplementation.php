@@ -5,7 +5,6 @@ namespace Modules\Base\Contracts;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Entities\BaseEntityModel;
-use Modules\Base\Models\BaseModel;
 
 /**
  * @extends BaseModel

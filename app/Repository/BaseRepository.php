@@ -5,8 +5,8 @@ namespace Modules\Base\Repository;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\BaseEntityModel;
-use Modules\Base\Models\BaseModel;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
 

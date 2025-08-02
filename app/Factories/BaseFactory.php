@@ -15,8 +15,9 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
 use Mockery\Exception;
+use Modules\Base\Contracts\BaseModel;
+use Modules\Base\Contracts\BaseModelInterface;
 use Modules\Base\Entities\BaseEntityModel;
-use Modules\Base\Models\BaseModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\Person\Models\UserTypeModel;
 use Modules\View\Domains\ViewStructureComponentType;
@@ -159,24 +160,28 @@ abstract class BaseFactory extends Factory
 
     protected function getValues($fixed_values = []): array
     {
-        /** @var BaseModel $model */
-        $model = $this->model;
-        $entity = (new $model)->modelEntity()::props();
+        try {
+            /** @var BaseModel $model */
+            $model = $this->model;
+            $entity = (new $model)->modelEntity()::props();
 
-        $columns = $this->getFkColumns($entity, $model, $fixed_values);
+            $columns = $this->getFkColumns($entity, $model, $fixed_values);
 
-        $another_columns = $this->defineValuesForOptionalFields($columns, $fixed_values);
+            $another_columns = $this->defineValuesForOptionalFields($columns, $fixed_values);
 
-        $merge = array_merge($columns, $another_columns);
-        $columns = [];
-        foreach ($merge as $key => $item) {
-            if (! collect($item)->keys()->contains('value')) {
-                continue;
+            $merge = array_merge($columns, $another_columns);
+            $columns = [];
+            foreach ($merge as $key => $item) {
+                if (! collect($item)->keys()->contains('value')) {
+                    continue;
+                }
+                $columns[$key] = $item['value'];
             }
-            $columns[$key] = $item['value'];
-        }
 
-        return $columns;
+            return $columns;
+        } catch (Exception $e) {
+            throw new Exception('Entity: '.$entity->table().' - '.$e->getMessage());
+        }
     }
 
     protected function getFkColumns(BaseEntityModel $entity, BaseModel|string $model, $fixed_values): array
@@ -285,18 +290,31 @@ abstract class BaseFactory extends Factory
             /** @var \Nwidart\Modules\Laravel\Module $module */
             foreach ($modules as $module) {
                 if ($module->getName() == 'Base') {
-                    continue;
+//                    continue;
                 }
-                $module_model_path = 'Modules/'.$module->getName().'/Models';
-                if (! is_dir(module_path($module->getName(), 'Models'))) {
-                    continue;
+                $module_package_name = $module->json('composer.json')->get('name');
+                $module_package_name = str($module_package_name)->explode('/')->pop();
+                $module_package_name = ucfirst(str($module_package_name)->explode('-')->shift());
+                $module_model_path = 'Modules/'. $module_package_name .'/app/Models';
+                if (! is_dir(module_path($module->getName(), 'app/Models'))) {
+                    if (! is_dir(module_path($module->getName(), 'Models'))) {
+                        continue;
+                    }
                 }
-                $files = \File::files(module_path($module->getName(), 'Models'));
+                $files = \File::files(module_path($module->getName(), 'app/Models'));
                 foreach ($files as $file) {
                     /** @var BaseModel $model */
-                    $model = str($module_model_path.'/'.$file->getFilenameWithoutExtension())->replace('/', '\\')->value();
-                    $reflectionClass = new \ReflectionClass($model);
-                    if ($reflectionClass->isSubclassOf(BaseModel::class)) {
+                    $model = 'Modules/'.$module->getName(). '/Models/' . $file->getFilenameWithoutExtension();
+                    $model = str($model)->replace('/', '\\')->value();
+//                    $model = str($model)->replace('\app', '')->value();
+                    try {
+//                        $reflectionClass = new \ReflectionClass($model);
+                        $interfaces = class_implements($model);
+                    } catch (\Exception $e) {
+                        throw new \Exception($e->getMessage());
+                    }
+//                    if ($reflectionClass->isSubclassOf(BaseModel::class)) {
+                    if (in_array(BaseModelInterface::class, $interfaces)) {
                         $table_model[$model::table()] = $model;
                     }
                 }

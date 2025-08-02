@@ -4,8 +4,8 @@ namespace Modules\Base\Services\Tests;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
+use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\BaseEntityModel;
-use Modules\Base\Models\BaseModel;
 use Tests\TestCase;
 
 abstract class BaseTest extends TestCase

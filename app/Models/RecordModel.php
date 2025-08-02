@@ -4,6 +4,7 @@ namespace Modules\Base\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Entities\Record\RecordEntityModel;
 use Modules\Base\Entities\Record\RecordProps;
