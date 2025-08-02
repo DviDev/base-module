@@ -10,7 +10,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 use Livewire\Component;
-use Modules\Base\Models\BaseModel;
+use Modules\Base\Contracts\BaseModel;
 use Modules\DBMap\Commands\DviRequestMakeCommand;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\DBMap\Models\ModuleTableModel;

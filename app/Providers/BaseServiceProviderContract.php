@@ -22,7 +22,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $this->registerConfig();
         $this->registerViews();
         $this->registerComponents();
-        $this->loadMigrationsFrom(module_path($this->getModuleName(), 'Database/migrations'));
+        $this->loadMigrationsFrom(module_path($this->getModuleName(), 'database/migrations'));
     }
 
     /**
@@ -87,7 +87,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     public function registerViews(): void
     {
         $viewPath = resource_path('views/' . $this->getModuleNameLower());
-        $sourcePath = module_path($this->getModuleName(), 'Resources/views');
+        $sourcePath = module_path($this->getModuleName(), 'resources/views');
 
         $this->publishes([$sourcePath => $viewPath], ['views', $this->getModuleNameLower() . '-module-views']);
 

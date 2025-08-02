@@ -3,6 +3,7 @@
 namespace Modules\Base\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\RecordType\RecordTypeEntityModel;
 use Modules\Base\Entities\RecordType\RecordTypeProps;
 use Modules\Base\Factories\BaseFactory;

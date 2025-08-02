@@ -2,8 +2,8 @@
 
 namespace Modules\Base\Entities;
 
+use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\EntityModelInterface;
-use Modules\Base\Models\BaseModel;
 use Modules\Base\Repository\BaseRepository;
 use Modules\Base\Services\Errors\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;

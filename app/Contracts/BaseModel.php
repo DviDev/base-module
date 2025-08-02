@@ -1,11 +1,9 @@
 <?php
 
-namespace Modules\Base\Models;
+namespace Modules\Base\Contracts;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Base\Contracts\BaseModelImplementation;
-use Modules\Base\Contracts\BaseModelInterface;
 use Modules\Base\Entities\BaseEntityModel;
 
 /**
