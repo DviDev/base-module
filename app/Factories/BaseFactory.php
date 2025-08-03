@@ -289,13 +289,6 @@ abstract class BaseFactory extends Factory
             $table_model = [];
             /** @var \Nwidart\Modules\Laravel\Module $module */
             foreach ($modules as $module) {
-                if ($module->getName() == 'Base') {
-//                    continue;
-                }
-                $module_package_name = $module->json('composer.json')->get('name');
-                $module_package_name = str($module_package_name)->explode('/')->pop();
-                $module_package_name = ucfirst(str($module_package_name)->explode('-')->shift());
-                $module_model_path = 'Modules/'. $module_package_name .'/app/Models';
                 if (! is_dir(module_path($module->getName(), 'app/Models'))) {
                     if (! is_dir(module_path($module->getName(), 'Models'))) {
                         continue;
@@ -306,15 +299,8 @@ abstract class BaseFactory extends Factory
                     /** @var BaseModel $model */
                     $model = 'Modules/'.$module->getName(). '/Models/' . $file->getFilenameWithoutExtension();
                     $model = str($model)->replace('/', '\\')->value();
-//                    $model = str($model)->replace('\app', '')->value();
-                    try {
-//                        $reflectionClass = new \ReflectionClass($model);
-                        $interfaces = class_implements($model);
-                    } catch (\Exception $e) {
-                        throw new \Exception($e->getMessage());
-                    }
-//                    if ($reflectionClass->isSubclassOf(BaseModel::class)) {
-                    if (in_array(BaseModelInterface::class, $interfaces)) {
+
+                    if (in_array(BaseModelInterface::class, class_implements($model))) {
                         $table_model[$model::table()] = $model;
                     }
                 }
