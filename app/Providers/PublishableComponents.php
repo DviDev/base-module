@@ -37,5 +37,4 @@ trait PublishableComponents
     abstract public function getModuleName(): string;
 
     abstract public function getModuleNameLower(): string;
-
 }
