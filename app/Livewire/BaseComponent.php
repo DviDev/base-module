@@ -58,7 +58,7 @@ abstract class BaseComponent extends Component
 
     protected function transformValues($fn): void
     {
-        $attributes = $this->page->firstActiveFormStructure()
+        $attributes = $this->getStructure()
             ->elements()->whereNotNull('attribute_id')
             ->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
             ->whereHas('attribute', function (Builder $query) {
@@ -219,7 +219,7 @@ abstract class BaseComponent extends Component
 
     public function updateStructureCache(): void
     {
-        $structure = $this->page->firstActiveFormStructure();
+        $structure = $this->getStructure();
 
         cache()->delete($this->elementsCacheKey($structure));
         Toastr::instance($this)->success(__('view::element.The cache was updated'));
@@ -325,4 +325,9 @@ abstract class BaseComponent extends Component
             ->where($page->route, 'like', '%.form')
             ->first();
     }
+
+    abstract public function getStructure(): ?ViewPageStructureModel;
+
+    abstract public function getExceptItems(): array;
+
 }
