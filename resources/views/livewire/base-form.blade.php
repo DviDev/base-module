@@ -1,6 +1,9 @@
-@php
-    use Modules\Base\Entities\Actions\Actions;use Modules\Base\Entities\Actions\Builder;use Modules\Person\Entities\User\UserType;use Modules\Project\Models\ProjectActionModel;use Modules\Project\Models\ProjectModuleEntityDBModel;use Modules\View\Domains\ViewStructureComponentType;
-@endphp
+@use(Modules\Base\Entities\Actions\Actions)
+@use(Modules\Base\Entities\Actions\Builder)
+@use(Modules\Person\Entities\User\UserType)
+@use(Modules\Project\Models\ProjectActionModel)
+@use(Modules\Project\Models\ProjectModuleEntityDBModel)
+@use(Modules\View\Domains\ViewStructureComponentType)
 <div>
     @php
         /**@var \Modules\View\Models\ElementModel $element*/
@@ -69,7 +72,6 @@
                     <x-lte::card.body>
                         @foreach($element->allChildren as $child)
                             <x-view::elements :child="$child" :model="$model"/>
-                            {{--<livewire:view::form.elements :child="$child" :model="$model" wire:key="{{$child->id}}"/>--}}
                         @endforeach
                     </x-lte::card.body>
                     @php
