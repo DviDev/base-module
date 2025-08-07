@@ -12,7 +12,7 @@ class BaseForm extends BaseComponent
         return view('base::livewire.base-form');
     }
 
-    public function getStructure(): ?ViewPageStructureModel
+    public function getStructure(): ViewPageStructureModel
     {
         return $this->page->firstActiveFormStructure();
     }

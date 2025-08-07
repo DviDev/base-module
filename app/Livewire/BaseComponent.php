@@ -326,7 +326,7 @@ abstract class BaseComponent extends Component
             ->first();
     }
 
-    abstract public function getStructure(): ?ViewPageStructureModel;
+    abstract public function getStructure(): ViewPageStructureModel;
 
     abstract public function getExceptItems(): array;
 
