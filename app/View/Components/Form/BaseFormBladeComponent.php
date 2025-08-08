@@ -16,10 +16,10 @@ abstract class BaseFormBladeComponent extends Component
         public ?string $id = null,
         public ?string $placeholder = null,
         public ?array $attr = null,
-        public bool $validate = false,
-        public bool $required = false,
-    ) {
-        //
+        public bool   $validate = false,
+        public bool   $required = false,
+    )
+    {
     }
 
     public static function prepare(ComponentAttributeBag $attributes): void
@@ -27,15 +27,15 @@ abstract class BaseFormBladeComponent extends Component
         $attrs = $attributes->get('attr');
 
         $items = collect($attrs)->merge($attributes->getAttributes())->filter()->forget('attr');
-        if (! $items->has('id')) {
-            $items->put('id', 'comp_'.now()->timestamp.\Str::random(5));
+        if (!$items->has('id')) {
+            $items->put('id', 'comp_' . now()->timestamp . \Str::random(5));
         }
         $array = $items->all();
         if (isset($array['name'])) {
-            $array['name'] = trans($array['name']);
+            $array['name'] = __($array['name']);
         }
         if (isset($array['placeholder'])) {
-            $array['placeholder'] = trans($array['placeholder']);
+            $array['placeholder'] = __($array['placeholder']);
         }
         if (isset($array['label'])) {
             $array['label'] = ucfirst(trans(strtolower($array['label'])));
