@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Modules\Base\Contracts\BaseModel;
 use Modules\DBMap\Commands\DviRequestMakeCommand;
@@ -26,8 +27,9 @@ use Modules\View\Models\ViewPageStructureModel;
 abstract class BaseComponent extends Component
 {
     public $redirect_after_save = true;
-
-    public ?BaseModel $model;
+    #[Locked]
+    public $modelObject;
+    public $model;
 
     public array $values = [];
 
@@ -39,6 +41,8 @@ abstract class BaseComponent extends Component
 
     public function mount(): void
     {
+        $this->modelObject = $this->model;
+        $this->model = $this->model->attributesToArray();
         $this->setPage();
         if (! $this->page) {
             return;
@@ -46,8 +50,8 @@ abstract class BaseComponent extends Component
         $fn = fn ($value) => toBRL($value);
         $this->transformValues($fn);
         $this->values['dates'] = [];
-        foreach ($this->model->attributesToArray() as $attribute => $value) {
-            $prop = $this->model->{$attribute};
+        foreach ($this->model as $attribute => $value) {
+            $prop = $this->model[$attribute];
             if (is_a($prop, Carbon::class)) {
                 /** @var Carbon $value */
                 $value = $prop;
@@ -66,10 +70,10 @@ abstract class BaseComponent extends Component
             })
             ->pluck('attribute.name')->all();
         foreach ($attributes as $attribute) {
-            if (empty($this->model->{$attribute})) {
+            if (empty($this->model[$attribute])) {
                 continue;
             }
-            $this->model->{$attribute} = $fn($this->model->{$attribute});
+            $this->model[$attribute] = $fn($this->model[$attribute]);
         }
     }
 
@@ -80,28 +84,17 @@ abstract class BaseComponent extends Component
 
             return [];
         }
-        /** @var ViewPageStructureModel $firstActiveFormStructure */
-        $firstActiveFormStructure = $this->page?->firstActiveFormStructure();
-        $cache_key = $this->elementsCacheKey($firstActiveFormStructure);
+        /** @var ViewPageStructureModel $structure */
+        $structure = $this->getStructure();
+        $cache_key = $this->elementsCacheKey($structure);
 
-        return cache()->rememberForever($cache_key, function () use ($firstActiveFormStructure) {
-            $elements_ = $firstActiveFormStructure->elements()
+        return cache()->rememberForever($cache_key, function () use ($structure) {
+            return $structure->elements()
+                ->whereNull('parent_id')
                 ->with(['attribute'])
                 ->with('allChildren.attribute')
                 ->with('properties')
-                ->get()->filter(function (ElementModel $e) {
-                    return empty($e->attribute) || ! in_array($e->attribute->name, ['id', 'created_at', 'updated_at', 'deleted_at']);
-                });
-            $children = collect($elements_);
-            foreach ($elements_ as $element) {
-                $element->allChildren->filter(function (ElementModel $e) {
-                    return ! $e->attribute || ! in_array($e->attribute?->name, [
-                        'id', 'created_at', 'updated_at', 'deleted_at',
-                    ]);
-                })->each(fn ($item) => $children->push($item));
-            }
-
-            return $children;
+                ->get();
         });
     }
 
@@ -112,13 +105,11 @@ abstract class BaseComponent extends Component
 
     public function getRules()
     {
-        $cache_key = 'model-'.$this->model->id.'-'.auth()->user()->id;
-        $ttl = now()->addMinutes(30);
-        $rules = cache()->remember($cache_key, $ttl, function () {
-            return (new DviRequestMakeCommand)->getRules($this->model->getTable(), 'save', $this->model);
+        $cache_key = 'model-' . $this->model['id'] . '-' . auth()->user()->id;
+        $ttl = now()->addHours(3);
+        return cache()->remember($cache_key, $ttl, function () {
+            return (new DviRequestMakeCommand)->getRules($this->modelObject->getTable(), 'save', $this->model);
         });
-
-        return $rules;
     }
 
     public function save(): void
@@ -128,21 +119,23 @@ abstract class BaseComponent extends Component
             $this->transformValues($fn);
             $this->validate();
             foreach ($this->values['dates'] as $property => $values) {
-                $this->model->{$property} = $values['date'].' '.$values['time'];
+                $this->model[$property] = $values['date'] . ' ' . $values['time'];
             }
-            foreach ($this->model->attributesToArray() as $property => $values) {
+            $properties = $this->model;
+            foreach ($properties as $property => $values) {
                 $trim = trim($values);
-                $this->model->{$property} = empty($trim) ? null : $trim;
+                $this->model[$property] = empty($trim) ? null : $trim;
             }
-            $this->model->save();
-            if ($this->model->wasRecentlyCreated) {
+            $this->modelObject->fill($this->model);
+            $this->modelObject->save();
+            if ($this->modelObject->wasRecentlyCreated) {
                 session()->flash('success', str(__('the data has been saved'))->ucfirst());
                 session()->flash('only_toastr');
 
                 if (! $this->redirect_after_save) {
                     return;
                 }
-                $route = route($this->page->route, $this->model->id);
+                $route = route($this->page->route, $this->model['id']);
                 $this->redirect($route, navigate: true);
 
                 return;
@@ -234,7 +227,7 @@ abstract class BaseComponent extends Component
     public function delete(): void
     {
         try {
-            $this->model->delete();
+            $this->modelObject->delete();
             Toastr::instance($this)->success('Item removido');
             $this->redirect('/');
         } catch (Exception $exception) {
@@ -321,7 +314,7 @@ abstract class BaseComponent extends Component
             ->select($page->table_alias.'.*')
             ->from($page->table())
             ->join($entity->table(), $entity->id, $page->entity_id)
-            ->where($entity->name, $this->model->getTable())
+            ->where($entity->name, $this->modelObject->getTable())
             ->where($page->route, 'like', '%.form')
             ->first();
     }
