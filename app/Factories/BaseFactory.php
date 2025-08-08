@@ -526,7 +526,7 @@ abstract class BaseFactory extends Factory
             ViewStructureComponentType::datetime => now()->toDateTimeLocalString(),
             ViewStructureComponentType::date => now()->toDateString(),
             ViewStructureComponentType::time => now()->toTimeString(),
-            ViewStructureComponentType::text_multiline => $value_default ?? fake()->text($length),
+            ViewStructureComponentType::text_multiline => $value_default ?? fake()->text($length < 5 ? 10 : $length),
             ViewStructureComponentType::text => $value_default ?? self::getFakeValue($key, $length),
             ViewStructureComponentType::html => $value_default ?? fake()->sentences(20, true),
             ViewStructureComponentType::checkbox_unique => $value_default ?? fake()->boolean(),
