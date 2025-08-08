@@ -91,7 +91,7 @@ abstract class BaseComponent extends Component
         return cache()->rememberForever($cache_key, function () use ($structure) {
             return $structure->elements()
                 ->whereNull('parent_id')
-                ->with(['attribute'])
+                ->with('attribute')
                 ->with('allChildren.attribute')
                 ->with('properties')
                 ->get();
