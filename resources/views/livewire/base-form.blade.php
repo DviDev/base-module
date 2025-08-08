@@ -34,7 +34,7 @@
                                             "border-l-0" => auth()->user()->type->enum() == UserType::DEVELOPER,
                                             "rounded-l" => !auth()->user()->type->enum() == UserType::DEVELOPER,
                                              "text-blue-500 hover:text-blue-700 px-2 py-1 cursor-pointer",
-                                            "flex space-x-2", "rounded-r" => !$model->id,
+                                            "flex space-x-2", "rounded-r" => !$model['id'],
                                         ])
                                         wire:click="updateStructureCache"
                                         title="{{ucfirst(__('base::cache.update cache'))}}">
@@ -53,13 +53,13 @@
                                             "border-l-0" => auth()->user()->type->enum() == UserType::DEVELOPER,
                                             "rounded-l" => !auth()->user()->type->enum() == UserType::DEVELOPER,
                                              "text-blue-500 hover:text-blue-700 px-2 py-1 cursor-pointer",
-                                            "flex space-x-2", "rounded-r" => !$model->id,
+                                            "flex space-x-2", "rounded-r" => !$model['id'],
                                         ]) wire:click="updateComponent" title="{{__('base::page.update page')}}">
                                         <i class="fas fa-sync my-auto" wire:loading.class="animate-spin"
                                            wire:target="updateComponent"></i>
                                         <span class="my-auto">refresh</span>
                                     </div>
-                                    @if($model->id)
+                                        @if($model['id'])
                                         <a href="{{route($page->route)}}" wire:navigate title="{{__('new')}}"
                                             @class(["bg-gray-100 hover:bg-blue-600 hover:text-white border border-l-0 border-gray-200 hover:border-blue-600 rounded-r px-2 py-1"])>
                                             <x-dvui::icon.plus/>
