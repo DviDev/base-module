@@ -21,7 +21,7 @@ class DispatchBaseEventsCommand extends Command
     public function handle(): void
     {
         \Event::dispatch(new ScanTableEvent);
-        \Event::dispatch(new DatabaseSeederEvent());
+        \Event::dispatch(new DatabaseSeederEvent);
         \Event::dispatch(new SeederFinishedEvent);
     }
 }

@@ -204,7 +204,13 @@ abstract class BaseFactory extends Factory
             $foreignTableName = $fk['foreign_table'];
             /** @var BaseModel $fk_model_class */
             $fk_model_class = $table_models[$foreignTableName];
-            $has_for = $this->for->count() && is_a($this->for->first()->factory, $fk_model_class);
+            $has_for = false;
+            $this->for->each(function ($i) use (&$has_for, $fk_model_class, &$columns, $column) {
+                if (is_a($i->factory, $fk_model_class)) {
+                    $has_for = true;
+                    $columns[$column]['value'] = $i->factory->id;
+                }
+            });
             if ($has_for) {
                 continue;
             }
@@ -297,7 +303,7 @@ abstract class BaseFactory extends Factory
                 $files = \File::files(module_path($module->getName(), 'app/Models'));
                 foreach ($files as $file) {
                     /** @var BaseModel $model */
-                    $model = 'Modules/'.$module->getName(). '/Models/' . $file->getFilenameWithoutExtension();
+                    $model = 'Modules/' . $module->getName() . '/Models/' . $file->getFilenameWithoutExtension();
                     $model = str($model)->replace('/', '\\')->value();
 
                     if (in_array(BaseModelInterface::class, class_implements($model))) {
@@ -520,7 +526,7 @@ abstract class BaseFactory extends Factory
             ViewStructureComponentType::datetime => now()->toDateTimeLocalString(),
             ViewStructureComponentType::date => now()->toDateString(),
             ViewStructureComponentType::time => now()->toTimeString(),
-            ViewStructureComponentType::text_multiline => $value_default ?? fake()->sentences(asText: true),
+            ViewStructureComponentType::text_multiline => $value_default ?? fake()->text($length < 5 ? 10 : $length),
             ViewStructureComponentType::text => $value_default ?? self::getFakeValue($key, $length),
             ViewStructureComponentType::html => $value_default ?? fake()->sentences(20, true),
             ViewStructureComponentType::checkbox_unique => $value_default ?? fake()->boolean(),
