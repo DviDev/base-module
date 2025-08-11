@@ -3,12 +3,12 @@
 namespace Modules\Base\Listeners;
 
 use Modules\Base\Entities\Actions\Actions;
+use Modules\Permission\Models\PermissionActionModel;
 use Modules\Person\Entities\User\UserType;
 use Modules\Project\Entities\MenuItem\MenuItemEntityModel;
 use Modules\Project\Events\CreateMenuItemsEvent;
 use Modules\Project\Listeners\CreateMenuItemsListenerContract;
 use Modules\Project\Models\MenuModel;
-use Modules\Project\Models\ProjectActionModel;
 use Modules\Project\Models\ProjectModuleModel;
 
 class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
@@ -50,9 +50,9 @@ class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
         return 'Base';
     }
 
-    protected function getActionConfig(): ProjectActionModel
+    protected function getActionConfig(): PermissionActionModel
     {
-        $action = ProjectActionModel::create(['name' => Actions::view->name, 'title' => trans(Actions::view->name)]);
+        $action = PermissionActionModel::create(['name' => Actions::view->name, 'title' => trans(Actions::view->name)]);
         $action->firstOrCreateGroup()
             ->createCondition(UserType::DEVELOPER)
             ->createCondition(UserType::SUPER_ADMIN)
