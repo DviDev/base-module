@@ -1,7 +1,7 @@
 @use(Modules\Base\Entities\Actions\Actions)
 @use(Modules\Base\Entities\Actions\Builder)
 @use(Modules\Person\Entities\User\UserType)
-@use(Modules\Project\Models\ProjectActionModel)
+@use(Modules\Permission\Models\PermissionActionModel)
 @use(Modules\Project\Models\ProjectModuleEntityDBModel)
 @use(Modules\View\Domains\ViewStructureComponentType)
 <div>
@@ -77,7 +77,7 @@
                     @php
                         /**@var ProjectModuleEntityDBModel $entity*/
                         $entity = $element->structure()->with('page.entity')->first()->page->entity;
-                        /**@var ProjectActionModel $save*/
+                        /**@var PermissionActionModel $save*/
 
                         $save = $entity->actions()->firstWhere('name', 'save');
                         $delete = $entity->actions()->firstWhere('name', 'delete');
