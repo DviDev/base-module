@@ -18,6 +18,7 @@ use Modules\Base\Factories\BaseFactory;
  * @property-read RecordModel $model
  *
  * @method RecordEntityModel toEntity()
+ * @method self factory()
  *
  * @mixin Builder
  */
@@ -42,5 +43,10 @@ class RecordModel extends BaseModel
     public function modelEntity(): string|BaseEntityModel
     {
         return RecordEntityModel::class;
+    }
+
+    static public function createViaFactory(string $type_name): self
+    {
+        return self::factory()->create(['type_id' => RecordTypeModel::create(['name' => $type_name])->id]);
     }
 }
