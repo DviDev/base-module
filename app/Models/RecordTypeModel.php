@@ -7,6 +7,7 @@ use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\RecordType\RecordTypeEntityModel;
 use Modules\Base\Entities\RecordType\RecordTypeProps;
 use Modules\Base\Factories\BaseFactory;
+use Modules\Base\Traits\HasFactoryFirstOrCreate;
 
 /**
  * @author Davi Menezes (davimenezes.dev@gmail.com)
@@ -21,6 +22,7 @@ class RecordTypeModel extends BaseModel
 {
     use HasFactory;
     use RecordTypeProps;
+    use HasFactoryFirstOrCreate;
 
     public static function table($alias = null): string
     {
