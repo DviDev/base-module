@@ -9,6 +9,7 @@ use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Entities\Record\RecordEntityModel;
 use Modules\Base\Entities\Record\RecordProps;
 use Modules\Base\Factories\BaseFactory;
+use Modules\View\Models\ElementModel;
 
 /**
  * @author Davi Menezes (davimenezes.dev@gmail.com)
@@ -47,6 +48,15 @@ class RecordModel extends BaseModel
 
     static public function createViaFactory(string $type_name): self
     {
-        return self::factory()->create(['type_id' => RecordTypeModel::create(['name' => $type_name])->id]);
+        return self::factory()->create([
+            'type_id' => RecordTypeModel::firstOrcreate(['name' => $type_name])->id
+        ]);
+    }
+
+    static public function createWithType(string $type): RecordModel
+    {
+        return RecordModel::create([
+            'type_id' => RecordTypeModel::firstOrCreate(['name' => $type])->id,
+        ]);
     }
 }

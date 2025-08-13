@@ -2,6 +2,8 @@
 
 namespace Modules\Base\Entities\Actions;
 
+use Modules\Permission\Enums\Actions;
+
 abstract class GateContract
 {
     protected static string $can = '';

@@ -1,9 +1,12 @@
-@use(Modules\Base\Entities\Actions\Actions)
-@use(Modules\Base\Entities\Actions\Builder)
-@use(Modules\Person\Entities\User\UserType)
-@use(Modules\Permission\Models\PermissionActionModel)
-@use(Modules\Project\Models\ProjectModuleEntityDBModel)
-@use(Modules\View\Domains\ViewStructureComponentType)
+@php
+    use Modules\Permission\Enums\Actions;
+    use Modules\Base\Entities\Actions\Builder;
+    use Modules\Person\Enums\UserType;
+    use Modules\Permission\Models\PermissionActionModel;
+    use Modules\Project\Models\ProjectModuleEntityDBModel;
+    use Modules\View\Domains\ViewStructureComponentType;
+    use Modules\View\Models\ViewPageStructureModel;
+@endphp
 <div>
     @php
         /**@var \Modules\View\Models\ElementModel $element*/
@@ -59,7 +62,7 @@
                                            wire:target="updateComponent"></i>
                                         <span class="my-auto">refresh</span>
                                     </div>
-                                        @if($model['id'])
+                                    @if($model['id'])
                                         <a href="{{route($page->route)}}" wire:navigate title="{{__('new')}}"
                                             @class(["bg-gray-100 hover:bg-blue-600 hover:text-white border border-l-0 border-gray-200 hover:border-blue-600 rounded-r px-2 py-1"])>
                                             <x-dvui::icon.plus/>
@@ -75,12 +78,12 @@
                         @endforeach
                     </x-lte::card.body>
                     @php
-                        /**@var ProjectModuleEntityDBModel $entity*/
-                        $entity = $element->structure()->with('page.entity')->first()->page->entity;
-                        /**@var PermissionActionModel $save*/
+                        /**@var ViewPageStructureModel $structure*/
+                        $structure = $element->structure()->with('page.entity')->first();
 
-                        $save = $entity->actions()->firstWhere('name', 'save');
-                        $delete = $entity->actions()->firstWhere('name', 'delete');
+                        /**@var PermissionActionModel $save*/
+                        $save = $structure->actions()->firstWhere('name', 'save');
+                        $delete = $structure->actions()->firstWhere('name', 'delete');
                     @endphp
                     <x-lte::card.footer>
                         <div class="flex justify-between items-center">

@@ -9,7 +9,7 @@ use Livewire\Component;
 use Modules\Base\Entities\Config\ConfigEntityModel;
 use Modules\Base\Models\ConfigModel;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
-use Modules\Person\Entities\User\UserType;
+use Modules\Person\Enums\UserType;
 
 class ConfigList extends Component
 {
