@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('base_record_types', function (Blueprint $table) {
             $p = RecordTypeEntityModel::props(force: true);
             $table->id();
-            $table->string($p->name);
+            $table->string($p->name)->unique();
 
             $table->timestamp($p->created_at)->useCurrent();
             $table->timestamp($p->updated_at)->useCurrent()->useCurrentOnUpdate();
