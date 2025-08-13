@@ -5,7 +5,7 @@ namespace Modules\Base\Providers;
 use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Modules\Person\Entities\User\UserType;
+use Modules\Person\Enums\UserType;
 use Modules\Person\Policies\UserPolicy;
 
 class BaseAuthServiceProvider extends ServiceProvider

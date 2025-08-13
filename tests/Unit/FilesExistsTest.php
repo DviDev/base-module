@@ -19,7 +19,6 @@ use Modules\Base\Database\Seeders\DaviTesteSeedSeeder;
 use Modules\Base\Database\Seeders\DispatchBaseEventSeeder;
 use Modules\Base\Database\Seeders\SeederEventDTO;
 use Modules\Base\Domain\BaseDomain;
-use Modules\Base\Entities\Actions\Actions;
 use Modules\Base\Entities\Actions\Builder;
 use Modules\Base\Entities\Actions\GateContract;
 use Modules\Base\Entities\BaseEntity;
@@ -101,6 +100,7 @@ use Modules\Base\Spotlight\GotoCommand;
 use Modules\Base\View\Components\Form\BaseFormBladeComponent;
 use Modules\Base\View\Components\Page\Notification\NotificationListPage;
 use Modules\Base\View\Components\Page\Notification\NotificationViewPage;
+use Modules\Permission\Enums\Actions;
 
 uses(Tests\TestCase::class);
 
