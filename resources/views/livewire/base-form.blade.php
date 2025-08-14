@@ -78,21 +78,23 @@
                         @endforeach
                     </x-lte::card.body>
                     @php
-                        /**@var ViewPageStructureModel $structure*/
-                        $structure = $element->structure()->with('page.entity')->first();
-
-                        /**@var PermissionActionModel $save*/
-                        $save = $structure->actions()->firstWhere('name', 'save');
-                        $delete = $structure->actions()->firstWhere('name', 'delete');
+                        $actions = $this->getStructure()->actions()
+                            ->whereIn('name', [Actions::create, Actions::delete])
+                            ->get()
+                            ->keyBy('name');
+                        /**@var PermissionActionModel $create*/
+                        $create = $actions->get(Actions::create->name);
+                        /**@var PermissionActionModel $delete*/
+                        $delete = $actions->get(Actions::delete->name);
                     @endphp
                     <x-lte::card.footer>
                         <div class="flex justify-between items-center">
-                            @if($save->checkConditions())
-                                <x-project::module.entity.action.conditions-link :action="$save">
+                            @if($create?->checkConditions())
+                                <x-project::module.entity.action.conditions-link :action="$create">
                                     <x-dvui::button type="submit" info rounded label="Salvar"/>
                                 </x-project::module.entity.action.conditions-link>
                             @endif
-                            @if($delete->checkConditions())
+                            @if($delete?->checkConditions())
                                 <x-project::module.entity.action.conditions-link :action="$delete">
                                     <x-dvui::button danger rounded label="Remover" confirm action="delete"/>
                                 </x-project::module.entity.action.conditions-link>
