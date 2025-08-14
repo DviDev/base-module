@@ -25,8 +25,8 @@ class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
         $p = MenuItemEntityModel::props();
 
         $menu->menuItems()->create([
-            $p->label => ucfirst(__('config')) . ' (manual)',
-            $p->title => ucfirst(__('config')) . ' (manual)',
+            $p->label => ucfirst(__('config')).' (manual)',
+            $p->title => ucfirst(__('config')).' (manual)',
             $p->num_order => 2,
             $p->url => route('admin.configs'),
             $p->active => false,

@@ -107,7 +107,7 @@ abstract class BaseComponent extends Component
 
     public function getRules()
     {
-        $cache_key = 'model-' . $this->model['id'] . '-' . auth()->user()->id;
+        $cache_key = 'model-'.$this->model['id'].'-'.auth()->user()->id;
         $ttl = now()->addHours(3);
 
         return cache()->remember($cache_key, $ttl, function () {
@@ -122,7 +122,7 @@ abstract class BaseComponent extends Component
             $this->transformValues($fn);
             $this->validate();
             foreach ($this->values['dates'] as $property => $values) {
-                $this->model[$property] = $values['date'] . ' ' . $values['time'];
+                $this->model[$property] = $values['date'].' '.$values['time'];
             }
             $properties = $this->model;
             foreach ($properties as $property => $values) {

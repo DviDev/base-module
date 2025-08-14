@@ -31,12 +31,12 @@ class InstallCommand extends Command
 
         $this->withProgressBar($collection, function ($item, $bar, $key) {
             if ($item['type'] == 'command') {
-                spin(fn() => Artisan::call($key), '🤖  Running: ' . $key);
+                spin(fn () => Artisan::call($key), '🤖  Running: '.$key);
 
                 return;
             }
             if ($item['type'] == 'event') {
-                $this->info(PHP_EOL . '🤖  Dispatching: ' . $item['class']);
+                $this->info(PHP_EOL.'🤖  Dispatching: '.$item['class']);
                 $class = $item['class'];
                 \Event::dispatch(new $class);
             }
