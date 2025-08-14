@@ -16,8 +16,8 @@ abstract class BaseFormBladeComponent extends Component
         public ?string $id = null,
         public ?string $placeholder = null,
         public ?array $attr = null,
-        public bool   $validate = false,
-        public bool   $required = false,
+        public bool $validate = false,
+        public bool $required = false,
     )
     {
     }

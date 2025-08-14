@@ -12,8 +12,6 @@ trait HasFactoryFirstOrCreate
     /**
      * Find the first record matching the attributes or create it using the factory.
      *
-     * @param array $attributes
-     * @param array $values
      * @return static
      */
     public static function firstOrCreateViaFactory(array $attributes, array $values = [])
