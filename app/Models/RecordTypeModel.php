@@ -21,8 +21,8 @@ use Modules\Base\Traits\HasFactoryFirstOrCreate;
 class RecordTypeModel extends BaseModel
 {
     use HasFactory;
-    use RecordTypeProps;
     use HasFactoryFirstOrCreate;
+    use RecordTypeProps;
 
     public static function table($alias = null): string
     {

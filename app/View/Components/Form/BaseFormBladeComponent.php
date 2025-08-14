@@ -16,19 +16,17 @@ abstract class BaseFormBladeComponent extends Component
         public ?string $id = null,
         public ?string $placeholder = null,
         public ?array $attr = null,
-        public bool   $validate = false,
-        public bool   $required = false,
-    )
-    {
-    }
+        public bool $validate = false,
+        public bool $required = false,
+    ) {}
 
     public static function prepare(ComponentAttributeBag $attributes): void
     {
         $attrs = $attributes->get('attr');
 
         $items = collect($attrs)->merge($attributes->getAttributes())->filter()->forget('attr');
-        if (!$items->has('id')) {
-            $items->put('id', 'comp_' . now()->timestamp . \Str::random(5));
+        if (! $items->has('id')) {
+            $items->put('id', 'comp_'.now()->timestamp.\Str::random(5));
         }
         $array = $items->all();
         if (isset($array['name'])) {

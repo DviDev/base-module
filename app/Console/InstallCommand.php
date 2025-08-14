@@ -12,6 +12,7 @@ use function Laravel\Prompts\spin;
 class InstallCommand extends Command
 {
     protected $signature = 'base:install';
+
     protected $description = 'Install application.';
 
     public function handle()
@@ -20,7 +21,7 @@ class InstallCommand extends Command
             'migrate:fresh' => ['type' => 'command'],
             'base:dispatch_seed_initial_data_event' => ['type' => 'command'],
 
-            //'base:dispatch_base_events'
+            // 'base:dispatch_base_events'
             ['type' => 'event', 'class' => ScanTableEvent::class],
             ['type' => 'event', 'class' => DatabaseSeederEvent::class],
             ['type' => 'event', 'class' => SeederFinishedEvent::class],
@@ -30,11 +31,12 @@ class InstallCommand extends Command
 
         $this->withProgressBar($collection, function ($item, $bar, $key) {
             if ($item['type'] == 'command') {
-                spin(fn() => Artisan::call($key), '🤖  Running: ' . $key);
+                spin(fn () => Artisan::call($key), '🤖  Running: '.$key);
+
                 return;
             }
             if ($item['type'] == 'event') {
-                $this->info(PHP_EOL . '🤖  Dispatching: ' . $item['class']);
+                $this->info(PHP_EOL.'🤖  Dispatching: '.$item['class']);
                 $class = $item['class'];
                 \Event::dispatch(new $class);
             }

@@ -27,8 +27,10 @@ use Modules\View\Models\ViewPageStructureModel;
 abstract class BaseComponent extends Component
 {
     public $redirect_after_save = true;
+
     #[Locked]
     public $modelObject;
+
     public $model;
 
     public array $values = [];
@@ -105,8 +107,9 @@ abstract class BaseComponent extends Component
 
     public function getRules()
     {
-        $cache_key = 'model-' . $this->model['id'] . '-' . auth()->user()->id;
+        $cache_key = 'model-'.$this->model['id'].'-'.auth()->user()->id;
         $ttl = now()->addHours(3);
+
         return cache()->remember($cache_key, $ttl, function () {
             return (new DviRequestMakeCommand)->getRules($this->modelObject->getTable(), 'save', $this->model);
         });
@@ -119,7 +122,7 @@ abstract class BaseComponent extends Component
             $this->transformValues($fn);
             $this->validate();
             foreach ($this->values['dates'] as $property => $values) {
-                $this->model[$property] = $values['date'] . ' ' . $values['time'];
+                $this->model[$property] = $values['date'].' '.$values['time'];
             }
             $properties = $this->model;
             foreach ($properties as $property => $values) {
@@ -322,5 +325,4 @@ abstract class BaseComponent extends Component
     abstract public function getStructure(): ViewPageStructureModel;
 
     abstract public function getExceptItems(): array;
-
 }

@@ -12,8 +12,6 @@ trait HasFactoryFirstOrCreate
     /**
      * Find the first record matching the attributes or create it using the factory.
      *
-     * @param array $attributes
-     * @param array $values
      * @return static
      */
     public static function firstOrCreateViaFactory(array $attributes, array $values = [])
@@ -22,7 +20,7 @@ trait HasFactoryFirstOrCreate
             throw new \Exception(__('This method is not allowed in production'));
         }
 
-        if (!is_null($instance = static::where($attributes)->first())) {
+        if (! is_null($instance = static::where($attributes)->first())) {
             return $instance;
         }
 

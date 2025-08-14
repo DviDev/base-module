@@ -8,7 +8,7 @@ trait PublishableComponents
 {
     protected function publishableComponent($name, $class): void
     {
-        Blade::component(class: $class, alias: $this->getModuleNameLower() . '::' . $name);
+        Blade::component(class: $class, alias: $this->getModuleNameLower().'::'.$name);
 
         [$origin, $destination] = $this->originAndDestination($name);
 
@@ -17,8 +17,8 @@ trait PublishableComponents
             [
                 'views',
                 'publishable-components',
-                $this->getModuleNameLower() . '-publishable-components',
-                $this->getModuleNameLower() . '-component-' . $name,
+                $this->getModuleNameLower().'-publishable-components',
+                $this->getModuleNameLower().'-component-'.$name,
             ]
         );
     }
