@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Base\Providers;
+namespace Modules\Base\Traits;
 
 use Illuminate\Support\Facades\Blade;
 

@@ -4,6 +4,7 @@ namespace Modules\Base\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Modules\Base\Traits\PublishableComponents;
 use Modules\Flowbite\Providers\RouteServiceProvider;
 
 abstract class BaseServiceProviderContract extends ServiceProvider

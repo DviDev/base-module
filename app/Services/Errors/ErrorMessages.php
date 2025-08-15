@@ -2,7 +2,7 @@
 
 namespace Modules\Base\Services\Errors;
 
-use Modules\Base\Providers\BaseServiceProviderInterface;
+use Modules\Base\Contracts\BaseServiceProviderInterface;
 use Nwidart\Modules\Module;
 
 class ErrorMessages
