@@ -53,7 +53,7 @@ abstract class BaseFactory extends Factory
             return fake()->text(random_int(round($length / 2), $length));
         }
         if ($key == 'email') {
-            return random_int(1000, 9999).'_'.fake()->email();
+            return now()->timestamp.'_'.fake()->email();
         }
         if ($key == 'uuid') {
             return fake()->uuid();
