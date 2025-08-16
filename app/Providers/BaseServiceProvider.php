@@ -8,6 +8,7 @@ use Modules\Base\Console\DispatchBaseEventsCommand;
 use Modules\Base\Console\DispatchInitialIndependentDataEventCommand;
 use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Console\InstallModulesCommand;
+use Modules\Base\Contracts\BaseServiceProviderContract;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Livewire\Config\ConfigForm;
 use Modules\Base\Livewire\Config\ConfigList;
