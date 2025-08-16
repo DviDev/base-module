@@ -4,7 +4,7 @@ use Modules\Base\Console\DispatchBaseEventsCommand;
 use Modules\Base\Console\DispatchInitialIndependentDataEventCommand;
 use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Console\InstallModulesCommand;
-use Modules\Base\Contracts\BaseLivewireForm;
+use Modules\Base\Contracts\BaseLivewireFormContract;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\BaseModelImplementation;
 use Modules\Base\Contracts\BaseModelInterface;
@@ -17,7 +17,6 @@ use Modules\Base\Database\Migrations\BaseMigration;
 use Modules\Base\Database\Seeders\BaseDatabaseSeeder;
 use Modules\Base\Database\Seeders\BaseSeeder;
 use Modules\Base\Database\Seeders\ConfigTableSeeder;
-use Modules\Base\Database\Seeders\DaviTesteSeedSeeder;
 use Modules\Base\Database\Seeders\DispatchBaseEventSeeder;
 use Modules\Base\Database\Seeders\SeederEventDTO;
 use Modules\Base\Domain\BaseDomain;
@@ -65,8 +64,8 @@ use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Listeners\CreateMenuItemsBaseListener;
 use Modules\Base\Listeners\CreateProjectDataListener;
 use Modules\Base\Listeners\SeederInitialIndependentDataBaseListener;
-use Modules\Base\Livewire\BaseComponent;
-use Modules\Base\Livewire\BaseForm;
+use Modules\Base\Livewire\BaseLivewireComponent;
+use Modules\Base\Livewire\BaseLivewireForm;
 use Modules\Base\Livewire\Config\ConfigForm;
 use Modules\Base\Livewire\Config\ConfigList;
 use Modules\Base\Livewire\Config\ConfigListItem;
@@ -135,7 +134,7 @@ it('possui todos os arquivos de Comandos', function () {
 });
 it('possui todos os arquivos de Contratos', function () {
     $files = [
-        BaseLivewireForm::class,
+        BaseLivewireFormContract::class,
         BaseModelImplementation::class,
         BaseModelInterface::class,
         EntityInterface::class,
@@ -233,8 +232,8 @@ it('possui todos os arquivos de Livewire', function () {
         ConfigListItem::class,
         NotificationList::class,
         NotificationView::class,
-        BaseComponent::class,
-        BaseForm::class,
+        BaseLivewireComponent::class,
+        BaseLivewireForm::class,
     ]);
 });
 it('possui todos os arquivos de Middleware', function () {
@@ -331,7 +330,6 @@ it('all seeders files exist', function () {
         BaseDatabaseSeeder::class,
         BaseSeeder::class,
         ConfigTableSeeder::class,
-        DaviTesteSeedSeeder::class,
         DispatchBaseEventSeeder::class,
         SeederEventDTO::class,
     ]);
