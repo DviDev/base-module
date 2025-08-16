@@ -24,8 +24,10 @@ use Modules\View\Models\ElementModel;
 use Modules\View\Models\ModuleEntityPageModel;
 use Modules\View\Models\ViewPageStructureModel;
 
-abstract class BaseComponent extends Component
+abstract class BaseLivewireComponent extends Component
 {
+    use DynamicRules;
+
     public $redirect_after_save = true;
 
     #[Locked]
@@ -90,14 +92,18 @@ abstract class BaseComponent extends Component
         $structure = $this->getStructure();
         $cache_key = $this->elementsCacheKey($structure);
 
-        return cache()->rememberForever($cache_key, function () use ($structure) {
+        /**
+         * @return \Illuminate\Database\Eloquent\Collection
+         */
+        $callback = function () use ($structure) {
             return $structure->elements()
                 ->whereNull('parent_id')
                 ->with('attribute')
                 ->with('allChildren.attribute')
                 ->with('properties')
                 ->get();
-        });
+        };
+        return cache()->rememberForever($cache_key, $callback);
     }
 
     public function render(): View
@@ -111,7 +117,7 @@ abstract class BaseComponent extends Component
         $ttl = now()->addHours(3);
 
         return cache()->remember($cache_key, $ttl, function () {
-            return (new DviRequestMakeCommand)->getRules($this->modelObject->getTable(), 'save', $this->model);
+            return $this->getDynamicRules($this->modelObject->getTable(), 'save', $this->model);
         });
     }
 

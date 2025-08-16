@@ -8,7 +8,7 @@ use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 
-abstract class BaseLivewireForm extends Component
+abstract class BaseLivewireFormContract extends Component
 {
     public ?Model $model = null;
 
