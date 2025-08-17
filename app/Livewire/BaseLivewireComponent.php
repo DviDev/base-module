@@ -106,16 +106,12 @@ abstract class BaseLivewireComponent extends Component
         return cache()->rememberForever($cache_key, $callback);
     }
 
-    public function render(): View
-    {
-        return view('base::livewire.base-form');
-    }
+    abstract public function render(): View;
 
     public function getRules()
     {
-        $cache_key = 'model-'.$this->model['id'].'-'.auth()->user()->id;
+        $cache_key = 'model-'.($this->model['id'] ?? '').'-'.auth()->user()->id;
         $ttl = now()->addHours(3);
-
         return cache()->remember($cache_key, $ttl, function () {
             return $this->getDynamicRules($this->modelObject->getTable(), 'save', $this->model);
         });
@@ -233,12 +229,12 @@ abstract class BaseLivewireComponent extends Component
         $this->dispatch('refresh')->self();
     }
 
-    public function delete(): void
+    public function delete($id): void
     {
         try {
-            $this->modelObject->delete();
+            $this->modelObject::query()->where('id', $id)->delete();
             Toastr::instance($this)->success('Item removido');
-            $this->redirect('/');
+            $this->dispatch('refresh');
         } catch (Exception $exception) {
             Toastr::instance($this)->error('O Item não pôde ser removido');
             throw $exception;
