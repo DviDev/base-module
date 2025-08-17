@@ -12,9 +12,9 @@ use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Modules\Base\Contracts\BaseModel;
-use Modules\DBMap\Commands\DviRequestMakeCommand;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
 use Modules\DBMap\Models\ModuleTableModel;
+use Modules\DBMap\Traits\DynamicRules;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 use Modules\Project\Entities\ProjectModuleEntity\ProjectModuleEntityEntityModel;
 use Modules\Project\Models\ProjectEntityAttributeModel;
@@ -24,8 +24,10 @@ use Modules\View\Models\ElementModel;
 use Modules\View\Models\ModuleEntityPageModel;
 use Modules\View\Models\ViewPageStructureModel;
 
-abstract class BaseComponent extends Component
+abstract class BaseLivewireComponent extends Component
 {
+    use DynamicRules;
+
     public $redirect_after_save = true;
 
     #[Locked]
@@ -90,28 +92,28 @@ abstract class BaseComponent extends Component
         $structure = $this->getStructure();
         $cache_key = $this->elementsCacheKey($structure);
 
-        return cache()->rememberForever($cache_key, function () use ($structure) {
+        /**
+         * @return \Illuminate\Database\Eloquent\Collection
+         */
+        $callback = function () use ($structure) {
             return $structure->elements()
                 ->whereNull('parent_id')
                 ->with('attribute')
                 ->with('allChildren.attribute')
                 ->with('properties')
                 ->get();
-        });
+        };
+        return cache()->rememberForever($cache_key, $callback);
     }
 
-    public function render(): View
-    {
-        return view('base::livewire.base-form');
-    }
+    abstract public function render(): View;
 
     public function getRules()
     {
-        $cache_key = 'model-'.$this->model['id'].'-'.auth()->user()->id;
+        $cache_key = 'model-'.($this->model['id'] ?? '').'-'.auth()->user()->id;
         $ttl = now()->addHours(3);
-
         return cache()->remember($cache_key, $ttl, function () {
-            return (new DviRequestMakeCommand)->getRules($this->modelObject->getTable(), 'save', $this->model);
+            return $this->getDynamicRules($this->modelObject->getTable(), 'save', $this->model);
         });
     }
 
@@ -227,12 +229,12 @@ abstract class BaseComponent extends Component
         $this->dispatch('refresh')->self();
     }
 
-    public function delete(): void
+    public function delete($id): void
     {
         try {
-            $this->modelObject->delete();
+            $this->modelObject::query()->where('id', $id)->delete();
             Toastr::instance($this)->success('Item removido');
-            $this->redirect('/');
+            $this->dispatch('refresh');
         } catch (Exception $exception) {
             Toastr::instance($this)->error('O Item não pôde ser removido');
             throw $exception;
