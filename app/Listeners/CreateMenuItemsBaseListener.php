@@ -5,9 +5,9 @@ namespace Modules\Base\Listeners;
 use Modules\Permission\Enums\Actions;
 use Modules\Permission\Models\PermissionActionModel;
 use Modules\Person\Enums\UserType;
+use Modules\Project\Contracts\CreateMenuItemsListenerContract;
 use Modules\Project\Entities\MenuItem\MenuItemEntityModel;
 use Modules\Project\Events\CreateMenuItemsEvent;
-use Modules\Project\Listeners\CreateMenuItemsListenerContract;
 use Modules\Project\Models\MenuModel;
 use Modules\Project\Models\ProjectModuleModel;
 
