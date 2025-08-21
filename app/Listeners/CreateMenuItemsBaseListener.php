@@ -6,7 +6,7 @@ use Modules\Permission\Enums\Actions;
 use Modules\Permission\Models\PermissionActionModel;
 use Modules\Person\Enums\UserType;
 use Modules\Project\Contracts\CreateMenuItemsListenerContract;
-use Modules\Project\Entities\MenuItem\MenuItemEntityModel;
+use Modules\Project\Entities\ProjectModuleMenuItem\ProjectModuleMenuItemEntityModel;
 use Modules\Project\Events\CreateMenuItemsEvent;
 use Modules\Project\Models\ProjectModuleMenuModel;
 use Modules\Project\Models\ProjectModuleModel;
@@ -22,7 +22,7 @@ class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
         $menu = ProjectModuleMenuModel::firstOrCreate(
             ['name' => 'Admin', 'title' => 'Admin', 'num_order' => 1, 'active' => true]
         );
-        $p = MenuItemEntityModel::props();
+        $p = ProjectModuleMenuItemEntityModel::props();
 
         $menu->menuItems()->create([
             $p->label => ucfirst(__('config')).' (manual)',
