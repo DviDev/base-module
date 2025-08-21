@@ -4,18 +4,18 @@ namespace Modules\Base\Factories;
 
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\ColumnDefinition;
-use Modules\Project\Models\ProjectEntityAttributeModel;
+use Modules\Project\Models\ProjectModuleEntityAttributeModel;
 
 abstract class AttributeFactory
 {
     public function __construct(
-        public ProjectEntityAttributeModel $attributeEntity,
-        public Blueprint &$table
+        public ProjectModuleEntityAttributeModel $attributeEntity,
+        public Blueprint                         &$table
     ) {}
 
     abstract public function handle(): void;
 
-    protected function checksOtherProperties(ProjectEntityAttributeModel $attributeEntity, ColumnDefinition $t): void
+    protected function checksOtherProperties(ProjectModuleEntityAttributeModel $attributeEntity, ColumnDefinition $t): void
     {
         if ($attributeEntity->unsigned) {
             $t->unsigned();

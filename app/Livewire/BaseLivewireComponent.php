@@ -17,7 +17,7 @@ use Modules\DBMap\Models\ModuleTableModel;
 use Modules\DBMap\Traits\DynamicRules;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 use Modules\Project\Entities\ProjectModuleEntity\ProjectModuleEntityEntityModel;
-use Modules\Project\Models\ProjectEntityAttributeModel;
+use Modules\Project\Models\ProjectModuleEntityAttributeModel;
 use Modules\Project\Models\ProjectModuleEntityDBModel;
 use Modules\View\Entities\ModuleEntityPage\ModuleEntityPageEntityModel;
 use Modules\View\Models\ElementModel;
@@ -163,13 +163,13 @@ abstract class BaseLivewireComponent extends Component
 
     public function projectAttribute($property_name, $entity_id)
     {
-        return ProjectEntityAttributeModel::query()
+        return ProjectModuleEntityAttributeModel::query()
             ->where('entity_id', $entity_id)
             ->where('name', $property_name)
             ->get(['reference_view_name'])->first();
     }
 
-    public function getReferencedTableData(ElementModel $element, ProjectEntityAttributeModel $projectAttribute): array|LengthAwarePaginator
+    public function getReferencedTableData(ElementModel $element, ProjectModuleEntityAttributeModel $projectAttribute): array|LengthAwarePaginator
     {
         if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::enum && $element->attribute->items) {
             return $element->attribute->items->pluck('name')->all();

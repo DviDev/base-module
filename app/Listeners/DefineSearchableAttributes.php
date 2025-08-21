@@ -5,7 +5,7 @@ namespace Modules\Base\Listeners;
 use Modules\Base\Entities\RecordType\RecordTypeEntityModel;
 use Modules\Base\Models\RecordTypeModel;
 use Modules\Project\Events\EntityAttributesCreatedEvent;
-use Modules\Project\Models\ProjectEntityAttributeModel;
+use Modules\Project\Models\ProjectModuleEntityAttributeModel;
 
 class DefineSearchableAttributes
 {
@@ -23,7 +23,7 @@ class DefineSearchableAttributes
         }
     }
 
-    protected function default(ProjectEntityAttributeModel $attribute): void
+    protected function default(ProjectModuleEntityAttributeModel $attribute): void
     {
         if ($this->event->entity->name !== RecordTypeModel::table()) {
             return;

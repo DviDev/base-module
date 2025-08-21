@@ -8,18 +8,18 @@ use Modules\Person\Enums\UserType;
 use Modules\Project\Contracts\CreateMenuItemsListenerContract;
 use Modules\Project\Entities\MenuItem\MenuItemEntityModel;
 use Modules\Project\Events\CreateMenuItemsEvent;
-use Modules\Project\Models\MenuModel;
+use Modules\Project\Models\ProjectModuleMenuModel;
 use Modules\Project\Models\ProjectModuleModel;
 
 class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
 {
     public function handle(CreateMenuItemsEvent $event): void
     {
-        if (MenuModel::query()->where('name', 'Admin')->exists()) {
+        if (ProjectModuleMenuModel::query()->where('name', 'Admin')->exists()) {
             return;
         }
 
-        $menu = MenuModel::firstOrCreate(
+        $menu = ProjectModuleMenuModel::firstOrCreate(
             ['name' => 'Admin', 'title' => 'Admin', 'num_order' => 1, 'active' => true]
         );
         $p = MenuItemEntityModel::props();
