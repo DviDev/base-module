@@ -10,7 +10,7 @@ use Modules\Base\Listeners\CreateProjectDataListener;
 use Modules\Base\Listeners\DefineSearchableAttributes;
 use Modules\Base\Listeners\SeederInitialIndependentDataBaseListener;
 use Modules\Project\Events\CreateMenuItemsEvent;
-use Modules\Project\Events\EntityAttributesCreatedEvent;
+use Modules\View\Events\DefineSearchableAttributesEvent;
 
 class BaseEventServiceProvider extends ServiceProvider
 {
@@ -22,7 +22,7 @@ class BaseEventServiceProvider extends ServiceProvider
         \Event::listen(BaseSeederInitialIndependentDataEvent::class, SeederInitialIndependentDataBaseListener::class);
         \Event::listen(CreateMenuItemsEvent::class, CreateMenuItemsBaseListener::class);
         \Event::listen(SeederFinishedEvent::class, CreateProjectDataListener::class);
-        \Event::listen(EntityAttributesCreatedEvent::class, DefineSearchableAttributes::class);
+        \Event::listen(DefineSearchableAttributesEvent::class, DefineSearchableAttributes::class);
     }
 
     /**
