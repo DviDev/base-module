@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * @extends Model
  */
-trait HasFactoryFirstOrCreate
+trait HasFirstOrCreateViaFactory
 {
     /**
      * Find the first record matching the attributes or create it using the factory.
