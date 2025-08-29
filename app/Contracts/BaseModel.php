@@ -3,8 +3,10 @@
 namespace Modules\Base\Contracts;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Entities\BaseEntityModel;
+use Modules\Base\Traits\HasFactoryFirstOrCreate;
 
 /**
  * @note Try not to create queries outside the repository
@@ -24,8 +26,9 @@ use Modules\Base\Entities\BaseEntityModel;
 abstract class BaseModel extends Model implements BaseModelInterface
 {
     public $timestamps = false;
-
     use BaseModelImplementation;
+    use HasFactory;
+    use HasFactoryFirstOrCreate;
 
     public function getGuarded(): array
     {
