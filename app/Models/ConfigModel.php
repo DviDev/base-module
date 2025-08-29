@@ -3,7 +3,6 @@
 namespace Modules\Base\Models;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\BaseEntityModel;
@@ -23,10 +22,8 @@ use Modules\Base\Factories\BaseFactory;
 class ConfigModel extends BaseModel
 {
     use ConfigProps;
-    use HasFactory;
 
     public $timestamps = true;
-
     protected $casts = [
         'updated_at' => 'datetime',
     ];
@@ -38,8 +35,7 @@ class ConfigModel extends BaseModel
 
     protected static function newFactory(): BaseFactory
     {
-        return new class extends BaseFactory
-        {
+        return new class extends BaseFactory {
             protected $model = ConfigModel::class;
         };
     }

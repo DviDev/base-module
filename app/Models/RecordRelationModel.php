@@ -2,7 +2,6 @@
 
 namespace Modules\Base\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\RecordRelation\RecordRelationEntityModel;
 use Modules\Base\Entities\RecordRelation\RecordRelationProps;
@@ -19,7 +18,6 @@ use Modules\Base\Factories\BaseFactory;
  */
 class RecordRelationModel extends BaseModel
 {
-    use HasFactory;
     use RecordRelationProps;
 
     public static function table($alias = null): string
@@ -29,8 +27,7 @@ class RecordRelationModel extends BaseModel
 
     protected static function newFactory(): BaseFactory
     {
-        return new class extends BaseFactory
-        {
+        return new class extends BaseFactory {
             protected $model = RecordRelationModel::class;
         };
     }

@@ -3,7 +3,6 @@
 namespace Modules\Base\Contracts;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Traits\HasFirstOrCreateViaFactory;
@@ -27,7 +26,7 @@ abstract class BaseModel extends Model implements BaseModelInterface
 {
     public $timestamps = false;
     use BaseModelImplementation;
-    use HasFactory;
+
     use HasFirstOrCreateViaFactory;
 
     public function getGuarded(): array
