@@ -70,10 +70,10 @@ abstract class BaseFactory extends Factory
         if (str($key)->contains('path')) {
             $extension = collect(['pdf', 'png', 'jpeg', 'jpg'])->random();
 
-            return UploadedFile::fake()->create('test.'.$extension)->store('temp_seed_files');
+            return UploadedFile::fake()->create('test.' . $extension)->store('temp_seed_files');
         }
         if (in_array($key, ['telefone', 'phone'])) {
-            return '1199'.random_int(100, 999).random_int(10, 99).random_int(10, 99);
+            return '1199' . random_int(100, 999) . random_int(10, 99) . random_int(10, 99);
         }
 
         return str(fake()->sentence(3))->substr(0, $length)->value();
