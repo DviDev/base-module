@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Artisan;
 use Modules\Base\Events\DatabaseSeederEvent;
 use Modules\Base\Events\SeederFinishedEvent;
 use Modules\DBMap\Events\ScanTableEvent;
+
 use function Laravel\Prompts\spin;
 
 class InstallCommand extends Command
@@ -29,17 +30,17 @@ class InstallCommand extends Command
             'db:seed' => ['type' => 'command'],
         ]);
 
-        $this->withProgressBar($collection, function ($item, $bar, $key) {
+        foreach ($collection as $key => $item) {
             if ($item['type'] == 'command') {
                 spin(fn () => Artisan::call($key), '🤖  Running: '.$key);
 
-                return;
+                continue;
             }
             if ($item['type'] == 'event') {
                 $this->info(PHP_EOL.'🤖  Dispatching: '.$item['class']);
                 $class = $item['class'];
                 \Event::dispatch(new $class);
             }
-        });
+        }
     }
 }
