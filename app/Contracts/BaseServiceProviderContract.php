@@ -68,11 +68,12 @@ abstract class BaseServiceProviderContract extends ServiceProvider
      */
     public function registerTranslations(): void
     {
-        $langPath = resource_path('lang/modules/' . $this->getModuleNameLower());
+        $langPath = resource_path('lang/modules/'.$this->getModuleNameLower());
 
         if (is_dir($langPath)) {
             $this->loadTranslationsFrom($langPath, $this->getModuleNameLower());
             $this->loadJsonTranslationsFrom($langPath);
+
             return;
         }
         $this->loadTranslationsFrom($this->langPath(), $this->getModuleNameLower());
@@ -89,7 +90,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
      */
     protected function registerConfig(): void
     {
-        $this->publishes([module_path($this->getModuleName(), 'config/config.php') => config_path($this->getModuleNameLower() . '.php')], 'config');
+        $this->publishes([module_path($this->getModuleName(), 'config/config.php') => config_path($this->getModuleNameLower().'.php')], 'config');
         $this->mergeConfigFrom(module_path($this->getModuleName(), 'config/config.php'), $this->getModuleNameLower());
     }
 
@@ -98,13 +99,13 @@ abstract class BaseServiceProviderContract extends ServiceProvider
      */
     public function registerViews(): void
     {
-        $viewPath = resource_path('views/modules/' . $this->getModuleNameLower());
+        $viewPath = resource_path('views/modules/'.$this->getModuleNameLower());
         $sourcePath = module_path($this->getModuleName(), 'resources/views');
 
-        $this->publishes([$sourcePath => $viewPath], ['views', $this->getModuleNameLower() . '-module-views']);
+        $this->publishes([$sourcePath => $viewPath], ['views', $this->getModuleNameLower().'-module-views']);
 
         $path = array_merge(
-        // Primeiro tenta carregar as views publicadas
+            // Primeiro tenta carregar as views publicadas
             [$viewPath],
             // Depois tenta carregar as views do módulo
             $this->getPublishableViewPaths(),
@@ -113,16 +114,12 @@ abstract class BaseServiceProviderContract extends ServiceProvider
 
         $this->loadViewsFrom($path, $this->getModuleNameLower());
 
-        Blade::componentNamespace(config('modules.namespace') . '\\' . $this->getModuleName() . '\\View\\Components', $this->getModuleNameLower());
+        Blade::componentNamespace(config('modules.namespace').'\\'.$this->getModuleName().'\\View\\Components', $this->getModuleNameLower());
     }
 
-    protected function registerComponents(): void
-    {
-    }
+    protected function registerComponents(): void {}
 
-    protected function registerEvents(): void
-    {
-    }
+    protected function registerEvents(): void {}
 
     /**
      * Get the services provided by the provider.
@@ -146,7 +143,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
 
     protected function registerEnabledModulesMigrationPaths(): void
     {
-        if (!$this->app->bound('migrator')) {
+        if (! $this->app->bound('migrator')) {
             return;
         }
         /** @var Migrator $migrator */
@@ -166,6 +163,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
 
         // Limpeza
         $required = array_values(array_unique(array_filter(array_map('trim', $required))));
+
         return $required;
     }
 
@@ -174,8 +172,8 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $modules = $this->requireModules();
 
         foreach ($modules as $dep) {
-            $dep = trim((string)$dep);
-            if ($dep === '' || !Module::has($dep)) {
+            $dep = trim((string) $dep);
+            if ($dep === '' || ! Module::has($dep)) {
                 continue;
             }
             $module = Module::find($dep);
@@ -188,7 +186,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         // 1) Habilita se estiver desabilitado (estado persistente)
         if ($moduleName->isDisabled()) {
             $moduleName->enable();
-            //dd('Module ' . $moduleName->getName() . ' enabled');
         }
 
         // 2) Evita reentrância neste processo
@@ -198,10 +195,9 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         self::$bootstrapped[$moduleName->getName()] = true;
 
         // 3) Registra os Service Providers declarados no module.json do módulo
-//        $moduleProviders = $this->getModuleProviders($moduleName);
         $moduleProviders = $moduleName->json('module.json')->get('modules_dependencies', []);
         foreach ($moduleProviders as $providerClass) {
-            if (!class_exists($providerClass)) {
+            if (! class_exists($providerClass)) {
                 continue;
             }
             // Evita registrar o mesmo provider duas vezes
@@ -215,16 +211,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $this->registerEnabledModulesMigrationPaths();
     }
 
-    protected function getModuleProviders(\Nwidart\Modules\Module $mod): array
-    {
-        $json = method_exists($mod, 'json') ? $mod->json('module.json') : null;
-        if ($json && method_exists($json, 'get')) {
-            $prov = $json->get('providers', []);
-            $mod->json()->get('providers', []);
-            return is_array($prov) ? $prov : [];
-        }
-        return [];
-    }
+
 
     public function providers(): array
     {
@@ -235,8 +222,8 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     {
         $paths = [];
         foreach (config('view.paths') as $path) {
-            if (is_dir($path . '/modules/' . $this->getModuleNameLower())) {
-                $paths[] = $path . '/modules/' . $this->getModuleNameLower();
+            if (is_dir($path.'/modules/'.$this->getModuleNameLower())) {
+                $paths[] = $path.'/modules/'.$this->getModuleNameLower();
             }
         }
 
@@ -255,18 +242,19 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         if (empty($modules)) {
             return;
         }
-        if (!$this->app->runningInConsole()) {
+        if (! $this->app->runningInConsole()) {
             return;
         }
         $migrator = $this->app->make('migrator');
         foreach ($modules as $module) {
             $mod = Module::find($module);
             $mod->enable();
-            $path = $mod->getPath() . '/database/Migrations';
+            $path = $mod->getPath().'/database/Migrations';
             if (is_dir($path)) {
                 $migrator->path($path);
             }
         }
+
         return;
         Event::listen(CommandStarting::class, function (CommandStarting $event) use ($modules) {
             $cmd = $event->command ?? '';
@@ -289,7 +277,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
                 foreach ($modules as $mod) {
                     $mod = Module::find($mod);
                     $mod->enable();
-                    $path = $mod->getPath() . '/database/Migrations';
+                    $path = $mod->getPath().'/database/Migrations';
                     dump($path);
                     if (is_dir($path)) {
                         $migrator->path($path);
