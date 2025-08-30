@@ -308,7 +308,7 @@ it('possui todos os arquivos de View', function () {
     ]);
 });
 it('possui arquivos helper', function () {
-    $filename = module_path('base').'/app/Helpers/helpers.php';
+    $filename = module_path('base') . '/app/Helpers/helpers.php';
     expect(file_exists($filename))->toBeTrue();
 });
 it('possui todos os arquivo em migrations', function () {
@@ -319,7 +319,7 @@ it('possui todos os arquivo em migrations', function () {
         '2022_09_12_145024_create_configs_table.php',
     ];
     foreach ($files as $file) {
-        expect(file_exists(module_path('base').'/database/migrations/'.$file))->toBeTrue();
+        expect(file_exists(module_path('base') . '/database/migrations/' . $file))->toBeTrue();
     }
     expect(class_exists(BaseMigration::class))->toBeTrue();
 });
@@ -341,16 +341,16 @@ it('all lang files exist', function () {
         'pt_BR.json',
     ];
     foreach ($files as $file) {
-        expect(file_exists(module_path('base').'/resources/lang/pt_BR/'.$file))->toBeTrue();
+        expect(file_exists(module_path('base') . '/resources/lang/pt_BR/' . $file))->toBeTrue();
     }
-    expect(file_exists(module_path('base').'/resources/lang/pt_BR.json'))->toBeTrue();
+    expect(file_exists(module_path('base') . '/resources/lang/pt_BR.json'))->toBeTrue();
 });
 it('all resources livewire files exist', function () {
     $files = [
         'resources/livewire/base-form.blade.php',
     ];
     foreach ($files as $file) {
-        expect(file_exists(module_path('base').'/'.$file))->toBeTrue();
+        expect(file_exists(module_path('base') . '/' . $file))->toBeTrue();
     }
 });
 
@@ -386,6 +386,6 @@ it('all livewire views files exists', function () {
     ]);
 });
 it('readme file exist', function () {
-    $filename = module_path('base').'/README.md';
+    $filename = module_path('base') . '/README.md';
     expect(file_exists($filename))->toBeTrue();
 });
