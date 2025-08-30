@@ -24,6 +24,7 @@ class ConfigModel extends BaseModel
     use ConfigProps;
 
     public $timestamps = true;
+
     protected $casts = [
         'updated_at' => 'datetime',
     ];
@@ -35,7 +36,8 @@ class ConfigModel extends BaseModel
 
     protected static function newFactory(): BaseFactory
     {
-        return new class extends BaseFactory {
+        return new class extends BaseFactory
+        {
             protected $model = ConfigModel::class;
         };
     }

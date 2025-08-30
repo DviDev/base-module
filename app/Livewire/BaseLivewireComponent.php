@@ -103,6 +103,7 @@ abstract class BaseLivewireComponent extends Component
                 ->with('properties')
                 ->get();
         };
+
         return cache()->rememberForever($cache_key, $callback);
     }
 
@@ -112,6 +113,7 @@ abstract class BaseLivewireComponent extends Component
     {
         $cache_key = 'model-'.($this->model['id'] ?? '').'-'.auth()->user()->id;
         $ttl = now()->addHours(3);
+
         return cache()->remember($cache_key, $ttl, function () {
             return $this->getDynamicRules($this->modelObject->getTable(), 'save', $this->model);
         });
@@ -326,8 +328,9 @@ abstract class BaseLivewireComponent extends Component
 
     public function getStructureCache(): ViewPageStructureModel
     {
-        $key = 'page::' . $this->page->id.'::structure';
-        return cache()->rememberForever($key, fn() => $this->getStructure());
+        $key = 'page::'.$this->page->id.'::structure';
+
+        return cache()->rememberForever($key, fn () => $this->getStructure());
     }
 
     abstract public function getStructure(): ViewPageStructureModel;
