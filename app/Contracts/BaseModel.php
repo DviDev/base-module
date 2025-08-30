@@ -26,7 +26,7 @@ abstract class BaseModel extends Model implements BaseModelInterface
 {
     public $timestamps = false;
     use BaseModelImplementation;
-
+    use HasFactory;
     use HasFirstOrCreateViaFactory;
 
     public function getGuarded(): array
