@@ -21,7 +21,11 @@ trait HasFirstOrCreateViaFactory
             throw new Exception(__('This method is not allowed in production'));
         }
 
-        if (! is_null($instance = static::where($attributes)->first())) {
+        $query = static::query();
+        foreach ($attributes as $key => $value) {
+            $query->where($key, '=', $value);
+        }
+        if (! is_null($instance = $query->first())) {
             return $instance;
         }
 
