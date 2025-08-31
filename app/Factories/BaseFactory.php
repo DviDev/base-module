@@ -5,7 +5,6 @@ namespace Modules\Base\Factories;
 use App\Models\User;
 use BadMethodCallException;
 use Closure;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Illuminate\Database\Eloquent\Factories\BelongsToRelationship;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
@@ -70,10 +69,10 @@ abstract class BaseFactory extends Factory
         if (str($key)->contains('path')) {
             $extension = collect(['pdf', 'png', 'jpeg', 'jpg'])->random();
 
-            return UploadedFile::fake()->create('test.' . $extension)->store('temp_seed_files');
+            return UploadedFile::fake()->create('test.'.$extension)->store('temp_seed_files');
         }
         if (in_array($key, ['telefone', 'phone'])) {
-            return '1199' . random_int(100, 999) . random_int(10, 99) . random_int(10, 99);
+            return '1199'.random_int(100, 999).random_int(10, 99).random_int(10, 99);
         }
 
         return str(fake()->sentence(3))->substr(0, $length)->value();
@@ -365,7 +364,7 @@ abstract class BaseFactory extends Factory
         });
     }
 
-    protected function validate(array $table_models, string $foreignTableName, BaseEntityModel $entity, ForeignKeyConstraint|array $fk): void
+    protected function validate(array $table_models, string $foreignTableName, BaseEntityModel $entity, array $fk): void
     {
         if (! isset($table_models[$foreignTableName]) && config('app.env') == 'local') {
             \Log::info(collect($table_models)->toJson());
