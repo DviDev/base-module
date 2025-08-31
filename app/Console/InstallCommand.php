@@ -19,7 +19,6 @@ class InstallCommand extends Command
 
     public function handle()
     {
-
         new SeedFirstOrCreateUser()->createUserTypes();
         event(new BaseSeederInitialIndependentDataEvent);
 
