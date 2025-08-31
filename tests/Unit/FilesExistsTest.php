@@ -62,7 +62,6 @@ use Modules\Base\Http\Controllers\BaseController;
 use Modules\Base\Http\Middleware\LocalEnvironmentMiddleware;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Listeners\CreateMenuItemsBaseListener;
-use Modules\Base\Listeners\CreateProjectDataListener;
 use Modules\Base\Listeners\SeederInitialIndependentDataBaseListener;
 use Modules\Base\Livewire\BaseLivewireComponent;
 use Modules\Base\Livewire\BaseLivewireForm;
@@ -245,7 +244,6 @@ it('possui todos os arquivos de Middleware', function () {
 it('possui todos os arquivos de Listeners', function () {
     expectClassesExist([
         CreateMenuItemsBaseListener::class,
-        CreateProjectDataListener::class,
         SeederInitialIndependentDataBaseListener::class,
     ]);
 });

@@ -3,7 +3,6 @@
 namespace Modules\Base\Models;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\BaseEntityModel;
@@ -23,7 +22,6 @@ use Modules\Base\Factories\BaseFactory;
 class ConfigModel extends BaseModel
 {
     use ConfigProps;
-    use HasFactory;
 
     public $timestamps = true;
 

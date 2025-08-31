@@ -3,11 +3,12 @@
 namespace Modules\Base\Listeners;
 
 use Illuminate\Console\Command;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\Artisan;
 use Modules\Base\Database\Seeders\ConfigTableSeeder;
 use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
 
-class SeederInitialIndependentDataBaseListener
+class SeederInitialIndependentDataBaseListener implements ShouldQueue
 {
     private Command $command;
 

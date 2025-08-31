@@ -11,7 +11,7 @@ abstract class BaseTranslateViewElementPropertiesListener
     {
         $property = $event->property;
 
-        if (!$this->validate($property)) {
+        if (! $this->validate($property)) {
             return;
         }
 
@@ -21,6 +21,7 @@ abstract class BaseTranslateViewElementPropertiesListener
 
         if ($property->name === 'placeholder') {
             $property->value = $stringable->value();
+
             return;
         }
         $property->value = $stringable->ucfirst()->value();
@@ -38,12 +39,13 @@ abstract class BaseTranslateViewElementPropertiesListener
         if ($module !== $this->moduleName()) {
             return false;
         }
-        if (!in_array($property->name, $this->propertiesToTranslate())) {
+        if (! in_array($property->name, $this->propertiesToTranslate())) {
             return false;
         }
         if (in_array($property->value, ['id'])) {
             return false;
         }
+
         return true;
     }
 

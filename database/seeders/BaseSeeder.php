@@ -2,34 +2,13 @@
 
 namespace Modules\Base\Database\Seeders;
 
-use App\Models\User;
 use Closure;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
-use Modules\Person\Models\PersonModel;
-use Modules\Person\Models\UserTypeModel;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 abstract class BaseSeeder extends Seeder
 {
-    public static function firstOrCreateUser(UserTypeModel $type): User
-    {
-        $user = User::query()->firstWhere('email', $type->name.'@site.com');
-        if ($user) {
-            return $user;
-        }
-
-        $name = str($type->name)->explode('_')->map(fn (string $word) => str($word)->lower()->ucfirst())->join(' ');
-
-        return User::factory()->create([
-            'name' => $name,
-            'email' => $type->name.'@site.com',
-            'password' => \Hash::make('password'),
-            'type_id' => $type->id,
-            'person_id' => PersonModel::factory()->create(['name' => $name])->id,
-        ]);
-    }
-
     protected function withProgressBar(int|Collection $amount, Closure $createCollectionOfOne): \Illuminate\Database\Eloquent\Collection
     {
         $collection = is_int($amount) ? range(1, $amount) : $amount;

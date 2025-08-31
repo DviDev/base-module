@@ -5,7 +5,6 @@ namespace Modules\Base\Factories;
 use App\Models\User;
 use BadMethodCallException;
 use Closure;
-use Doctrine\DBAL\Schema\ForeignKeyConstraint;
 use Illuminate\Database\Eloquent\Factories\BelongsToRelationship;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
@@ -365,7 +364,7 @@ abstract class BaseFactory extends Factory
         });
     }
 
-    protected function validate(array $table_models, string $foreignTableName, BaseEntityModel $entity, ForeignKeyConstraint|array $fk): void
+    protected function validate(array $table_models, string $foreignTableName, BaseEntityModel $entity, array $fk): void
     {
         if (! isset($table_models[$foreignTableName]) && config('app.env') == 'local') {
             \Log::info(collect($table_models)->toJson());

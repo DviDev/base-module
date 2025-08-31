@@ -3,7 +3,6 @@
 namespace Modules\Base\Models;
 
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Entities\Record\RecordEntityModel;
@@ -24,7 +23,6 @@ use Modules\Base\Factories\BaseFactory;
  */
 class RecordModel extends BaseModel
 {
-    use HasFactory;
     use RecordProps;
 
     public static function table($alias = null): string
