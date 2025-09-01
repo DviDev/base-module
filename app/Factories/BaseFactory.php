@@ -18,6 +18,7 @@ use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\BaseModelInterface;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
+use Modules\Person\Models\PersonModel;
 use Modules\Person\Models\UserTypeModel;
 use Modules\View\Domains\ViewStructureComponentType;
 use Nwidart\Modules\Facades\Module;
@@ -387,6 +388,11 @@ abstract class BaseFactory extends Factory
         /** @var BaseModel $model_class */
         if ($model_class === User::class && $default = config('person.seed.user.types.default')) {
             $attributes = ['type_id' => $default];
+
+            $person = PersonModel::factory()->create();
+
+            $attributes['name'] = $person->name;
+            $attributes['person_id'] = $person->id;
         }
 
         return $model_class::factory()->create($attributes)->id;
