@@ -2,14 +2,14 @@
 
 namespace Modules\Base\Console;
 
-use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Bus;
-use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
-use Modules\Base\Events\DatabaseSeederEvent;
-use Modules\DBMap\Events\ScanTableEvent;
+use Illuminate\Support\Facades\Log;
+use Modules\Base\Jobs\DatabaseSeederJob;
+use Modules\Base\Jobs\InstallFinishedJob;
+use Modules\Base\Jobs\SeederInitialIndependentDataJob;
+use Modules\DBMap\Jobs\ScanTableJob;
 use Modules\Person\Services\SeedFirstOrCreateUser;
-use Throwable;
 
 class InstallCommand extends Command
 {
@@ -20,17 +20,16 @@ class InstallCommand extends Command
     public function handle()
     {
         new SeedFirstOrCreateUser()->createUserTypes();
-        event(new BaseSeederInitialIndependentDataEvent);
 
-        Bus::batch([
+        Bus::chain([
             function () {
-                event(new ScanTableEvent);
+                Log::info('Instalação iniciada.');
             },
+            new SeederInitialIndependentDataJob,
+            new ScanTableJob,
+            new DatabaseSeederJob,
+            new InstallFinishedJob,
         ])
-            ->then(function (Batch $batch) {
-                event(new DatabaseSeederEvent);
-            })->catch(function (Batch $batch, Throwable $e) {
-                throw $e;
-            })->dispatch();
+            ->dispatch();
     }
 }
