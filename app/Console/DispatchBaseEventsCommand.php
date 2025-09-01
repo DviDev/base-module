@@ -4,7 +4,6 @@ namespace Modules\Base\Console;
 
 use Illuminate\Console\Command;
 use Modules\Base\Events\DatabaseSeederEvent;
-use Modules\Base\Events\SeederFinishedEvent;
 use Modules\DBMap\Events\ScanTableEvent;
 
 class DispatchBaseEventsCommand extends Command
@@ -22,6 +21,5 @@ class DispatchBaseEventsCommand extends Command
     {
         \Event::dispatch(new ScanTableEvent);
         \Event::dispatch(new DatabaseSeederEvent);
-        \Event::dispatch(new SeederFinishedEvent);
     }
 }
