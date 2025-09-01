@@ -35,7 +35,7 @@ use Modules\Base\Entities\RecordType\RecordTypeEntityModel;
 use Modules\Base\Entities\RecordType\RecordTypeProps;
 use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
 use Modules\Base\Events\DatabaseSeederEvent;
-use Modules\Base\Events\SeederFinishedEvent;
+use Modules\Base\Events\InstallFinishedEvent;
 use Modules\Base\Events\UsingSpotlightEvent;
 use Modules\Base\Factories\AttributeFactory;
 use Modules\Base\Factories\Attributes\BlueprintBigIntegerFactory;
@@ -192,7 +192,7 @@ it('possui todos os arquivos de Eventos', function () {
     expectClassesExist([
         BaseSeederInitialIndependentDataEvent::class,
         DatabaseSeederEvent::class,
-        SeederFinishedEvent::class,
+        InstallFinishedEvent::class,
         UsingSpotlightEvent::class,
     ]);
 });
