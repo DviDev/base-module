@@ -10,6 +10,7 @@ use Modules\Base\Jobs\InstallFinishedJob;
 use Modules\Base\Jobs\SeederInitialIndependentDataJob;
 use Modules\DBMap\Jobs\ScanTableJob;
 use Modules\Person\Services\SeedFirstOrCreateUser;
+use Modules\Project\Jobs\DefineEntityAttributeRelationJob;
 
 class InstallCommand extends Command
 {
@@ -29,7 +30,9 @@ class InstallCommand extends Command
             new ScanTableJob,
             new DatabaseSeederJob,
             new InstallFinishedJob,
+            new DefineEntityAttributeRelationJob,
         ])
             ->dispatch();
+
     }
 }
