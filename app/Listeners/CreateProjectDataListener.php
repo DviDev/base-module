@@ -2,22 +2,11 @@
 
 namespace Modules\Base\Listeners;
 
-use Modules\Base\Events\SeederFinishedEvent;
+use Modules\Base\Events\InstallFinishedEvent;
 
 class CreateProjectDataListener
 {
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
-     * Handle the event.
-     */
-    public function handle(SeederFinishedEvent $event): void
+    public function handle(InstallFinishedEvent $event): void
     {
         /* app()->instance('module_name', 'Base');
         Artisan::call("db:seed", [

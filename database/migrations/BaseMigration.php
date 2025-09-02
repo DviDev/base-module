@@ -25,7 +25,7 @@ use Modules\Base\Factories\Attributes\BlueprintTimeFactory;
 use Modules\Base\Factories\Attributes\BlueprintTimestampFactory;
 use Modules\Base\Factories\Attributes\BlueprintTinyIntegerFactory;
 use Modules\Base\Factories\Attributes\BlueprintYearFactory;
-use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum as AttributeTypeEnum;
+use Modules\Project\Enums\ModuleEntityAttributeTypeEnum as AttributeTypeEnum;
 use Modules\Project\Models\ProjectModuleEntityDBModel;
 
 abstract class BaseMigration extends Migration

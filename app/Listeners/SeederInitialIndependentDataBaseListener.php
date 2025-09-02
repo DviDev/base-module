@@ -12,17 +12,6 @@ class SeederInitialIndependentDataBaseListener implements ShouldQueue
 {
     private Command $command;
 
-    /**
-     * Create the event listener.
-     */
-    public function __construct()
-    {
-        //
-    }
-
-    /**
-     * Handle the event.
-     */
     public function handle(BaseSeederInitialIndependentDataEvent $event): void
     {
         Artisan::call('db:seed', ['--class' => ConfigTableSeeder::class]);

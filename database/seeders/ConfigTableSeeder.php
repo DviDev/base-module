@@ -24,9 +24,9 @@ class ConfigTableSeeder extends BaseSeeder
 
     protected function createModuleRecordTypes(): void
     {
-        $this->command->info(PHP_EOL.'🤖 Base Module: Creating Record Types');
+        /*$this->command->info(PHP_EOL.'🤖 Base Module: Creating Record Types');
         foreach (ProjectModuleEntityDBModel::all() as $entity) {
             RecordTypeModel::factory()->create(['name' => $entity->title]);
-        }
+        }*/
     }
 }

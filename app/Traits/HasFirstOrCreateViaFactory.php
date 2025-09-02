@@ -4,6 +4,7 @@ namespace Modules\Base\Traits;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @extends Model
@@ -29,6 +30,11 @@ trait HasFirstOrCreateViaFactory
             return $instance;
         }
 
-        return static::factory()->create(array_merge($attributes, $values));
+        try {
+            return static::factory()->create(array_merge($attributes, $values));
+        } catch (Exception $e) {
+            Log::info($query->ddRawSql());
+            throw new Exception(__('Failed to create the model: ').$e->getMessage());
+        }
     }
 }

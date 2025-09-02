@@ -4,7 +4,7 @@ namespace Modules\Base\Events;
 
 use Illuminate\Queue\SerializesModels;
 
-class SeederFinishedEvent
+class InstallFinishedEvent
 {
     use SerializesModels;
 
