@@ -17,7 +17,7 @@ use Mockery\Exception;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\BaseModelInterface;
 use Modules\Base\Entities\BaseEntityModel;
-use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
+use Modules\Project\Enums\ModuleEntityAttributeTypeEnum;
 use Modules\Person\Models\PersonModel;
 use Modules\Person\Models\UserTypeModel;
 use Modules\View\Domains\ViewStructureComponentType;
@@ -32,15 +32,15 @@ abstract class BaseFactory extends Factory
     public static function getFakeDataViaViewStructureElementType(ViewStructureComponentType $type, $length, int|string $key, $value_default = null, $num_scale = null, $num_precision = null)
     {
         return match ($type) {
-            ModuleTableAttributeTypeEnum::datetime => now()->toDateTimeLocalString(),
-            ModuleTableAttributeTypeEnum::date => now()->toDateString(),
-            ModuleTableAttributeTypeEnum::time => now()->toTimeString(),
-            ModuleTableAttributeTypeEnum::text => $value_default ?? fake()->sentence(),
-            ModuleTableAttributeTypeEnum::varchar => $value_default ?? self::getFakeValue($key, $length),
-            ModuleTableAttributeTypeEnum::boolean => $value_default ?? fake()->boolean(),
-            ModuleTableAttributeTypeEnum::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
-            ModuleTableAttributeTypeEnum::float => $value_default ?? fake()->randomFloat(2, 1, 999999),
-            ModuleTableAttributeTypeEnum::smallint, ModuleTableAttributeTypeEnum::int, ModuleTableAttributeTypeEnum::bigint => $value_default ?? fake()->numberBetween(1, 90),
+            ModuleEntityAttributeTypeEnum::datetime => now()->toDateTimeLocalString(),
+            ModuleEntityAttributeTypeEnum::date => now()->toDateString(),
+            ModuleEntityAttributeTypeEnum::time => now()->toTimeString(),
+            ModuleEntityAttributeTypeEnum::text => $value_default ?? fake()->sentence(),
+            ModuleEntityAttributeTypeEnum::varchar => $value_default ?? self::getFakeValue($key, $length),
+            ModuleEntityAttributeTypeEnum::boolean => $value_default ?? fake()->boolean(),
+            ModuleEntityAttributeTypeEnum::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
+            ModuleEntityAttributeTypeEnum::float => $value_default ?? fake()->randomFloat(2, 1, 999999),
+            ModuleEntityAttributeTypeEnum::smallint, ModuleEntityAttributeTypeEnum::int, ModuleEntityAttributeTypeEnum::bigint => $value_default ?? fake()->numberBetween(1, 90),
             default => 1
         };
     }
