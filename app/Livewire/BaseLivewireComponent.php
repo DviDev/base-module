@@ -177,12 +177,12 @@ abstract class BaseLivewireComponent extends Component
         return ProjectModuleEntityAttributeModel::query()
             ->where('entity_id', $entity_id)
             ->where('name', $property_name)
-            ->get(['reference_view_name'])->first();
+            ->get(['referenced_table_name'])->first();
     }
 
     public function getReferencedTableData(ElementModel $element, ProjectModuleEntityAttributeModel $projectAttribute): array|LengthAwarePaginator
     {
-        if ($element->attribute->typeEnum() == ModuleTableAttributeTypeEnum::enum && $element->attribute->items) {
+        if ($element->attribute->typeEnum() == ModuleEntityAttributeTypeEnum::enum && $element->attribute->items) {
             return $element->attribute->items->pluck('name')->all();
         }
         $columns = ['id'];
@@ -207,10 +207,10 @@ abstract class BaseLivewireComponent extends Component
         $model_class = "Modules\\$module\\Models\\$entity_name".'Model';
         if (class_exists($model_class)) {
             $items = $model_class::query();
-            if ($projectAttribute->reference_view_name) {
-                $str = str($projectAttribute->reference_view_name);
+            if ($projectAttribute->referenced_table_name) {
+                $str = str($projectAttribute->referenced_table_name);
                 $entity = $str->explode(':')->shift(); // Todo check
-                //                $items->with($entity);
+                //$items->with($entity);
             }
 
             return $items->paginate();
@@ -252,11 +252,11 @@ abstract class BaseLivewireComponent extends Component
         }
     }
 
-    public function getKeyValue(ElementModel $element, $item, $reference_view_name): array
+    public function getKeyValue(ElementModel $element, $item, $reference_table_name): array
     {
         try {
-            if ($reference_view_name) {
-                $str = str($reference_view_name);
+            if ($reference_table_name) {
+                $str = str($reference_table_name);
                 $entity = $str->explode(':')->shift();
                 $prop = $str->explode(':')->pop();
                 $entities = str($entity)->explode('.');
