@@ -119,6 +119,15 @@ abstract class BaseLivewireComponent extends Component
         });
     }
 
+    protected function validationAttributes(): array
+    {
+        $cache_key = 'validationAttributes::page-'.($this->page->id);
+        $ttl = now()->addHours(3);
+        return cache()->remember($cache_key, $ttl, function () {
+            return $this->dynamicValidationAttributes('save');
+        });
+    }
+
     public function save(): void
     {
         try {
