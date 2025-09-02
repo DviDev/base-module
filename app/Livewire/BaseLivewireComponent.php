@@ -12,7 +12,7 @@ use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Modules\Base\Contracts\BaseModel;
-use Modules\DBMap\Domains\ModuleTableAttributeTypeEnum;
+use Modules\Project\Enums\ModuleEntityAttributeTypeEnum;
 use Modules\DBMap\Models\ModuleTableModel;
 use Modules\DBMap\Traits\DynamicRules;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
@@ -70,7 +70,7 @@ abstract class BaseLivewireComponent extends Component
             ->elements()->whereNotNull('attribute_id')
             ->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
             ->whereHas('attribute', function (Builder $query) {
-                $query->where('type', ModuleTableAttributeTypeEnum::getId(ModuleTableAttributeTypeEnum::decimal));
+                $query->where('type', ModuleEntityAttributeTypeEnum::getId(ModuleEntityAttributeTypeEnum::decimal));
             })
             ->pluck('attribute.name')->all();
         foreach ($attributes as $attribute) {
