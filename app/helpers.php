@@ -2,6 +2,33 @@
 
 use Carbon\Carbon;
 use Illuminate\Support\Number;
+use Illuminate\View\ComponentAttributeBag;
+
+if(! function_exists('prepareAttributes')) {
+    function prepareAttributes(ComponentAttributeBag $attributes, array $attr = []): void
+    {
+        $array = collect($attr)->except('id')->merge($attributes->getAttributes())->all();
+        $attributes->setAttributes($array);
+        $attrs = $attributes->get('attr');
+
+        $items = collect($attrs)->merge($attributes->getAttributes())->filter()->forget('attr');
+        if (! $items->has('id')) {
+            $items->put('id', 'comp_'.now()->timestamp.\Str::random(5));
+        }
+        $array = $items->all();
+        if (isset($array['name'])) {
+            $array['name'] = __($array['name']);
+        }
+        if (isset($array['placeholder'])) {
+            $array['placeholder'] = __($array['placeholder']);
+        }
+        if (isset($array['label'])) {
+            $array['label'] = ucfirst(trans(strtolower($array['label'])));
+        }
+
+        $attributes->setAttributes($array);
+    }
+}
 
 if (! function_exists('currency')) {
     function currency($value = 0): bool|string
