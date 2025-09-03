@@ -17,7 +17,8 @@ abstract class BaseTranslateViewElementPropertiesListener
 
         $entity = $property->element->structure->page->entity;
         $str = $this->moduleNameLower();
-        $stringable = str(__("{$str}::{$entity->name}.{$property->value}"))->replace('_', ' ');
+        $term = __("{$str}::{$entity->name}.{$property->value}");
+        $stringable = str($term)->replace('_', ' ');
 
         if ($property->name === 'placeholder') {
             $property->value = $stringable->value();
