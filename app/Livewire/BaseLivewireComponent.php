@@ -12,11 +12,10 @@ use Illuminate\View\View;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Modules\Base\Contracts\BaseModel;
-use Modules\Project\Enums\ModuleEntityAttributeTypeEnum;
-use Modules\DBMap\Models\ModuleTableModel;
 use Modules\DBMap\Traits\DynamicRules;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 use Modules\Project\Entities\ProjectModuleEntity\ProjectModuleEntityEntityModel;
+use Modules\Project\Enums\ModuleEntityAttributeTypeEnum;
 use Modules\Project\Models\ProjectModuleEntityAttributeModel;
 use Modules\Project\Models\ProjectModuleEntityDBModel;
 use Modules\View\Entities\ModuleEntityPage\ModuleEntityPageEntityModel;
@@ -123,6 +122,7 @@ abstract class BaseLivewireComponent extends Component
     {
         $cache_key = 'validationAttributes::page-'.($this->page->id);
         $ttl = now()->addHours(3);
+
         return cache()->remember($cache_key, $ttl, function () {
             return $this->dynamicValidationAttributes('save');
         });
@@ -210,7 +210,7 @@ abstract class BaseLivewireComponent extends Component
             if ($projectAttribute->referenced_table_name) {
                 $str = str($projectAttribute->referenced_table_name);
                 $entity = $str->explode(':')->shift(); // Todo check
-                //$items->with($entity);
+                // $items->with($entity);
             }
 
             return $items->paginate();
@@ -296,12 +296,10 @@ abstract class BaseLivewireComponent extends Component
     protected function getValue($element): string
     {
         $referenced_table_name = $element->attribute->referenced_table_name;
-        $table = ModuleTableModel::query()->where('name', $referenced_table_name)->first();
-        $name_exists = $table->attributes()->where('name', 'name')->exists();
+        $entity = ProjectModuleEntityDBModel::query()->firstWhere('name', $referenced_table_name);
+        $name_exists = $entity->entityAttributes()->where('name', 'name')->exists();
         if ($name_exists) {
             return 'name';
-        } elseif ($table->attributes()->where('name', 'name')->exists()) {
-            return 'nome';
         }
 
         return 'id';
