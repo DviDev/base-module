@@ -2,12 +2,13 @@
 
 namespace Modules\Base\Contracts;
 
-use Modules\View\Events\ElementPropertyCreatedEvent;
+use Illuminate\Support\Stringable;
+use Modules\View\Events\ElementPropertyCreatingEvent;
 use Modules\View\Models\ElementPropertyModel;
 
 abstract class BaseTranslateViewElementPropertiesListener
 {
-    public function handle(ElementPropertyCreatedEvent $event): void
+    public function handle(ElementPropertyCreatingEvent $event): void
     {
         $property = $event->property;
 
@@ -15,22 +16,11 @@ abstract class BaseTranslateViewElementPropertiesListener
             return;
         }
 
-        $entity = $property->element->structure->page->entity;
-        $str = $this->moduleNameLower();
-        $term = __("{$str}::{$entity->name}.{$property->value}");
-        $stringable = str($term)->replace('_', ' ');
+        $stringable = $this->getStringable($property);
 
-        if ($property->name === 'placeholder') {
-            $property->value = $stringable->value();
-
-            return;
-        }
-        $property->value = $stringable->ucfirst()->value();
-    }
-
-    protected function propertiesToTranslate(): array
-    {
-        return ['placeholder', 'label'];
+        $property->value = $property->name === 'placeholder'
+            ? $stringable->value()
+            : $stringable->ucfirst()->value();
     }
 
     private function validate(ElementPropertyModel $property): bool
@@ -50,7 +40,21 @@ abstract class BaseTranslateViewElementPropertiesListener
         return true;
     }
 
+    protected function propertiesToTranslate(): array
+    {
+        return ['placeholder', 'label'];
+    }
+
     abstract protected function moduleName(): string;
 
     abstract protected function moduleNameLower(): string;
+
+    protected function getStringable(ElementPropertyModel $property): Stringable
+    {
+        $str = $this->moduleNameLower();
+        $entity = $property->element->structure->page->entity;
+        $term = __("$str::$entity->name.$property->value");
+
+        return str($term)->replace('_', ' ');
+    }
 }
