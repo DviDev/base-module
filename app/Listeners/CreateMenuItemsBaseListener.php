@@ -8,32 +8,28 @@ use Modules\Person\Enums\UserType;
 use Modules\Project\Contracts\CreateMenuItemsListenerContract;
 use Modules\Project\Entities\ProjectModuleMenuItem\ProjectModuleMenuItemEntityModel;
 use Modules\Project\Events\CreateMenuItemsEvent;
-use Modules\Project\Models\ProjectModuleMenuModel;
-use Modules\Project\Models\ProjectModuleModel;
 
 class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
 {
-    public function handle(CreateMenuItemsEvent $event): void
+    public function moduleName(): string
     {
-        if (ProjectModuleMenuModel::query()->where('name', 'Admin')->exists()) {
-            return;
-        }
+        return 'Base';
+    }
 
-        $menu = ProjectModuleMenuModel::firstOrCreate(
-            ['name' => 'Admin', 'title' => 'Admin', 'num_order' => 1, 'active' => true]
-        );
+    protected function createMenuItems(CreateMenuItemsEvent $event): void
+    {
         $p = ProjectModuleMenuItemEntityModel::props();
 
-        $menu->menuItems()->create([
+        $event->menu->menuItems()->create([
             $p->label => ucfirst(__('config')).' (manual)',
             $p->title => ucfirst(__('config')).' (manual)',
             $p->num_order => 2,
             $p->url => route('admin.configs'),
-            $p->active => false,
+            $p->active => true,
             $p->action_id => $this->getActionConfig()->id,
         ]);
 
-        $menu->menuItems()->create([
+        $event->menu->menuItems()->create([
             $p->label => 'Menu',
             $p->title => 'Menu',
             $p->num_order => 2,
@@ -42,12 +38,10 @@ class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
             $p->action_id => $this->getActionConfig()->id,
         ]);
 
-        parent::handle($event);
-    }
+        parent::createMenuItems($event);
 
-    public function moduleName(): string
-    {
-        return 'Base';
+        $event->menu->active = true;
+        $event->menu->save();
     }
 
     protected function getActionConfig(): PermissionActionModel
@@ -59,13 +53,5 @@ class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
             ->createCondition(UserType::ADMIN);
 
         return $action;
-    }
-
-    protected function createMenuItems(ProjectModuleModel $module, CreateMenuItemsEvent $event): void
-    {
-        parent::createMenuItems($module, $event);
-
-        $event->menu->active = null;
-        $event->menu->save();
     }
 }

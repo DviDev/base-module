@@ -105,9 +105,9 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $this->publishes([$sourcePath => $viewPath], ['views', $this->getModuleNameLower().'-module-views']);
 
         $path = array_merge(
-            // Primeiro tenta carregar as views publicadas
+            // First try to load the published views
             [$viewPath],
-            // Depois tenta carregar as views do módulo
+            // Then try to load the module views
             $this->getPublishableViewPaths(),
             [$sourcePath],
         );
@@ -210,8 +210,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         // 4) Opcional: ao bootstrapar um módulo, já garantimos os paths de migração
         $this->registerEnabledModulesMigrationPaths();
     }
-
-
 
     public function providers(): array
     {
