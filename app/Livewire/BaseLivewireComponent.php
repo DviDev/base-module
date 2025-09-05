@@ -15,6 +15,7 @@ use Modules\Base\Contracts\BaseModel;
 use Modules\DBMap\Traits\DynamicRules;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 use Modules\Project\Entities\ProjectModuleEntity\ProjectModuleEntityEntityModel;
+use Modules\Project\Entities\ProjectModuleEntityAttribute\ProjectModuleEntityAttributeEntityModel;
 use Modules\Project\Enums\ModuleEntityAttributeTypeEnum;
 use Modules\Project\Models\ProjectModuleEntityAttributeModel;
 use Modules\Project\Models\ProjectModuleEntityDBModel;
@@ -65,11 +66,12 @@ abstract class BaseLivewireComponent extends Component
 
     protected function transformValues($fn): void
     {
+        $attribute = ProjectModuleEntityAttributeEntityModel::props('attribute');
         $attributes = $this->getStructureCache()
             ->elements()->whereNotNull('attribute_id')
-            ->join('dbmap_module_table_attributes as attribute', 'attribute.id', 'attribute_id')
+            ->join($attribute->table(), $attribute->id, 'attribute_id')
             ->whereHas('attribute', function (Builder $query) {
-                $query->where('type', ModuleEntityAttributeTypeEnum::getId(ModuleEntityAttributeTypeEnum::decimal));
+                $query->where('type_id', ModuleEntityAttributeTypeEnum::getId(ModuleEntityAttributeTypeEnum::decimal));
             })
             ->pluck('attribute.name')->all();
         foreach ($attributes as $attribute) {
