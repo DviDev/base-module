@@ -4,14 +4,17 @@ use Carbon\Carbon;
 use Illuminate\Support\Number;
 use Illuminate\View\ComponentAttributeBag;
 
-if(! function_exists('prepareAttributes')) {
+if (! function_exists('prepareAttributes')) {
     function prepareAttributes(ComponentAttributeBag $attributes, array $attr = []): void
     {
         $array = collect($attr)->except('id')->merge($attributes->getAttributes())->all();
         $attributes->setAttributes($array);
         $attrs = $attributes->get('attr');
 
-        $items = collect($attrs)->merge($attributes->getAttributes())->filter()->forget('attr');
+        $items = collect($attrs)
+            ->merge($attributes->getAttributes())
+            ->filter(fn ($i) => isset($i))
+            ->forget('attr');
         if (! $items->has('id')) {
             $items->put('id', 'comp_'.now()->timestamp.\Str::random(5));
         }
