@@ -33,6 +33,5 @@ class InstallCommand extends Command
             new DefineEntityAttributeRelationJob,
         ])
             ->dispatch();
-
     }
 }
