@@ -21,6 +21,6 @@ class BaseDatabaseSeeder extends BaseSeeder
         $storage_path = storage_path('app/temp_seed_files');
         File::deleteDirectory($storage_path);
 
-        $this->commandInfo(__CLASS__, '🟢 done');
+        $this->done();
     }
 }

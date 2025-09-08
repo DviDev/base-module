@@ -3,8 +3,6 @@
 namespace Modules\Base\Database\Seeders;
 
 use Illuminate\Database\Eloquent\Model;
-use Modules\Base\Models\RecordTypeModel;
-use Modules\Project\Models\ProjectModuleEntityDBModel;
 
 class ConfigTableSeeder extends BaseSeeder
 {
@@ -15,18 +13,15 @@ class ConfigTableSeeder extends BaseSeeder
     {
         Model::unguard();
 
-        $this->command->warn(PHP_EOL.'🤖 🌱 seeding '.str(__CLASS__)->explode('\\')->last().' ...');
+        $this->seed();
 
-        $this->createModuleRecordTypes();
-
-        $this->commandInfo(__CLASS__, '🟢 done');
     }
 
-    protected function createModuleRecordTypes(): void
+    protected function seed(): void
     {
-        /*$this->command->info(PHP_EOL.'🤖 Base Module: Creating Record Types');
-        foreach (ProjectModuleEntityDBModel::all() as $entity) {
-            RecordTypeModel::factory()->create(['name' => $entity->title]);
-        }*/
+        $this->seeding();
+        //
+        $this->done();
+
     }
 }
