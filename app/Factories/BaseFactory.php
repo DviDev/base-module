@@ -236,28 +236,27 @@ abstract class BaseFactory extends Factory
                     $columns[$column]['value'] = $this->randomOrNewRelation($fk_model_class, $model, $column);
 
                     continue;
-                } elseif ($fk_model_class == User::class) {
+                }
+
+                if (! $this->indexIsUniqueMultiple($indexes, $column)) {
                     $columns[$column]['value'] = $this->createRelation($fk_model_class);
 
                     continue;
+
                 }
+
+                // Todo get all unique columns and check if has in $columns with same values
+                // ...
 
                 $fk_id = $this->randomRelationId($fk_model_class, $model, $column);
 
-                if (! $fk_id) {
-                    $columns[$column]['value'] = $this->createRelation($fk_model_class);
-
-                    continue;
-                }
-
-                if ($this->indexIsUniqueMultiple($indexes, $column)) {
-                    // Todo get all unique columns and check if has in $columns with same values
+                if ($fk_id) {
                     $columns[$column]['value'] = $fk_id;
 
                     continue;
                 }
 
-                $columns[$column]['value'] = $fk_id;
+                $columns[$column]['value'] = $this->createRelation($fk_model_class);
             }
         }
 
@@ -400,20 +399,18 @@ abstract class BaseFactory extends Factory
 
     protected function containInIndexUnique(array $indexes, string $column): bool
     {
-        $contain_in_index_unique = false;
-
         foreach ($indexes as $index) {
             if (! $index['unique']) {
                 continue;
             }
             foreach ($index['columns'] as $_column) {
                 if ($_column == $column) {
-                    $contain_in_index_unique = true;
+                    return true;
                 }
             }
         }
 
-        return $contain_in_index_unique;
+        return false;
     }
 
     /**
