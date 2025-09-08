@@ -4,7 +4,6 @@ namespace Modules\Base\View\Components\Form;
 
 use Illuminate\Support\Carbon;
 use Illuminate\View\Component;
-use Illuminate\View\ComponentAttributeBag;
 
 abstract class BaseFormBladeComponent extends Component
 {
@@ -18,8 +17,7 @@ abstract class BaseFormBladeComponent extends Component
         public ?array $attr = null,
         public bool $validate = false,
         public bool $required = false,
-    ) {
-    }
+    ) {}
 
     public static function getDateString(Carbon|string $date): Carbon|string
     {
