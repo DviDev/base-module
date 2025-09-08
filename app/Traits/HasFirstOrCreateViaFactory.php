@@ -3,6 +3,7 @@
 namespace Modules\Base\Traits;
 
 use Exception;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 
@@ -22,6 +23,7 @@ trait HasFirstOrCreateViaFactory
             throw new Exception(__('This method is not allowed in production'));
         }
 
+        /** @var Builder $query */
         $query = static::query();
         foreach ($attributes as $key => $value) {
             $query->where($key, '=', $value);
@@ -33,8 +35,11 @@ trait HasFirstOrCreateViaFactory
         try {
             return static::factory()->create(array_merge($attributes, $values));
         } catch (Exception $e) {
-            Log::info($query->ddRawSql());
-            throw new Exception(__('Failed to create the model: ').$e->getMessage());
+            if (config('app.env') == 'local') {
+                Log::info(__('Failed to create the model: ').$e->getMessage());
+                Log::info($query->toRawSql());
+            }
+            throw $e;
         }
     }
 }
