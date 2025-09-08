@@ -5,6 +5,7 @@ namespace Modules\Base\Database\Seeders;
 use Closure;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\Console\Helper\ProgressBar;
 
 abstract class BaseSeeder extends Seeder
@@ -37,13 +38,41 @@ abstract class BaseSeeder extends Seeder
         return $items;
     }
 
-    protected function commandWarn(string $target, ?string $label = null): void
+    protected function seeding(): void
     {
-        $this->command->warn(PHP_EOL.collect('🤖')->add($label)->add(str($target)->explode('\\')->last())->add('...')->join(' '));
+        $class = get_called_class();
+        $this->commandInfo($class, '💦 🌱 seeding ...');
     }
 
-    protected function commandInfo(mixed $string, ?string $label = null): void
+    protected function done(): void
     {
-        $this->command->info(PHP_EOL.collect()->add('🤖')->add($label)->add(str($string)->explode('\\')->last())->join(' '));
+        $class = get_called_class();
+        $this->commandInfo($class, '🟢 done');
+    }
+
+
+    protected function commandWarn(string $target, ?string $label = null): void
+    {
+        $item = str($target)->explode('\\');
+        $msg = collect('🤖')
+            ->add($item->last())
+            ->add('('.$item->slice(1,1)->first().')')
+            ->add($label)
+            ->join(' ');
+        Log::warning($msg);
+        $this->command->warn(PHP_EOL. $msg);
+    }
+
+    protected function commandInfo(string $target, ?string $label = null): void
+    {
+        $item = str($target)->explode('\\');
+        $msg = collect('🤖')
+            ->add($item->last())
+            ->add('('.$item->slice(1,1)->first().')')
+            ->add($label)
+            ->join(' ');
+
+        Log::info($msg);
+        $this->command->info(PHP_EOL. $msg);
     }
 }
