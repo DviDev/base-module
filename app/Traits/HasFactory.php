@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Base\Contracts;
+namespace Modules\Base\Traits;
 
 use Illuminate\Support\Collection;
 use Modules\Base\Factories\BaseFactory;
