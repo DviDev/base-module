@@ -211,11 +211,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $this->registerEnabledModulesMigrationPaths();
     }
 
-    public function providers(): array
-    {
-        return [];
-    }
-
     protected function getPublishableViewPaths(): array
     {
         $paths = [];
