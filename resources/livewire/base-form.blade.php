@@ -6,7 +6,7 @@
 <x-dvui::card>
     <x-slot:heading class="flex">
         <div class="grow text-lg text-gray-400">{{$page->name}}</div>
-        <a href="{{route('builder.page', $page->id)}}" class="bg-blue-600 py-1 px-2 rounded text-gray-300">
+        <a href="{{route('builder.page', $page->uuid)}}" class="bg-blue-600 py-1 px-2 rounded text-gray-300">
             builder
         </a>
     </x-slot:heading>
