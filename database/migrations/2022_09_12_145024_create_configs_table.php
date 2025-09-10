@@ -7,9 +7,6 @@ use Modules\Base\Entities\Config\ConfigEntityModel;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('base_configs', function (Blueprint $table) {
@@ -28,9 +25,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('base_configs');

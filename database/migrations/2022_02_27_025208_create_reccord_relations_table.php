@@ -7,9 +7,6 @@ use Modules\Base\Entities\RecordRelation\RecordRelationEntityModel;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('base_record_relations', function (Blueprint $table) {
@@ -22,9 +19,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('base_record_relations');
