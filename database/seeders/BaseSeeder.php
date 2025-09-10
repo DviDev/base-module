@@ -50,17 +50,16 @@ abstract class BaseSeeder extends Seeder
         $this->commandInfo($class, '🟢 done');
     }
 
-
     protected function commandWarn(string $target, ?string $label = null): void
     {
         $item = str($target)->explode('\\');
         $msg = collect('🤖')
             ->add($item->last())
-            ->add('('.$item->slice(1,1)->first().')')
+            ->add('('.$item->slice(1, 1)->first().')')
             ->add($label)
             ->join(' ');
         Log::warning($msg);
-        $this->command->warn(PHP_EOL. $msg);
+        $this->command->warn(PHP_EOL.$msg);
     }
 
     protected function commandInfo(string $target, ?string $label = null): void
@@ -68,11 +67,11 @@ abstract class BaseSeeder extends Seeder
         $item = str($target)->explode('\\');
         $msg = collect('🤖')
             ->add($item->last())
-            ->add('('.$item->slice(1,1)->first().')')
+            ->add('('.$item->slice(1, 1)->first().')')
             ->add($label)
             ->join(' ');
 
         Log::info($msg);
-        $this->command->info(PHP_EOL. $msg);
+        $this->command->info(PHP_EOL.$msg);
     }
 }
