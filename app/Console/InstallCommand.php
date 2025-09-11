@@ -20,7 +20,7 @@ class InstallCommand extends Command
 
     public function handle()
     {
-        new SeedFirstOrCreateUser()->createUserTypes();
+        (new SeedFirstOrCreateUser)->createUserTypes();
 
         Bus::chain([
             function () {
