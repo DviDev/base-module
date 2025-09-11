@@ -33,9 +33,6 @@
                                         $properties = $collection->pluck('value', 'name')->all();
                                         $properties['value'] = $model->{$properties['name']};
                                     }
-                                    $attributes_ = $collection
-                                        ->map(fn(ElementPropertyModel $p) => $p->name.'="'.$p->value.'"')
-                                        ->join(' ');
                                 @endphp
                                 @if($component_->type->enum() == ViewStructureComponentType::text && isset($properties['name']) && str($properties['name'])->contains('image_path'))
                                     <x-dvui::form.fileinput :label="$properties['label']" :attr="$properties"/>
