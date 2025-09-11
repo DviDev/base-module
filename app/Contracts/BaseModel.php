@@ -26,11 +26,13 @@ use Modules\Base\Traits\HasFirstOrCreateViaFactory;
  */
 abstract class BaseModel extends Model implements BaseModelInterface
 {
-    public $timestamps = false;
-
     use BaseModelImplementation;
     use HasFactory;
     use HasFirstOrCreateViaFactory;
+
+    public $timestamps = false;
+
+    protected $guarded = [];
 
     public function getGuarded(): array
     {
