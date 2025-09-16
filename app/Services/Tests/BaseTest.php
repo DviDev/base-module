@@ -3,6 +3,7 @@
 namespace Modules\Base\Services\Tests;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
 use Modules\Base\Contracts\BaseModel;
 use Tests\TestCase;
@@ -122,6 +123,9 @@ abstract class BaseTest extends TestCase
         if (isset($attributes['updated_at'])) {
             $attributes['updated_at'] = (new Carbon($attributes['updated_at']))->format('Y-m-d H:i:s');
         }
+        if (isset($attributes['deleted_at'])) {
+            $attributes['deleted_at'] = (new Carbon($attributes['deleted_at']))->format('Y-m-d H:i:s');
+        }
 
         return $attributes;
     }
@@ -133,10 +137,16 @@ abstract class BaseTest extends TestCase
 
     public function shouldDelete(): void
     {
+        /** @var BaseModel $model */
         $model = $this->create();
         $model->delete();
         $attributes = $model->attributesToArray();
         $attributes = $this->fixTimestamps($attributes);
-        $this->assertDatabaseMissing($this->getModelClass()::table(), $attributes);
+        if (in_array(SoftDeletes::class, class_uses($model))) {
+            $this->assertDatabaseHas($this->getModelClass()::table(), [$model->getKeyName() => $model->getKey(), 'deleted_at' => $model->deleted_at]);
+
+            return;
+        }
+        $this->assertDatabaseMissing($this->getModelClass()::table(), [$model->getKeyName() => $model->getKey()]);
     }
 }
