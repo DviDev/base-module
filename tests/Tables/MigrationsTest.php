@@ -7,7 +7,7 @@ use Modules\Base\Entities\Record\RecordEntityModel;
 use Modules\Base\Entities\RecordRelation\RecordRelationEntityModel;
 use Modules\Base\Entities\RecordType\RecordTypeEntityModel;
 
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(Tests\TestCase::class);
 
 describe('base.migrations', function () {
     describe('base.table.base_record_types', function () {

@@ -11,7 +11,7 @@ use Modules\Base\Contracts\BaseServiceProviderContract;
 use Modules\Base\Contracts\BaseServiceProviderInterface;
 use Modules\Base\Contracts\EntityInterface;
 use Modules\Base\Contracts\EntityModelInterface;
-use Modules\Base\Database\Migrations\BaseMigration;
+use Modules\Base\Contracts\BaseMigration;
 use Modules\Base\Database\Seeders\BaseDatabaseSeeder;
 use Modules\Base\Database\Seeders\BaseSeeder;
 use Modules\Base\Database\Seeders\ConfigTableSeeder;
