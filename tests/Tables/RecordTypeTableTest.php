@@ -1,6 +1,6 @@
 <?php
 
-namespace Base\tests\Tables;
+namespace Modules\Base\Tests\Tables;
 
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Models\RecordTypeModel;
