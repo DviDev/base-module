@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
@@ -549,7 +550,7 @@ abstract class BaseFactory extends Factory
             ViewStructureComponentType::time => now()->toTimeString(),
             ViewStructureComponentType::text_multiline => $value_default ?? fake()->text($length < 5 ? 10 : $length),
             ViewStructureComponentType::text => $value_default ?? self::getFakeValue($key, $length),
-            ViewStructureComponentType::html => $value_default ?? fake()->sentences(20, true),
+            ViewStructureComponentType::html => $value_default ?? self::getFakeValue($key, $length),
             ViewStructureComponentType::checkbox_unique => $value_default ?? fake()->boolean(),
             ViewStructureComponentType::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
             ViewStructureComponentType::float => $value_default ?? fake()->randomFloat(2, 1, 999999),
@@ -617,5 +618,15 @@ abstract class BaseFactory extends Factory
     {
         /** @var BaseModel $class */
         return $class::query()->count() == 0;
+    }
+
+    protected function getTableIndexes(BaseEntityModel $entity): array
+    {
+        return cache()->rememberForever("table::{$entity->table}::indexes", fn () => Schema::getIndexes($entity->table));
+    }
+
+    protected function getTableForeignKeys(BaseEntityModel $entity): array
+    {
+        return cache()->rememberForever("table::{$entity->table}::foreign_keys", fn () => Schema::getForeignKeys($entity->table));
     }
 }
