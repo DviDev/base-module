@@ -38,7 +38,7 @@ trait Props
      * @param  null  $alias
      * @param  null  $force
      */
-    public static function props($alias = null, $force = null): object
+    public static function props($alias = null, $force = null): BaseEntityModel
     {
         $key = static::class.'-props'.($alias ? '_'.$alias : '');
         $getProps = function () use ($alias) {
@@ -48,6 +48,7 @@ trait Props
             foreach (static::propsArray() as $name) {
                 $props[$name] = ($alias ? ($alias.'.') : '').$name;
             }
+            /** @var BaseEntityModel $class */
             $class = new $class($props);
             $class->table_alias = $alias;
 
