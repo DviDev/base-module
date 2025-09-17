@@ -318,8 +318,8 @@ abstract class BaseFactory extends Factory
                 }
                 $files = \File::files(module_path($module->getName(), 'app/Models'));
                 foreach ($files as $file) {
-                    /** @var BaseModel $model */
                     $model = 'Modules/'.$module->getName().'/Models/'.$file->getFilenameWithoutExtension();
+                    /** @var BaseModel $model */
                     $model = str($model)->replace('/', '\\')->value();
 
                     if (in_array(BaseModelInterface::class, class_implements($model))) {
