@@ -511,9 +511,11 @@ abstract class BaseFactory extends Factory
             $precision = null;
             if ($str->contains(['(', ')'])) {
                 $length = $str->remove([$type, '(', ')'])->value();
-                if (str($length)->contains('.')) {
-                    $precision = str($length)->explode('.')->first();
-                    $scale = $str->explode('.')->last();
+                if (str($length)->contains(',')) {
+                    $first = str($length)->explode(' ')->first();
+                    $collection = str($first)->explode(',');
+                    $precision = $collection->first();
+                    $scale = $collection->last();
                 }
             }
 
