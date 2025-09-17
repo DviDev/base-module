@@ -555,8 +555,8 @@ abstract class BaseFactory extends Factory
             ViewStructureComponentType::html => $value_default ?? self::getFakeValue($key, $length),
             ViewStructureComponentType::checkbox_unique => $value_default ?? fake()->boolean(),
             ViewStructureComponentType::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
-            ViewStructureComponentType::float => $value_default ?? fake()->randomFloat(2, 1, 999999),
-            ViewStructureComponentType::number => $value_default ?? fake()->numberBetween(1, 90),
+            ViewStructureComponentType::float => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
+            ViewStructureComponentType::number => $value_default ?? fake()->numberBetween(1, $length),
             default => 1
         };
     }
