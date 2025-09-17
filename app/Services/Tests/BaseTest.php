@@ -87,7 +87,7 @@ abstract class BaseTest extends TestCase
             $attributes['created_at'] = $created_at->format('Y-m-d H:i:s');
         }
         if (isset($attributes['updated_at'])) {
-            $attributes['updated_at'] = (new Carbon($attributes['updated_at']))->format('Y-m-d H:i:s');
+            $attributes['updated_at'] = new Carbon($attributes['updated_at'])->format('Y-m-d H:i:s');
         }
 
         $this->assertDatabaseHas($this->getModelClass()::table(), $attributes);
@@ -120,13 +120,13 @@ abstract class BaseTest extends TestCase
         if (isset($attributes['created_at'])) {
             $attributes['created_at'] = is_a($attributes['created_at'], Carbon::class)
                 ? $attributes['created_at']->format('Y-m-d H:i:s')
-                : (new Carbon($attributes['created_at']))->format('Y-m-d H:i:s');
+                : new Carbon($attributes['created_at'])->format('Y-m-d H:i:s');
         }
         if (isset($attributes['updated_at'])) {
-            $attributes['updated_at'] = (new Carbon($attributes['updated_at']))->format('Y-m-d H:i:s');
+            $attributes['updated_at'] = new Carbon($attributes['updated_at'])->format('Y-m-d H:i:s');
         }
         if (isset($attributes['deleted_at'])) {
-            $attributes['deleted_at'] = (new Carbon($attributes['deleted_at']))->format('Y-m-d H:i:s');
+            $attributes['deleted_at'] = new Carbon($attributes['deleted_at'])->format('Y-m-d H:i:s');
         }
 
         return $attributes;
@@ -142,8 +142,6 @@ abstract class BaseTest extends TestCase
         /** @var BaseModel $model */
         $model = $this->create();
         $model->delete();
-        $attributes = $model->attributesToArray();
-        $attributes = $this->fixTimestamps($attributes);
         if (in_array(SoftDeletes::class, class_uses($model))) {
             $this->assertDatabaseHas($this->getModelClass()::table(), [$model->getKeyName() => $model->getKey(), 'deleted_at' => $model->deleted_at]);
 
