@@ -33,11 +33,13 @@ abstract class BaseTest extends TestCase
     {
         $modelClass = $this->getModelClass();
         $entityClass = (new $modelClass)->modelEntity();
-        $this->assertTrue(
-            Schema::hasColumns($modelClass::table(),
-                $entityClass::propsArray()
-            )
-        );
+        foreach ($entityClass::propsArray() as $item) {
+            $hasColumn = Schema::hasColumn($modelClass::table(), $item);
+            if (!$hasColumn) {
+                dump('💥 '.$modelClass::table()."->{$item} not found 💥");
+            }
+            $this->assertTrue($hasColumn);
+        }
     }
 
     public function test_can_create_instance_of_entity()
