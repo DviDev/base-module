@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\Sequence;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Support\Stringable;
@@ -53,7 +54,7 @@ abstract class BaseFactory extends Factory
             return fake()->text(random_int(round($length / 2), $length));
         }
         if ($key == 'email') {
-            return now()->timestamp.'_'.fake()->email();
+            return now()->timestamp.'_'.fake()->unique()->email();
         }
         if ($key == 'uuid') {
             return fake()->uuid();
@@ -75,6 +76,9 @@ abstract class BaseFactory extends Factory
         if (in_array($key, ['telefone', 'phone'])) {
             return '1199'.random_int(100, 999).random_int(10, 99).random_int(10, 99);
         }
+        if (str($key)->contains(['url', 'link'])) {
+            return str(fake()->unique()->url())->append('?'.fake()->randomNumber(3, true))->value();
+        }
 
         return str(fake()->sentence(3))->substr(0, $length)->value();
     }
@@ -92,6 +96,12 @@ abstract class BaseFactory extends Factory
     /**@param Factory|Model $factory */
     public function for($factory, $relationship = null)
     {
+        if (empty($factory)) {
+            $called_class = get_called_class();
+            Log::error("factory $factory - $relationship not found in: $called_class");
+
+            return null;
+        }
         $related = $factory;
         if ($factory instanceof Factory) {
             $related = $factory->modelName();
@@ -100,7 +110,8 @@ abstract class BaseFactory extends Factory
         }
 
         if (! $related) {
-            throw new \Exception('factory not found');
+            $called_class = get_called_class();
+            throw new \Exception("factory $factory - $relationship not found in: $called_class");
         }
         $relationship = $relationship ?? $this->guessRelationship($related);
 
@@ -161,11 +172,8 @@ abstract class BaseFactory extends Factory
     protected function getValues($fixed_values = []): array
     {
         try {
-            /** @var BaseModel $model */
-            $model = $this->model;
-            $entity = (new $model)->modelEntity()::props();
 
-            $columns = $this->getFkColumns($entity, $model, $fixed_values);
+            $columns = $this->getFkColumns($fixed_values);
 
             $another_columns = $this->defineValuesForOptionalFields($columns, $fixed_values);
 
@@ -180,18 +188,23 @@ abstract class BaseFactory extends Factory
 
             return $columns;
         } catch (Exception $e) {
-            throw new Exception('Entity: '.$entity->table().' - '.$e->getMessage());
+            throw new Exception('Model: '.$this->model.' - '.$e->getMessage());
         }
     }
 
-    protected function getFkColumns(BaseEntityModel $entity, BaseModel|string $model, $fixed_values): array
+    protected function getFkColumns($fixed_values): array
     {
+        /** @var BaseModel $model */
+        $model = $this->model;
+        $entity = (new $model)->modelEntity()::props();
+
         $columns = $this->getTableColumns($entity, $fixed_values);
         $table_models = $this->getTableModels();
-        $indexes = Schema::getIndexes($entity->table);
-        $fks = Schema::getForeignKeys($entity->table);
+        $indexes = $this->getTableIndexes($entity);
+        $fks = $this->getTableForeignKeys($entity);
         foreach ($fks as $fk) {
             $column = $fk['columns'][0];
+
             $columns[$column]['fk'] = true;
 
             if (! empty($columns[$column]['value'])) {
@@ -214,50 +227,52 @@ abstract class BaseFactory extends Factory
             if ($has_for) {
                 continue;
             }
-            if ($this->columnsContain($columns, $column)) {
-                // Verifica se é a mesma tabela
-                // Se houver chave estrangeira para msm tabela irá causar um loop infinito. (é comum em campos como parent_id)
-                if ($foreignTableName == $entity->table) {
-                    $columns[$column]['value'] = $model::query()->first()->id ?? null;
-
-                    continue;
-                }
-                $this->validate($table_models, $foreignTableName, $entity, $fk);
-
-                if ($this->modelIsEmpty($model)) {
-                    $columns[$column]['value'] = $this->createRelation($fk_model_class);
-
-                    continue;
-                }
-
-                $contain_in_index_unique = $this->containInIndexUnique($indexes, $column);
-
-                if (! $contain_in_index_unique) {
-                    $columns[$column]['value'] = $this->randomOrNewRelation($fk_model_class, $model, $column);
-
-                    continue;
-                }
-
-                if (! $this->indexIsUniqueMultiple($indexes, $column)) {
-                    $columns[$column]['value'] = $this->createRelation($fk_model_class);
-
-                    continue;
-
-                }
-
-                // Todo get all unique columns and check if has in $columns with same values
-                // ...
-
-                $fk_id = $this->randomRelationId($fk_model_class, $model, $column);
-
-                if ($fk_id) {
-                    $columns[$column]['value'] = $fk_id;
-
-                    continue;
-                }
-
-                $columns[$column]['value'] = $this->createRelation($fk_model_class);
+            if (! $this->columnsContain($columns, $column)) {
+                continue;
             }
+
+            // Verifica se é a mesma tabela
+            // Se houver chave estrangeira para msm tabela irá causar um loop infinito. (é comum em campos como parent_id)
+            if ($foreignTableName == $entity->table) {
+                $columns[$column]['value'] = $model::query()->first()->id ?? null;
+
+                continue;
+            }
+            $this->validate($table_models, $foreignTableName, $entity, $fk);
+
+            if ($this->modelIsEmpty($model)) {
+                $columns[$column]['value'] = $this->createRelation($fk_model_class);
+
+                continue;
+            }
+
+            $contain_in_index_unique = $this->containInIndexUnique($indexes, $column);
+
+            if (! $contain_in_index_unique) {
+                $columns[$column]['value'] = $this->randomOrNewRelation($fk_model_class, $model, $column);
+
+                continue;
+            }
+
+            if (! $this->indexIsUniqueMultiple($indexes, $column)) {
+                $columns[$column]['value'] = $this->createRelation($fk_model_class);
+
+                continue;
+
+            }
+
+            // Todo get all unique columns and check if has in $columns with same values
+            // ...
+
+            $fk_id = $this->randomRelationId($fk_model_class, $model, $column);
+
+            if ($fk_id) {
+                $columns[$column]['value'] = $fk_id;
+
+                continue;
+            }
+
+            $columns[$column]['value'] = $this->createRelation($fk_model_class);
         }
 
         return $columns;
@@ -265,23 +280,25 @@ abstract class BaseFactory extends Factory
 
     protected function getTableColumns(BaseEntityModel $entity, mixed $fixed_values): array
     {
-        $columns = [];
+        return cache()->rememberForever('table_columns_'.$entity->table, function () use ($entity, $fixed_values) {
+            $columns = [];
 
-        $tableColumns = Schema::getColumns($entity->table);
+            $tableColumns = Schema::getColumns($entity->table);
 
-        foreach ($tableColumns as $column) {
-            $column_name = $column['name'];
-            if ($column_name == 'id') {
-                continue;
+            foreach ($tableColumns as $column) {
+                $column_name = $column['name'];
+                if ($column_name == 'id') {
+                    continue;
+                }
+
+                $columns[$column_name]['obj'] = $column;
+                $columns[$column_name]['value'] = $fixed_values[$column_name] ?? null;
+                $columns[$column_name]['required'] = ! $column['nullable'];
+                $columns[$column_name]['fk'] = null;
             }
 
-            $columns[$column_name]['obj'] = $column;
-            $columns[$column_name]['value'] = $fixed_values[$column_name] ?? null;
-            $columns[$column_name]['required'] = ! $column['nullable'];
-            $columns[$column_name]['fk'] = null;
-        }
-
-        return $columns;
+            return $columns;
+        });
     }
 
     protected function getTableModels(): array
@@ -301,8 +318,8 @@ abstract class BaseFactory extends Factory
                 }
                 $files = \File::files(module_path($module->getName(), 'app/Models'));
                 foreach ($files as $file) {
-                    /** @var BaseModel $model */
                     $model = 'Modules/'.$module->getName().'/Models/'.$file->getFilenameWithoutExtension();
+                    /** @var BaseModel $model */
                     $model = str($model)->replace('/', '\\')->value();
 
                     if (in_array(BaseModelInterface::class, class_implements($model))) {
@@ -423,8 +440,11 @@ abstract class BaseFactory extends Factory
             return $this->createRelation($fk_model_class);
         }
 
-        return $this->randomRelationId($fk_model_class, $model_class, $attribute_id)
-            ?: $this->createRelation($fk_model_class);
+        if ($relation_id = $this->randomRelationId($fk_model_class, $model_class, $attribute_id)) {
+            return $relation_id;
+        }
+
+        return $this->createRelation($fk_model_class);
     }
 
     /**
@@ -491,9 +511,11 @@ abstract class BaseFactory extends Factory
             $precision = null;
             if ($str->contains(['(', ')'])) {
                 $length = $str->remove([$type, '(', ')'])->value();
-                if (str($length)->contains('.')) {
-                    $precision = str($length)->explode('.')->first();
-                    $scale = $str->explode('.')->last();
+                if (str($length)->contains(',')) {
+                    $first = str($length)->explode(' ')->first();
+                    $collection = str($first)->explode(',');
+                    $precision = $collection->first();
+                    $scale = $collection->last();
                 }
             }
 
@@ -530,11 +552,11 @@ abstract class BaseFactory extends Factory
             ViewStructureComponentType::time => now()->toTimeString(),
             ViewStructureComponentType::text_multiline => $value_default ?? fake()->text($length < 5 ? 10 : $length),
             ViewStructureComponentType::text => $value_default ?? self::getFakeValue($key, $length),
-            ViewStructureComponentType::html => $value_default ?? fake()->sentences(20, true),
+            ViewStructureComponentType::html => $value_default ?? self::getFakeValue($key, $length),
             ViewStructureComponentType::checkbox_unique => $value_default ?? fake()->boolean(),
             ViewStructureComponentType::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
-            ViewStructureComponentType::float => $value_default ?? fake()->randomFloat(2, 1, 999999),
-            ViewStructureComponentType::number => $value_default ?? fake()->numberBetween(1, 90),
+            ViewStructureComponentType::float => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
+            ViewStructureComponentType::number => $value_default ?? fake()->numberBetween(1, $length),
             default => 1
         };
     }
@@ -598,5 +620,15 @@ abstract class BaseFactory extends Factory
     {
         /** @var BaseModel $class */
         return $class::query()->count() == 0;
+    }
+
+    protected function getTableIndexes(BaseEntityModel $entity): array
+    {
+        return cache()->rememberForever("table::{$entity->table}::indexes", fn () => Schema::getIndexes($entity->table));
+    }
+
+    protected function getTableForeignKeys(BaseEntityModel $entity): array
+    {
+        return cache()->rememberForever("table::{$entity->table}::foreign_keys", fn () => Schema::getForeignKeys($entity->table));
     }
 }
