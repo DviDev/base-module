@@ -30,7 +30,7 @@ use Modules\Project\Models\ProjectModuleEntityDBModel;
 
 abstract class BaseMigration extends Migration
 {
-    public function baseUp(ProjectModuleEntityDBModel $entity, ?\Closure $fn = null): void
+    protected function baseUp(ProjectModuleEntityDBModel $entity, ?\Closure $fn = null): void
     {
         Schema::create($entity->name, function (Blueprint $table) use ($entity) {
             $map = [
@@ -72,7 +72,7 @@ abstract class BaseMigration extends Migration
         }
     }
 
-    public function createsUniqueCompositeKey(ProjectModuleEntityDBModel $entity, Blueprint $table): void
+    protected function createsUniqueCompositeKey(ProjectModuleEntityDBModel $entity, Blueprint $table): void
     {
         if ($columns = $entity->getAttributeUniques()->get()->pluck('name')->all()) {
             $table->unique(columns: $columns, name: collect($columns)->prepend('uniques_')->join('_'));

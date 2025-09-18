@@ -6,7 +6,7 @@ use Modules\Project\Contracts\DefineSearchableAttributesContract;
 
 class DefineSearchableAttributes extends DefineSearchableAttributesContract
 {
-    public function searchableFields(): array
+    protected function searchableFields(): array
     {
         return [];
     }
