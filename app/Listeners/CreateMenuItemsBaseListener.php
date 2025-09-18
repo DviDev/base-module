@@ -11,7 +11,7 @@ use Modules\Project\Events\CreateMenuItemsEvent;
 
 class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
 {
-    public function moduleName(): string
+    protected function moduleName(): string
     {
         return 'Base';
     }
