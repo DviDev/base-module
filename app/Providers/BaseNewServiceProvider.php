@@ -2,6 +2,7 @@
 
 namespace Modules\Base\Providers;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
@@ -39,6 +40,8 @@ class BaseNewServiceProvider extends ServiceProvider
         $this->loadMigrationsFrom(module_path($this->name, 'database/migrations'));
 
         $this->registerComponents();
+
+        Model::preventLazyLoading();
     }
 
     /**
