@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Providers;
 
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +21,7 @@ use Nwidart\Modules\Traits\PathNamespace;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
-class BaseNewServiceProvider extends ServiceProvider
+final class BaseNewServiceProvider extends ServiceProvider
 {
     use PathNamespace;
 
@@ -57,6 +59,49 @@ class BaseNewServiceProvider extends ServiceProvider
     }
 
     /**
+     * Register translations.
+     */
+    public function registerTranslations(): void
+    {
+        $langPath = resource_path('lang/modules/'.$this->nameLower);
+
+        if (is_dir($langPath)) {
+            $this->loadTranslationsFrom($langPath, $this->nameLower);
+            $this->loadJsonTranslationsFrom($langPath);
+        } else {
+            $this->loadTranslationsFrom(module_path($this->name, 'lang'), $this->nameLower);
+            $this->loadJsonTranslationsFrom(module_path($this->name, 'lang'));
+        }
+    }
+
+    /**
+     * Register views.
+     */
+    public function registerViews(): void
+    {
+        $viewPath = resource_path('views/modules/'.$this->nameLower);
+
+        $sourcePath = module_path($this->name, 'resources/views');
+
+        $this->publishes(
+            [$sourcePath => $viewPath],
+            ['views', $this->nameLower.'-module-views']
+        );
+
+        $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->nameLower);
+
+        Blade::componentNamespace(config('modules.namespace').'\\'.$this->name.'\\View\\Components', $this->nameLower);
+    }
+
+    /**
+     * Get the services provided by the provider.
+     */
+    public function provides(): array
+    {
+        return [];
+    }
+
+    /**
      * Register commands in the format of Command::class
      */
     protected function registerCommands(): void
@@ -78,22 +123,6 @@ class BaseNewServiceProvider extends ServiceProvider
         //     $schedule = $this->app->make(Schedule::class);
         //     $schedule->command('inspire')->hourly();
         // });
-    }
-
-    /**
-     * Register translations.
-     */
-    public function registerTranslations(): void
-    {
-        $langPath = resource_path('lang/modules/'.$this->nameLower);
-
-        if (is_dir($langPath)) {
-            $this->loadTranslationsFrom($langPath, $this->nameLower);
-            $this->loadJsonTranslationsFrom($langPath);
-        } else {
-            $this->loadTranslationsFrom(module_path($this->name, 'lang'), $this->nameLower);
-            $this->loadJsonTranslationsFrom(module_path($this->name, 'lang'));
-        }
     }
 
     /**
@@ -140,31 +169,12 @@ class BaseNewServiceProvider extends ServiceProvider
         config([$key => array_replace_recursive($existing, $module_config)]);
     }
 
-    /**
-     * Register views.
-     */
-    public function registerViews(): void
+    protected function registerGlobalWebMiddlewares(): void
     {
-        $viewPath = resource_path('views/modules/'.$this->nameLower);
-
-        $sourcePath = module_path($this->name, 'resources/views');
-
-        $this->publishes(
-            [$sourcePath => $viewPath],
-            ['views', $this->nameLower.'-module-views']
-        );
-
-        $this->loadViewsFrom(array_merge($this->getPublishableViewPaths(), [$sourcePath]), $this->nameLower);
-
-        Blade::componentNamespace(config('modules.namespace').'\\'.$this->name.'\\View\\Components', $this->nameLower);
-    }
-
-    /**
-     * Get the services provided by the provider.
-     */
-    public function provides(): array
-    {
-        return [];
+        $router = $this->app['router'];
+        if (config('base.use.spotlight')) {
+            $router->pushMiddlewareToGroup('web', UseSpotlightMiddleware::class);
+        }
     }
 
     private function getPublishableViewPaths(): array
@@ -177,14 +187,6 @@ class BaseNewServiceProvider extends ServiceProvider
         }
 
         return $paths;
-    }
-
-    protected function registerGlobalWebMiddlewares(): void
-    {
-        $router = $this->app['router'];
-        if (config('base.use.spotlight')) {
-            $router->pushMiddlewareToGroup('web', UseSpotlightMiddleware::class);
-        }
     }
 
     private function registerComponents()

@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Notifications;
 
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class NotifyException extends Notification
+final class NotifyException extends Notification
 {
     use Queueable;
 
@@ -15,7 +18,7 @@ class NotifyException extends Notification
      *
      * @return void
      */
-    public function __construct(public \Exception $exception)
+    public function __construct(public Exception $exception)
     {
         //
     }

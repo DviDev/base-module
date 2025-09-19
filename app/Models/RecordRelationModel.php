@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Models;
 
 use Modules\Base\Contracts\BaseModel;
@@ -16,7 +18,7 @@ use Modules\Base\Factories\BaseFactory;
  *
  * @method RecordRelationEntityModel toEntity()
  */
-class RecordRelationModel extends BaseModel
+final class RecordRelationModel extends BaseModel
 {
     use RecordRelationProps;
 
@@ -25,16 +27,16 @@ class RecordRelationModel extends BaseModel
         return self::dbTable('base_record_relations', $alias);
     }
 
+    public function modelEntity(): string
+    {
+        return RecordRelationEntityModel::class;
+    }
+
     protected static function newFactory(): BaseFactory
     {
         return new class extends BaseFactory
         {
             protected $model = RecordRelationModel::class;
         };
-    }
-
-    public function modelEntity(): string
-    {
-        return RecordRelationEntityModel::class;
     }
 }

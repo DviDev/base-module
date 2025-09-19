@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Models;
 
 use App\Models\User;
@@ -19,7 +21,7 @@ use Modules\Base\Factories\BaseFactory;
  *
  * @method ConfigEntityModel toEntity()
  */
-class ConfigModel extends BaseModel
+final class ConfigModel extends BaseModel
 {
     use ConfigProps;
 
@@ -29,9 +31,26 @@ class ConfigModel extends BaseModel
         'updated_at' => 'datetime',
     ];
 
+    public static function table($alias = null): string
+    {
+        return self::dbTable('base_configs', $alias);
+    }
+
+    public static function byValue($name): mixed
+    {
+        return cache()->rememberForever("config::$name", function () {
+            return ConfigModel::firstWhere('name', 'app_logo')?->value;
+        });
+    }
+
     public function modelEntity(): string|BaseEntityModel
     {
         return ConfigEntityModel::class;
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     protected static function newFactory(): BaseFactory
@@ -40,22 +59,5 @@ class ConfigModel extends BaseModel
         {
             protected $model = ConfigModel::class;
         };
-    }
-
-    public static function table($alias = null): string
-    {
-        return self::dbTable('base_configs', $alias);
-    }
-
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public static function byValue($name): mixed
-    {
-        return cache()->rememberForever("config::$name", function () {
-            return ConfigModel::firstWhere('name', 'app_logo')?->value;
-        });
     }
 }

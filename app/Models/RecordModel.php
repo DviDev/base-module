@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Models;
 
 use Illuminate\Database\Eloquent\Builder;
@@ -21,26 +23,13 @@ use Modules\Base\Factories\BaseFactory;
  *
  * @mixin Builder
  */
-class RecordModel extends BaseModel
+final class RecordModel extends BaseModel
 {
     use RecordProps;
 
     public static function table($alias = null): string
     {
         return self::dbTable('base_records', $alias);
-    }
-
-    protected static function newFactory(): BaseFactory
-    {
-        return new class extends BaseFactory
-        {
-            protected $model = RecordModel::class;
-        };
-    }
-
-    public function modelEntity(): string|BaseEntityModel
-    {
-        return RecordEntityModel::class;
     }
 
     public static function createViaFactory(string $type_name): self
@@ -50,10 +39,23 @@ class RecordModel extends BaseModel
         ]);
     }
 
-    public static function createWithType(string $type): RecordModel
+    public static function createWithType(string $type): self
     {
-        return RecordModel::create([
+        return self::create([
             'type_id' => RecordTypeModel::firstOrCreate(['name' => $type])->id,
         ]);
+    }
+
+    public function modelEntity(): string|BaseEntityModel
+    {
+        return RecordEntityModel::class;
+    }
+
+    protected static function newFactory(): BaseFactory
+    {
+        return new class extends BaseFactory
+        {
+            protected $model = RecordModel::class;
+        };
     }
 }
