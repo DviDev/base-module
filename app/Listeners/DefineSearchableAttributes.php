@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Listeners;
 
 use Modules\Project\Contracts\DefineSearchableAttributesContract;
 
-class DefineSearchableAttributes extends DefineSearchableAttributesContract
+final class DefineSearchableAttributes extends DefineSearchableAttributesContract
 {
     protected function searchableFields(): array
     {

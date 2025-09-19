@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class LocalEnvironmentMiddleware
+final class LocalEnvironmentMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {

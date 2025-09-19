@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Listeners;
 
 use Modules\Base\Events\InstallFinishedEvent;
 
-class CreateProjectDataListener
+final class CreateProjectDataListener
 {
     public function handle(InstallFinishedEvent $event): void
     {
