@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Factories;
 
 use Illuminate\Database\Schema\Blueprint;
@@ -23,14 +25,14 @@ abstract class AttributeFactory
         if ($attributeEntity->unique) {
             $t->unique();
         }
-        if ($attributeEntity->index == 'KEY') {
+        if ($attributeEntity->index === 'KEY') {
             $t->index($attributeEntity->name);
         }
-        if ($attributeEntity->index == 'FULLTEXT') {
+        if ($attributeEntity->index === 'FULLTEXT') {
             $t->fulltext($attributeEntity->name);
         }
 
-        $t->default($attributeEntity->default)->nullable($attributeEntity->required == null)->comment($attributeEntity->comments);
+        $t->default($attributeEntity->default)->nullable($attributeEntity->required === null)->comment($attributeEntity->comments);
     }
 
     protected function resolveUnsigned(ColumnDefinition $column, $unsigned): void
