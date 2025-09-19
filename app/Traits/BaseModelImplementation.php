@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Traits;
 
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Contracts\BaseModel;
@@ -20,7 +23,7 @@ trait BaseModelImplementation
     }
 
     /**@return self */
-    public static function createFn(\Closure $fn)
+    public static function createFn(Closure $fn)
     {
         $entity_class = (new static)->modelEntity();
         $attributes = $fn($entity_class::props());
@@ -28,7 +31,7 @@ trait BaseModelImplementation
         return self::query()->create($attributes);
     }
 
-    public static function whereFn(\Closure $fn): Builder
+    public static function whereFn(Closure $fn): Builder
     {
         $entity_class = (new static)->modelEntity();
         $arrays = $fn($entity_class::props());
@@ -42,6 +45,33 @@ trait BaseModelImplementation
         }
 
         return $builder;
+    }
+
+    public function props($alias = null, $refresh = false): object
+    {
+        return $this->modelEntity()::props($alias, $refresh);
+    }
+
+    public function toEntity(): BaseEntityModel
+    {
+        $entity_class = $this->modelEntity();
+
+        /** @var BaseEntityModel $entity */
+        $entity = $entity_class::props();
+        $entity->model = $this;
+
+        foreach ($entity->toArray() as $prop => $attribute) {
+            $entity->set($prop, $this->$prop, true);
+        }
+
+        return $entity;
+    }
+
+    public function repository()
+    {
+        $entity = $this->modelEntity();
+
+        return (new $entity)->repository($this);
     }
 
     protected static function booted()
@@ -70,35 +100,8 @@ trait BaseModelImplementation
         parent::booted();
     }
 
-    public function props($alias = null, $refresh = false): object
-    {
-        return $this->modelEntity()::props($alias, $refresh);
-    }
-
     protected static function dbTable($table, $alias = null): string
     {
         return $table.($alias ? ' as '.$alias : '');
-    }
-
-    public function toEntity(): BaseEntityModel
-    {
-        $entity_class = $this->modelEntity();
-
-        /** @var BaseEntityModel $entity */
-        $entity = $entity_class::props();
-        $entity->model = $this;
-
-        foreach ($entity->toArray() as $prop => $attribute) {
-            $entity->set($prop, $this->$prop, true);
-        }
-
-        return $entity;
-    }
-
-    public function repository()
-    {
-        $entity = $this->modelEntity();
-
-        return (new $entity)->repository($this);
     }
 }

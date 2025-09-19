@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Carbon\Carbon;
 use Illuminate\Support\Number;
 use Illuminate\View\ComponentAttributeBag;
@@ -16,7 +18,7 @@ if (! function_exists('prepareAttributes')) {
             ->filter(fn ($i) => isset($i))
             ->forget('attr');
         if (! $items->has('id')) {
-            $items->put('id', 'comp_'.now()->timestamp.\Str::random(5));
+            $items->put('id', 'comp_'.now()->timestamp.Str::random(5));
         }
         $array = $items->all();
         if (isset($array['name'])) {
@@ -26,7 +28,7 @@ if (! function_exists('prepareAttributes')) {
             $array['placeholder'] = __($array['placeholder']);
         }
         if (isset($array['label'])) {
-            $array['label'] = ucfirst(trans(strtolower($array['label'])));
+            $array['label'] = ucfirst(trans(mb_strtolower($array['label'])));
         }
 
         $attributes->setAttributes($array);
@@ -44,7 +46,7 @@ if (! function_exists('currencyToText')) {
 
     function currencyToText(float $value, $locale = null)
     {
-        $formatter = new \NumberFormatter($locale ?: config('app.locale'), \NumberFormatter::SPELLOUT);
+        $formatter = new NumberFormatter($locale ?: config('app.locale'), NumberFormatter::SPELLOUT);
 
         // Separar a parte inteira e a parte decimal
         $partes = explode('.', number_format($value, 2, '.', ''));

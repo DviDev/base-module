@@ -1,18 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Database\Seeders;
 
-class SeederEventDTO
+final class SeederEventDTO
 {
-    protected string $event;
+    private string $event;
 
-    protected array $parameters;
+    private array $parameters;
 
     private function __construct() {}
 
     public static function event(string $event): static
     {
-        $new = new static;
+        $new = new self;
         $new->event = $event;
 
         return $new;

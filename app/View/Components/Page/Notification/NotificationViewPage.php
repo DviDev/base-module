@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\View\Components\Page\Notification;
 
 use Illuminate\View\View;
 use Modules\DvUi\Enums\DvuiComponentAlias;
 use Modules\DvUi\View\BaseBladeComponent;
 
-class NotificationViewPage extends BaseBladeComponent
+final class NotificationViewPage extends BaseBladeComponent
 {
     /**
      * Get the view/contents that represent the component.

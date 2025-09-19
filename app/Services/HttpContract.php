@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Services;
 
 use Illuminate\Http\Client\ConnectionException;
@@ -15,11 +17,11 @@ use Modules\Base\Services\Response\ResponseType;
 
 abstract class HttpContract
 {
-    protected mixed $data;
-
     public Response $serviceResponse;
 
     public BaseResponse $baseResponse;
+
+    protected mixed $data;
 
     public function __construct(mixed $data = [])
     {
@@ -27,7 +29,12 @@ abstract class HttpContract
         $this->baseResponse = new BaseResponse;
     }
 
-    abstract public function run(): HttpContract;
+    public function __toString()
+    {
+        return json_encode($this->baseResponse->toArray(), JSON_UNESCAPED_UNICODE);
+    }
+
+    abstract public function run(): self;
 
     abstract protected function endPoint(): string;
 
@@ -38,6 +45,13 @@ abstract class HttpContract
     abstract protected function loginContract(): mixed;
 
     abstract protected function moduleName(): string;
+
+    public function body(): string
+    {
+        return $this->serviceResponse->body() === 'Invalid token'
+            ? 'serviço indisponível'
+            : $this->serviceResponse->body();
+    }
 
     protected function accessToken(): ?string
     {
@@ -116,13 +130,6 @@ abstract class HttpContract
         return $array;
     }
 
-    public function body(): string
-    {
-        return $this->serviceResponse->body() === 'Invalid token'
-            ? 'serviço indisponível'
-            : $this->serviceResponse->body();
-    }
-
     protected function checkIfFailed(): void
     {
         if (! $this->serviceResponse->failed()) {
@@ -144,12 +151,7 @@ abstract class HttpContract
         );
     }
 
-    public function __toString()
-    {
-        return json_encode($this->baseResponse->toArray(), JSON_UNESCAPED_UNICODE);
-    }
-
-    protected function makeLogin(): HttpContract
+    protected function makeLogin(): self
     {
         $loginContract = $this->loginContract();
         /** @var BaseLoginHttpServiceInterface $loginContract */

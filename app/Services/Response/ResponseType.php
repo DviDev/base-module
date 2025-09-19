@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Services\Response;
 
-class ResponseType
+final class ResponseType
 {
-    const SUCCESS = 'success';
+    public const SUCCESS = 'success';
 
-    const WARNING = 'warning';
+    public const WARNING = 'warning';
 
-    const DANGER = 'danger';
+    public const DANGER = 'danger';
 }

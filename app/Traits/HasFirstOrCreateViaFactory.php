@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Traits;
 
 use Exception;
@@ -35,7 +37,7 @@ trait HasFirstOrCreateViaFactory
         try {
             return static::factory()->create(array_merge($attributes, $values));
         } catch (Exception $e) {
-            if (config('app.env') == 'local') {
+            if (config('app.env') === 'local') {
                 Log::info(__('Failed to create the model: ').$e->getMessage());
                 Log::info($query->toRawSql());
             }

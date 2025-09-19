@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'name' => 'Base',
-    'local_testing_production' => config('app.env') == 'production' && env('APP_LOCAL_TESTING_PRODUCTION') == true,
-    'date_format' => config('app.locale') == 'pt_BR' ? 'd/m/Y' : 'Y-m-d',
-    'date_time_format' => config('app.locale') == 'pt_BR' ? 'd/m/Y H:i' : 'Y-m-d H:i',
+    'local_testing_production' => config('app.env') === 'production' && env('APP_LOCAL_TESTING_PRODUCTION') === true,
+    'date_format' => config('app.locale') === 'pt_BR' ? 'd/m/Y' : 'Y-m-d',
+    'date_time_format' => config('app.locale') === 'pt_BR' ? 'd/m/Y H:i' : 'Y-m-d H:i',
     'time_format' => 'H:i:s',
     'cache_keys' => [
         'project_app_name' => 'seeder::project::'.config('app.name'),
@@ -12,7 +14,7 @@ return [
     ],
     'default_layout' => env('DEFAULT_LAYOUT', 'flowbite'),
     'use' => [
-        'spotlight' => env('USE_SPOTLIGHT', config('app.env') == 'local'),
+        'spotlight' => env('USE_SPOTLIGHT', config('app.env') === 'local'),
     ],
     'modules' => [
         'paths' => [

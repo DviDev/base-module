@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Tests\Tables;
 
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Models\ConfigModel;
 use Modules\Base\Services\Tests\BaseTest;
 
-class ConfigTableTest extends BaseTest
+final class ConfigTableTest extends BaseTest
 {
     public function getModelClass(): string|BaseModel
     {

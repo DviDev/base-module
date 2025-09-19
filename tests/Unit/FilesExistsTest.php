@@ -1,17 +1,19 @@
 <?php
 
+declare(strict_types=1);
+
 use Modules\Base\Console\DispatchBaseEventsCommand;
 use Modules\Base\Console\DispatchInitialIndependentDataEventCommand;
 use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Console\InstallModulesCommand;
 use Modules\Base\Contracts\BaseLivewireFormContract;
+use Modules\Base\Contracts\BaseMigration;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\BaseModelInterface;
 use Modules\Base\Contracts\BaseServiceProviderContract;
 use Modules\Base\Contracts\BaseServiceProviderInterface;
 use Modules\Base\Contracts\EntityInterface;
 use Modules\Base\Contracts\EntityModelInterface;
-use Modules\Base\Contracts\BaseMigration;
 use Modules\Base\Database\Seeders\BaseDatabaseSeeder;
 use Modules\Base\Database\Seeders\BaseSeeder;
 use Modules\Base\Database\Seeders\ConfigTableSeeder;

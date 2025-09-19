@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Database\Seeders;
 
 use Nwidart\Modules\Facades\Module;
 
-class DispatchBaseEventSeeder extends BaseSeeder
+final class DispatchBaseEventSeeder extends BaseSeeder
 {
     public function run(): void {}
 

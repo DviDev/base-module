@@ -1,6 +1,7 @@
 <?php
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Schema;
 use Modules\Base\Entities\Config\ConfigEntityModel;
 use Modules\Base\Entities\Record\RecordEntityModel;

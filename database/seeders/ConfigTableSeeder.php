@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Database\Seeders;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ConfigTableSeeder extends BaseSeeder
+final class ConfigTableSeeder extends BaseSeeder
 {
     /**
      * Run the database seeds.
