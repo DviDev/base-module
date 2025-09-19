@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Livewire\Notification;
 
 use Illuminate\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
 
-class NotificationList extends Component
+final class NotificationList extends Component
 {
     use WithPagination;
 

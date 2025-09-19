@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Livewire\Config;
 
 use Illuminate\Validation\Rule;
@@ -9,7 +11,7 @@ use Modules\Base\Entities\Config\ConfigEntityModel;
 use Modules\Base\Models\ConfigModel;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 
-class ConfigForm extends Component
+final class ConfigForm extends Component
 {
     public ?ConfigModel $config;
 

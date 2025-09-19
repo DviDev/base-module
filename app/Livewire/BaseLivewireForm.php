@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Livewire;
 
 use Illuminate\View\View;
 use Modules\View\Models\ViewPageStructureModel;
 
-class BaseLivewireForm extends BaseLivewireComponent
+final class BaseLivewireForm extends BaseLivewireComponent
 {
     public function render(): View
     {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Livewire\Config;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -11,7 +13,7 @@ use Modules\Base\Models\ConfigModel;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
 use Modules\Person\Enums\UserType;
 
-class ConfigList extends Component
+final class ConfigList extends Component
 {
     //    use AuthorizesRequests;
 
