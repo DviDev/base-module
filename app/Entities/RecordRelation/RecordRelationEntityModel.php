@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Entities\RecordRelation;
 
 use Modules\Base\Entities\BaseEntityModel;
@@ -16,7 +18,7 @@ use Modules\Base\Models\RecordRelationModel;
  * @method static self new()
  * @method static self props($alias = null, $force = null)
  */
-class RecordRelationEntityModel extends BaseEntityModel
+final class RecordRelationEntityModel extends BaseEntityModel
 {
     use RecordRelationProps;
 }

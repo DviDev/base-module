@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Entities\Actions;
 
 use Modules\Permission\Enums\Actions;
@@ -7,14 +9,6 @@ use Modules\Permission\Enums\Actions;
 abstract class GateContract
 {
     protected static string $can = '';
-
-    protected static function handle(Actions|string $action, string $name): string
-    {
-        $str = self::$can.$name.'.'.$action->name;
-        self::$can = '';
-
-        return $str;
-    }
 
     public function __call(string $name, array $arguments)
     {
@@ -31,5 +25,13 @@ abstract class GateContract
         self::$can = 'can:';
 
         return self::class;
+    }
+
+    protected static function handle(Actions|string $action, string $name): string
+    {
+        $str = self::$can.$name.'.'.$action->name;
+        self::$can = '';
+
+        return $str;
     }
 }
