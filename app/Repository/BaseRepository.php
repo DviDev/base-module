@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Repository;
 
 use Closure;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Contracts\BaseModel;
@@ -28,6 +31,53 @@ abstract class BaseRepository
 
     public function __construct(public ?BaseModel $model = null) {}
 
+    public function __call($name, $arguments)
+    {
+        $query = $this->modelClass()::query();
+        /** @var BaseRepository $obj */
+        if (method_exists($query, $name)) {
+            return $query->$name($arguments[0]);
+        }
+
+        return null;
+    }
+
+    public static function __callStatic($name, $arguments)
+    {
+        $class = get_called_class();
+        /** @var BaseRepository $obj */
+        $obj = new $class;
+        if (is_callable($obj->$name($arguments))) {
+            return $obj->$name($arguments);
+        }
+
+        return null;
+    }
+
+    abstract public function modelClass(): BaseModel|string;
+
+    public static function obj(): self
+    {
+        $class = static::class;
+
+        return new $class;
+    }
+
+    public static function createFn(Closure $fn): object|bool
+    {
+        $entity_class = (new static)->model()->modelEntity();
+
+        return (new static)->create($fn((new $entity_class)->props()));
+    }
+
+    public static function deleteFn(Closure $fn): void
+    {
+        $model = (new static)->model();
+        $props = $model->modelEntity()::props(null, true);
+        $term = $fn($props);
+        $model->newQuery()->where($term[0], $term[1], $term[2])->delete();
+    }
+
     public function model(): Model
     {
         $model = $this->modelClass();
@@ -39,8 +89,6 @@ abstract class BaseRepository
     {
         $this->entity = $entity;
     }
-
-    abstract public function modelClass(): BaseModel|string;
 
     public function save(?BaseEntityModel &$entityModel = null): Model
     {
@@ -69,7 +117,7 @@ abstract class BaseRepository
             $this->entity->model = $this->model;
 
             return $this->model;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             if (request()->route() && request()->route()->getPrefix() === 'api') {
                 ExceptionBaseResponse::throw(BaseTypeErrors::ERROR_IN_RECORD_INFORMATION, null, $exception);
             }
@@ -77,23 +125,9 @@ abstract class BaseRepository
         }
     }
 
-    public static function obj(): BaseRepository
-    {
-        $class = static::class;
-
-        return new $class;
-    }
-
     public function create(array $data): object
     {
         return $this->modelClass()::query()->create($data);
-    }
-
-    public static function createFn(\Closure $fn): object|bool
-    {
-        $entity_class = (new static)->model()->modelEntity();
-
-        return (new static)->create($fn((new $entity_class)->props()));
     }
 
     public function findOrNew($id): Model|Builder
@@ -149,36 +183,5 @@ abstract class BaseRepository
         $class = $this->modelClass();
 
         return new $class;
-    }
-
-    public function __call($name, $arguments)
-    {
-        $query = $this->modelClass()::query();
-        /** @var BaseRepository $obj */
-        if (method_exists($query, $name)) {
-            return $query->$name($arguments[0]);
-        }
-
-        return null;
-    }
-
-    public static function __callStatic($name, $arguments)
-    {
-        $class = get_called_class();
-        /** @var BaseRepository $obj */
-        $obj = new $class;
-        if (is_callable($obj->$name($arguments))) {
-            return $obj->$name($arguments);
-        }
-
-        return null;
-    }
-
-    public static function deleteFn(Closure $fn): void
-    {
-        $model = (new static)->model();
-        $props = $model->modelEntity()::props(null, true);
-        $term = $fn($props);
-        $model->newQuery()->where($term[0], $term[1], $term[2])->delete();
     }
 }

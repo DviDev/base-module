@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Services\Date;
 
-class DateFn
+final class DateFn
 {
     public function validate(string $date): bool
     {

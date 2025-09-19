@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Services\Errors;
 
 use Modules\Base\Contracts\BaseServiceProviderInterface;
 use Nwidart\Modules\Module;
 
-class ErrorMessages
+final class ErrorMessages
 {
     public static function getMessageDefault($code): string
     {
