@@ -42,7 +42,7 @@ abstract class BaseFactory extends Factory
             ModuleEntityAttributeTypeEnum::text => $value_default ?? fake()->sentence(),
             ModuleEntityAttributeTypeEnum::varchar => $value_default ?? self::getFakeValue($key, $length),
             ModuleEntityAttributeTypeEnum::boolean => $value_default ?? fake()->boolean(),
-            ModuleEntityAttributeTypeEnum::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
+            ModuleEntityAttributeTypeEnum::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad("9", $num_precision - $num_scale, '9')),
             ModuleEntityAttributeTypeEnum::float => $value_default ?? fake()->randomFloat(2, 1, 999999),
             ModuleEntityAttributeTypeEnum::smallint, ModuleEntityAttributeTypeEnum::int, ModuleEntityAttributeTypeEnum::bigint => $value_default ?? fake()->numberBetween(1, 90),
             default => 1
@@ -103,8 +103,8 @@ abstract class BaseFactory extends Factory
             ViewStructureComponentType::text => $value_default ?? self::getFakeValue($key, $length),
             ViewStructureComponentType::html => $value_default ?? self::getFakeValue($key, $length),
             ViewStructureComponentType::checkbox_unique => $value_default ?? fake()->boolean(),
-            ViewStructureComponentType::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
-            ViewStructureComponentType::float => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad(9, $num_precision - $num_scale, 9)),
+            ViewStructureComponentType::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad('9', $num_precision - $num_scale, '9')),
+            ViewStructureComponentType::float => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad('9', $num_precision - $num_scale, '9')),
             ViewStructureComponentType::number => $value_default ?? fake()->numberBetween(1, $length),
             default => 1
         };
@@ -221,7 +221,6 @@ abstract class BaseFactory extends Factory
 
     protected function getFkColumns($fixed_values): array
     {
-        /** @var BaseModel $model */
         $model = $this->model;
         $entity = (new $model)->modelEntity()::props();
 
@@ -242,7 +241,6 @@ abstract class BaseFactory extends Factory
                 continue;
             }
             $foreignTableName = $fk['foreign_table'];
-            /** @var BaseModel $fk_model_class */
             $fk_model_class = $table_models[$foreignTableName];
             $has_for = false;
             $this->for->each(function ($i) use (&$has_for, $fk_model_class, &$columns, $column) {
@@ -261,6 +259,7 @@ abstract class BaseFactory extends Factory
             // Verifica se é a mesma tabela
             // Se houver chave estrangeira para msm tabela irá causar um loop infinito. (é comum em campos como parent_id)
             if ($foreignTableName === $entity->table) {
+                /** @var BaseModel $model */
                 $columns[$column]['value'] = $model::query()->first()->id ?? null;
 
                 continue;
@@ -579,7 +578,7 @@ abstract class BaseFactory extends Factory
 
     protected function getEmail(string $name): string
     {
-        return str(iconv('UTF-8', 'ASCII//TRANSLIT', $this->removeAbreviations($name)))
+        return str(iconv('UTF-8', 'ASCII//TRANSLIT', $this->removeAbreviations($name)->value()))
             ->lower()
             ->explode(' ')
             ->shift(3)
