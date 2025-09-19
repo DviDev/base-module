@@ -11,7 +11,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('base_record_relations', function (Blueprint $table) {
+        Schema::create('base_record_relations', function (Blueprint $table): void {
             $p = RecordRelationEntityModel::props(force: true);
             $table->id();
             $table->foreignId($p->record1)->references('id')->on('base_records')

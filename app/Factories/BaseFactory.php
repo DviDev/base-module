@@ -244,7 +244,7 @@ abstract class BaseFactory extends Factory
             $foreignTableName = $fk['foreign_table'];
             $fk_model_class = $table_models[$foreignTableName];
             $has_for = false;
-            $this->for->each(function ($i) use (&$has_for, $fk_model_class, &$columns, $column) {
+            $this->for->each(function ($i) use (&$has_for, $fk_model_class, &$columns, $column): void {
                 if (is_a($i->factory, $fk_model_class)) {
                     $has_for = true;
                     $columns[$column]['value'] = $i->factory->id;

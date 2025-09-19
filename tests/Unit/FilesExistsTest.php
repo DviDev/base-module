@@ -106,7 +106,7 @@ uses(Tests\TestCase::class);
 
 function expectClassesExist(array $files)
 {
-    foreach ($files as $key => $file) {
+    foreach ($files as $file) {
         expect(file_exists((new ReflectionClass($file))->getFileName()))
             ->toBeTrue()
             ->and($file)
@@ -116,7 +116,7 @@ function expectClassesExist(array $files)
 
 function expectFilesExist(array $files)
 {
-    foreach ($files as $key => $file) {
+    foreach ($files as $file) {
         expect(file_exists(module_path('base', $file)))
             ->toBeTrue()
             ->and($file)
@@ -124,7 +124,7 @@ function expectFilesExist(array $files)
     }
 }
 
-it('possui todos os arquivos de Comandos', function () {
+it('possui todos os arquivos de Comandos', function (): void {
     $files = [
         DispatchBaseEventsCommand::class,
         DispatchInitialIndependentDataEventCommand::class,
@@ -133,7 +133,7 @@ it('possui todos os arquivos de Comandos', function () {
     ];
     expectClassesExist($files);
 });
-it('possui todos os arquivos de Contratos', function () {
+it('possui todos os arquivos de Contratos', function (): void {
     $files = [
         BaseLivewireFormContract::class,
         BaseModelImplementation::class,
@@ -144,11 +144,11 @@ it('possui todos os arquivos de Contratos', function () {
     ];
     expectClassesExist($files);
 });
-it('possui todos os arquivos de Domain', function () {
+it('possui todos os arquivos de Domain', function (): void {
     expectClassesExist([BaseDomain::class]);
 });
-describe('base.entities', function () {
-    it('All entity actions files exist', function () {
+describe('base.entities', function (): void {
+    it('All entity actions files exist', function (): void {
         expectClassesExist([
             Actions::class,
             Builder::class,
@@ -156,31 +156,31 @@ describe('base.entities', function () {
         ]);
     });
 
-    it('all entity config files exist', function () {
+    it('all entity config files exist', function (): void {
         expectClassesExist([
             ConfigEntityModel::class,
             ConfigProps::class,
         ]);
     });
-    it('all entity record files exist', function () {
+    it('all entity record files exist', function (): void {
         expectClassesExist([
             RecordEntityModel::class,
             RecordProps::class,
         ]);
     });
-    it('all entity record relation files exist', function () {
+    it('all entity record relation files exist', function (): void {
         expectClassesExist([
             RecordRelationEntityModel::class,
             RecordRelationProps::class,
         ]);
     });
-    it('all entity record type files exist', function () {
+    it('all entity record type files exist', function (): void {
         expectClassesExist([
             RecordTypeEntityModel::class,
             RecordTypeProps::class,
         ]);
     });
-    it('all entity base files exist', function () {
+    it('all entity base files exist', function (): void {
         expectClassesExist([
             BaseEntity::class,
             BaseEntityModel::class,
@@ -190,7 +190,7 @@ describe('base.entities', function () {
     });
 });
 
-it('possui todos os arquivos de Eventos', function () {
+it('possui todos os arquivos de Eventos', function (): void {
     expectClassesExist([
         BaseSeederInitialIndependentDataEvent::class,
         DatabaseSeederEvent::class,
@@ -198,7 +198,7 @@ it('possui todos os arquivos de Eventos', function () {
         UsingSpotlightEvent::class,
     ]);
 });
-it('possui todos os arquivos de Fabricas', function () {
+it('possui todos os arquivos de Fabricas', function (): void {
     expectClassesExist([
         BlueprintBigIntegerFactory::class,
         BlueprintBooleanFactory::class,
@@ -223,10 +223,10 @@ it('possui todos os arquivos de Fabricas', function () {
         BaseFactory::class,
     ]);
 });
-it('possui todos os arquivos de Controllers', function () {
+it('possui todos os arquivos de Controllers', function (): void {
     expectClassesExist([BaseController::class]);
 });
-it('possui todos os arquivos de Livewire', function () {
+it('possui todos os arquivos de Livewire', function (): void {
     expectClassesExist([
         ConfigForm::class,
         ConfigList::class,
@@ -237,19 +237,19 @@ it('possui todos os arquivos de Livewire', function () {
         BaseLivewireForm::class,
     ]);
 });
-it('possui todos os arquivos de Middleware', function () {
+it('possui todos os arquivos de Middleware', function (): void {
     expectClassesExist([
         LocalEnvironmentMiddleware::class,
         UseSpotlightMiddleware::class,
     ]);
 });
-it('possui todos os arquivos de Listeners', function () {
+it('possui todos os arquivos de Listeners', function (): void {
     expectClassesExist([
         CreateMenuItemsBaseListener::class,
         SeederInitialIndependentDataBaseListener::class,
     ]);
 });
-it('possui todos os arquivos de Models', function () {
+it('possui todos os arquivos de Models', function (): void {
     expectClassesExist([
         BaseModel::class,
         ConfigModel::class,
@@ -258,13 +258,13 @@ it('possui todos os arquivos de Models', function () {
         RecordTypeModel::class,
     ]);
 });
-it('possui todos os arquivos de Notifications', function () {
+it('possui todos os arquivos de Notifications', function (): void {
     expectClassesExist([
         NotifyException::class,
     ]);
 });
 
-it('possui todos os arquivos de Providers', function () {
+it('possui todos os arquivos de Providers', function (): void {
     expectClassesExist([
         BaseAuthServiceProvider::class,
         BaseNewServiceProvider::class,
@@ -274,15 +274,15 @@ it('possui todos os arquivos de Providers', function () {
         RouteServiceProvider::class,
     ]);
 });
-it('possui todos os arquivos de Repositorios', function () {
+it('possui todos os arquivos de Repositorios', function (): void {
     expectClassesExist([
         BaseRepository::class,
     ]);
 });
-it('possui todos os arquivos de Rules', function () {
+it('possui todos os arquivos de Rules', function (): void {
     expectClassesExist([MinWords::class]);
 });
-it('possui todos os arquivos de Services', function () {
+it('possui todos os arquivos de Services', function (): void {
     expectClassesExist([
         DateFn::class,
         BaseTypeErrors::class,
@@ -299,21 +299,21 @@ it('possui todos os arquivos de Services', function () {
         HttpContract::class,
     ]);
 });
-it('possui todos os arquivos de Spotlight', function () {
+it('possui todos os arquivos de Spotlight', function (): void {
     expectClassesExist([GotoCommand::class]);
 });
-it('possui todos os arquivos de View', function () {
+it('possui todos os arquivos de View', function (): void {
     expectClassesExist([
         BaseFormBladeComponent::class,
         NotificationListPage::class,
         NotificationViewPage::class,
     ]);
 });
-it('possui arquivos helper', function () {
+it('possui arquivos helper', function (): void {
     $filename = module_path('base').'/app/Helpers/helpers.php';
     expect(file_exists($filename))->toBeTrue();
 });
-it('possui todos os arquivo em migrations', function () {
+it('possui todos os arquivo em migrations', function (): void {
     $files = [
         '2022_02_27_000199_create_record_types_table.php',
         '2022_02_27_000200_create_records_table.php',
@@ -325,7 +325,7 @@ it('possui todos os arquivo em migrations', function () {
     }
     expect(class_exists(BaseMigration::class))->toBeTrue();
 });
-it('all seeders files exist', function () {
+it('all seeders files exist', function (): void {
     expectClassesExist([
         BaseDatabaseSeeder::class,
         BaseSeeder::class,
@@ -334,7 +334,7 @@ it('all seeders files exist', function () {
         SeederEventDTO::class,
     ]);
 });
-it('all lang files exist', function () {
+it('all lang files exist', function (): void {
     $files = [
         'cache.php',
         'default.php',
@@ -347,7 +347,7 @@ it('all lang files exist', function () {
     }
     expect(file_exists(module_path('base').'/resources/lang/pt_BR.json'))->toBeTrue();
 });
-it('all resources livewire files exist', function () {
+it('all resources livewire files exist', function (): void {
     $files = [
         'resources/livewire/base-form.blade.php',
     ];
@@ -356,7 +356,7 @@ it('all resources livewire files exist', function () {
     }
 });
 
-it('all form component views files exist', function () {
+it('all form component views files exist', function (): void {
     $files = [
         'resources/views/components/form/baseformbladecomponent.blade.php',
     ];
@@ -365,19 +365,19 @@ it('all form component views files exist', function () {
         expect(file_exists($filename))->toBeTrue();
     }
 });
-it('all layout component views files exists', function () {
+it('all layout component views files exists', function (): void {
     $files = [
         'resources/views/components/layouts/master.blade.php',
     ];
     expectFilesExist($files);
 });
-it('all page component views files exists', function () {
+it('all page component views files exists', function (): void {
     expectFilesExist([
         'resources/views/components/page/notification/notification-list-page.blade.php',
         'resources/views/components/page/notification/notification-view-page.blade.php',
     ]);
 });
-it('all livewire views files exists', function () {
+it('all livewire views files exists', function (): void {
     expectFilesExist([
         'resources/views/livewire/config/config-form.blade.php',
         'resources/views/livewire/config/config-list.blade.php',
@@ -387,7 +387,7 @@ it('all livewire views files exists', function () {
         'resources/views/livewire/base-form.blade.php',
     ]);
 });
-it('readme file exist', function () {
+it('readme file exist', function (): void {
     $filename = module_path('base').'/README.md';
     expect(file_exists($filename))->toBeTrue();
 });

@@ -126,7 +126,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         }
 
         return;
-        Event::listen(CommandStarting::class, function (CommandStarting $event) use ($modules) {
+        Event::listen(CommandStarting::class, function (CommandStarting $event) use ($modules): void {
             $cmd = $event->command ?? '';
             $migrationCommands = [
                 'migrate',

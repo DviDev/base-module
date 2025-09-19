@@ -10,11 +10,11 @@ use Modules\DBMap\Events\ScanTableEvent;
 
 uses(Tests\TestCase::class);
 
-describe('base.commands', function () {
-    beforeEach(function () {
+describe('base.commands', function (): void {
+    beforeEach(function (): void {
         uses(DatabaseTransactions::class);
     });
-    it('DispatchBaseEventsCommand should dispatch some events', function () {
+    it('DispatchBaseEventsCommand should dispatch some events', function (): void {
         Event::fake();
 
         $this->artisan(DispatchBaseEventsCommand::class)->assertSuccessful();

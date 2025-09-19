@@ -288,7 +288,7 @@ abstract class BaseLivewireComponent extends Component
         $attributes = $this->getStructureCache()
             ->elements()->whereNotNull('attribute_id')
             ->join($attribute->table(), $attribute->id, 'attribute_id')
-            ->whereHas('attribute', function (Builder $query) {
+            ->whereHas('attribute', function (Builder $query): void {
                 $query->where('type_id', ModuleEntityAttributeTypeEnum::getId(ModuleEntityAttributeTypeEnum::decimal));
             })
             ->pluck('attribute.name')->all();

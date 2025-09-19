@@ -25,7 +25,7 @@ final class InstallCommand extends Command
         (new SeedFirstOrCreateUser)->createUserTypes();
 
         Bus::chain([
-            function () {
+            function (): void {
                 Log::info('Instalação iniciada.');
             },
             new SeederInitialIndependentDataJob,

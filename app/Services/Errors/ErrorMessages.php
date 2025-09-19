@@ -12,7 +12,7 @@ final class ErrorMessages
     public static function getMessageDefault($code): string
     {
         $errors = collect([]);
-        $fn = function (array $array) use ($errors) {
+        $fn = function (array $array) use ($errors): void {
             collect($array)->map(fn (string $value, int|string $key) => $errors->put($key, $value));
         };
         $modules = \Module::allEnabled();

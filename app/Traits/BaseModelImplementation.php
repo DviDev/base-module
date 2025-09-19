@@ -76,7 +76,7 @@ trait BaseModelImplementation
 
     protected static function booted()
     {
-        static::saving(function (Model $model) {
+        static::saving(function (Model $model): void {
             $props = $model->props()->toArray();
             if (in_array('created_at', $props) && ! isset($model->created_at)) {
                 $model->created_at = now();
@@ -85,13 +85,13 @@ trait BaseModelImplementation
                 $model->updated_at = now();
             }
         });
-        static::creating(function (Model $model) {
+        static::creating(function (Model $model): void {
             if (in_array('created_at', $model->props()->toArray()) && ! isset($model->created_at)) {
                 $model->created_at = now();
             }
         });
 
-        static::updating(function (Model $model) {
+        static::updating(function (Model $model): void {
             if (in_array('updated_at', $model->props()->toArray()) && $model->isDirty()) {
                 $model->updated_at = now();
             }

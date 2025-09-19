@@ -10,9 +10,9 @@ use Modules\Base\Entities\RecordType\RecordTypeEntityModel;
 
 uses(Tests\TestCase::class);
 
-describe('base.migrations', function () {
-    describe('base.table.base_record_types', function () {
-        it('check table record types ', function () {
+describe('base.migrations', function (): void {
+    describe('base.table.base_record_types', function (): void {
+        it('check table record types ', function (): void {
             $p = RecordTypeEntityModel::props();
             $this->assertTrue(Schema::hasTable($p->table()));
             foreach ($p->getAttributes() as $attribute) {
@@ -21,7 +21,7 @@ describe('base.migrations', function () {
         });
     });
 
-    it('create.base_records.table', function () {
+    it('create.base_records.table', function (): void {
         $p = RecordEntityModel::props();
         $this->assertTrue(Schema::hasTable($p->table()));
 
@@ -32,7 +32,7 @@ describe('base.migrations', function () {
         $this->assertTrue(Schema::hasColumn($p->table(), $p->deleted_at));
     });
 
-    it('create.base_record_relations.table', function () {
+    it('create.base_record_relations.table', function (): void {
         $p = RecordRelationEntityModel::props();
         $this->assertTrue(Schema::hasTable($p->table()));
 
@@ -41,7 +41,7 @@ describe('base.migrations', function () {
         $this->assertTrue(Schema::hasColumn($p->table(), $p->record2));
     });
 
-    it('create.base_configs.table', function () {
+    it('create.base_configs.table', function (): void {
         $p = ConfigEntityModel::props();
         $this->assertTrue(Schema::hasTable($p->table()));
 

@@ -36,7 +36,7 @@ abstract class BaseMigration extends Migration
 {
     protected function baseUp(ProjectModuleEntityDBModel $entity, ?Closure $fn = null): void
     {
-        Schema::create($entity->name, function (Blueprint $table) use ($entity) {
+        Schema::create($entity->name, function (Blueprint $table) use ($entity): void {
             $map = [
                 AttributeTypeEnum::char->name => BlueprintCharFactory::class,
                 AttributeTypeEnum::date->name => BlueprintDateFactory::class,

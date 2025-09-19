@@ -11,7 +11,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('base_record_types', function (Blueprint $table) {
+        Schema::create('base_record_types', function (Blueprint $table): void {
             $p = RecordTypeEntityModel::props(force: true);
             $table->id();
             $table->string($p->name)->unique();
