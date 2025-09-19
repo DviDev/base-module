@@ -50,8 +50,8 @@ if (! function_exists('currencyToText')) {
 
         // Separar a parte inteira e a parte decimal
         $partes = explode('.', number_format($value, 2, '.', ''));
-        $parteInteira = (int)$partes[0];
-        $parteDecimal = (int)$partes[1];
+        $parteInteira = (int) $partes[0];
+        $parteDecimal = (int) $partes[1];
 
         // Converter a parte inteira para texto
         $textoInteiro = $formatter->format($parteInteira);

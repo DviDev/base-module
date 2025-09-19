@@ -42,7 +42,7 @@ abstract class BaseFactory extends Factory
             ModuleEntityAttributeTypeEnum::text => $value_default ?? fake()->sentence(),
             ModuleEntityAttributeTypeEnum::varchar => $value_default ?? self::getFakeValue($key, $length),
             ModuleEntityAttributeTypeEnum::boolean => $value_default ?? fake()->boolean(),
-            ModuleEntityAttributeTypeEnum::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad("9", $num_precision - $num_scale, '9')),
+            ModuleEntityAttributeTypeEnum::decimal => $value_default ?? fake()->randomFloat($num_scale, 1, str_pad('9', $num_precision - $num_scale, '9')),
             ModuleEntityAttributeTypeEnum::float => $value_default ?? fake()->randomFloat(2, 1, 999999),
             ModuleEntityAttributeTypeEnum::smallint, ModuleEntityAttributeTypeEnum::int, ModuleEntityAttributeTypeEnum::bigint => $value_default ?? fake()->numberBetween(1, 90),
             default => 1
@@ -55,6 +55,7 @@ abstract class BaseFactory extends Factory
             $length = (int) max($length, 10);
 
             $min = (int) round($length / 2);
+
             return fake()->text(random_int($min, $length));
         }
         if ($key === 'email') {
