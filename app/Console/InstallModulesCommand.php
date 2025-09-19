@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Console;
 
+use Exception;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -10,7 +13,7 @@ use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\pause;
 
-class InstallModulesCommand extends Command
+final class InstallModulesCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -41,7 +44,7 @@ class InstallModulesCommand extends Command
             label: __('Which modules do you want to install?'),
             options: array_keys($modules)
         );
-        if (count($choices) == 0) {
+        if (count($choices) === 0) {
             return;
         }
         pause('Installing '.collect($choices)->join(',', 'and').'. Press enter to continue');
@@ -117,7 +120,7 @@ class InstallModulesCommand extends Command
         exec($command, $output);
         if ($output) {
             $this->error($output);
-            throw new \Exception($output);
+            throw new Exception($output);
         }
     }
 

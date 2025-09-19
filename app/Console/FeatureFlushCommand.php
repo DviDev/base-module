@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Console;
 
+use DB;
 use Illuminate\Console\Command;
 use Laravel\Pennant\Feature;
 use Symfony\Component\Console\Input\InputOption;
 
-class FeatureFlushCommand extends Command
+final class FeatureFlushCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -39,7 +42,7 @@ class FeatureFlushCommand extends Command
      */
     public function handle(): void
     {
-        \DB::table('features')->truncate();
+        DB::table('features')->truncate();
         Feature::flushCache();
     }
 

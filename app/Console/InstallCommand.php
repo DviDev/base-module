@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Console;
 
 use Illuminate\Console\Command;
@@ -12,7 +14,7 @@ use Modules\DBMap\Jobs\ScanTableJob;
 use Modules\Person\Services\SeedFirstOrCreateUser;
 use Modules\Project\Jobs\DefineEntityAttributeRelationJob;
 
-class InstallCommand extends Command
+final class InstallCommand extends Command
 {
     protected $signature = 'base:install';
 
