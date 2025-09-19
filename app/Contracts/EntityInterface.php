@@ -1,11 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Contracts;
+
+use ReflectionException;
 
 interface EntityInterface
 {
     /**
-     * @throws \ReflectionException
+     * @throws ReflectionException
      */
     public static function propsArray(): array;
 

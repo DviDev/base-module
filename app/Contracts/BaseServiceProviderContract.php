@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Contracts;
 
+use DB;
 use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Facades\Blade;
@@ -38,32 +41,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     }
 
     /**
-     * Register commands in the format of Command::class
-     */
-    protected function registerCommands(): void
-    {
-        // $this->commands([]);
-    }
-
-    private function configureCommands(): void
-    {
-        \DB::prohibitDestructiveCommands(
-            $this->app->isProduction()
-        );
-    }
-
-    /**
-     * Register command Schedules.
-     */
-    protected function registerCommandSchedules(): void
-    {
-        // $this->app->booted(function () {
-        //     $schedule = $this->app->make(Schedule::class);
-        //     $schedule->command('inspire')->hourly();
-        // });
-    }
-
-    /**
      * Register translations.
      */
     public function registerTranslations(): void
@@ -78,20 +55,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         }
         $this->loadTranslationsFrom($this->langPath(), $this->getModuleNameLower());
         $this->loadJsonTranslationsFrom($this->langPath());
-    }
-
-    protected function langPath(): string
-    {
-        return module_path($this->getModuleName(), 'lang');
-    }
-
-    /**
-     * Register config.
-     */
-    protected function registerConfig(): void
-    {
-        $this->publishes([module_path($this->getModuleName(), 'config/config.php') => config_path($this->getModuleNameLower().'.php')], 'config');
-        $this->mergeConfigFrom(module_path($this->getModuleName(), 'config/config.php'), $this->getModuleNameLower());
     }
 
     /**
@@ -117,10 +80,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         Blade::componentNamespace(config('modules.namespace').'\\'.$this->getModuleName().'\\View\\Components', $this->getModuleNameLower());
     }
 
-    protected function registerComponents(): void {}
-
-    protected function registerEvents(): void {}
-
     /**
      * Get the services provided by the provider.
      */
@@ -140,6 +99,105 @@ abstract class BaseServiceProviderContract extends ServiceProvider
 
         $this->registerEvents();
     }
+
+    public function registerRequiredModules(): void
+    {
+        $this->bootstrapModules();
+
+        $this->registerEnabledModulesMigrationPaths();
+
+        return;
+
+        $modules = $this->requireModules();
+        if (empty($modules)) {
+            return;
+        }
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
+        $migrator = $this->app->make('migrator');
+        foreach ($modules as $module) {
+            $mod = Module::find($module);
+            $mod->enable();
+            $path = $mod->getPath().'/database/Migrations';
+            if (is_dir($path)) {
+                $migrator->path($path);
+            }
+        }
+
+        return;
+        Event::listen(CommandStarting::class, function (CommandStarting $event) use ($modules) {
+            $cmd = $event->command ?? '';
+            $migrationCommands = [
+                'migrate',
+                'migrate:fresh',
+                'migrate:refresh',
+                'migrate:install',
+                'migrate:rollback',
+                'migrate --force',
+            ];
+            if (empty($cmd)) {
+                return;
+            }
+            if ($cmd === 'migrate'
+                || str_starts_with($cmd, 'migrate:')
+                || in_array($cmd, $migrationCommands, true)
+            ) {
+                $migrator = $this->app->make('migrator');
+                foreach ($modules as $mod) {
+                    $mod = Module::find($mod);
+                    $mod->enable();
+                    $path = $mod->getPath().'/database/Migrations';
+                    dump($path);
+                    if (is_dir($path)) {
+                        $migrator->path($path);
+                    }
+                }
+            }
+        });
+    }
+
+    public function requireModules(): array
+    {
+        return [];
+    }
+
+    /**
+     * Register commands in the format of Command::class
+     */
+    protected function registerCommands(): void
+    {
+        // $this->commands([]);
+    }
+
+    /**
+     * Register command Schedules.
+     */
+    protected function registerCommandSchedules(): void
+    {
+        // $this->app->booted(function () {
+        //     $schedule = $this->app->make(Schedule::class);
+        //     $schedule->command('inspire')->hourly();
+        // });
+    }
+
+    protected function langPath(): string
+    {
+        return module_path($this->getModuleName(), 'lang');
+    }
+
+    /**
+     * Register config.
+     */
+    protected function registerConfig(): void
+    {
+        $this->publishes([module_path($this->getModuleName(), 'config/config.php') => config_path($this->getModuleNameLower().'.php')], 'config');
+        $this->mergeConfigFrom(module_path($this->getModuleName(), 'config/config.php'), $this->getModuleNameLower());
+    }
+
+    protected function registerComponents(): void {}
+
+    protected function registerEvents(): void {}
 
     protected function registerEnabledModulesMigrationPaths(): void
     {
@@ -223,65 +281,10 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         return $paths;
     }
 
-    public function registerRequiredModules(): void
+    private function configureCommands(): void
     {
-        $this->bootstrapModules();
-
-        $this->registerEnabledModulesMigrationPaths();
-
-        return;
-
-        $modules = $this->requireModules();
-        if (empty($modules)) {
-            return;
-        }
-        if (! $this->app->runningInConsole()) {
-            return;
-        }
-        $migrator = $this->app->make('migrator');
-        foreach ($modules as $module) {
-            $mod = Module::find($module);
-            $mod->enable();
-            $path = $mod->getPath().'/database/Migrations';
-            if (is_dir($path)) {
-                $migrator->path($path);
-            }
-        }
-
-        return;
-        Event::listen(CommandStarting::class, function (CommandStarting $event) use ($modules) {
-            $cmd = $event->command ?? '';
-            $migrationCommands = [
-                'migrate',
-                'migrate:fresh',
-                'migrate:refresh',
-                'migrate:install',
-                'migrate:rollback',
-                'migrate --force',
-            ];
-            if (empty($cmd)) {
-                return;
-            }
-            if ($cmd === 'migrate'
-                || str_starts_with($cmd, 'migrate:')
-                || in_array($cmd, $migrationCommands, true)
-            ) {
-                $migrator = $this->app->make('migrator');
-                foreach ($modules as $mod) {
-                    $mod = Module::find($mod);
-                    $mod->enable();
-                    $path = $mod->getPath().'/database/Migrations';
-                    dump($path);
-                    if (is_dir($path)) {
-                        $migrator->path($path);
-                    }
-                }
-            }
-        });
-    }
-
-    public function requireModules(): array
-    {
-        return [];
+        DB::prohibitDestructiveCommands(
+            $this->app->isProduction()
+        );
     }
 }
