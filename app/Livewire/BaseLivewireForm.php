@@ -7,7 +7,7 @@ namespace Modules\Base\Livewire;
 use Illuminate\View\View;
 use Modules\View\Models\ViewPageStructureModel;
 
-final class BaseLivewireForm extends BaseLivewireComponent
+class BaseLivewireForm extends BaseLivewireComponent
 {
     public function render(): View
     {
