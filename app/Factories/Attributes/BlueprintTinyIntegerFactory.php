@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Factories\Attributes;
 
 use Modules\Base\Factories\AttributeFactory;
 
-class BlueprintTinyIntegerFactory extends AttributeFactory
+final class BlueprintTinyIntegerFactory extends AttributeFactory
 {
     public function handle(): void
     {

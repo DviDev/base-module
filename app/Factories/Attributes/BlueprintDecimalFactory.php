@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Factories\Attributes;
 
 use Modules\Base\Factories\AttributeFactory;
 
-class BlueprintDecimalFactory extends AttributeFactory
+final class BlueprintDecimalFactory extends AttributeFactory
 {
     public function handle(): void
     {

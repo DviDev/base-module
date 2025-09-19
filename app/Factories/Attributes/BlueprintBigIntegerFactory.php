@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Factories\Attributes;
 
 use Modules\Base\Factories\AttributeFactory;
 
-class BlueprintBigIntegerFactory extends AttributeFactory
+final class BlueprintBigIntegerFactory extends AttributeFactory
 {
     public function handle(): void
     {
@@ -17,12 +19,12 @@ class BlueprintBigIntegerFactory extends AttributeFactory
             foreach ($this->attributeEntity->relationship as $relation) {
                 $t = $this->table->foreignId($this->attributeEntity->name);
                 $fk = $t->unsigned()->references('id')->on($relation->secondModelEntity->name);
-                if (! isset($relation->on_update) || $relation->on_update == 'restrict') {
+                if (! isset($relation->on_update) || $relation->on_update === 'restrict') {
                     $fk->restrictOnUpdate();
                 } else {
                     $fk->cascadeOnUpdate();
                 }
-                if (! isset($relation->on_delete) || $relation->on_delete == 'cascade') {
+                if (! isset($relation->on_delete) || $relation->on_delete === 'cascade') {
                     $fk->cascadeOnDelete();
                 } else {
                     $fk->restrictOnDelete();
