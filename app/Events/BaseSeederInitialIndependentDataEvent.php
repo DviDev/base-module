@@ -1,10 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Events;
 
 use Illuminate\Queue\SerializesModels;
 
-class BaseSeederInitialIndependentDataEvent
+final class BaseSeederInitialIndependentDataEvent
 {
     use SerializesModels;
 
