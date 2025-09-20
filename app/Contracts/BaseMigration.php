@@ -1,7 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Contracts;
 
+use Closure;
+use Exception;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -30,9 +34,9 @@ use Modules\Project\Models\ProjectModuleEntityDBModel;
 
 abstract class BaseMigration extends Migration
 {
-    public function baseUp(ProjectModuleEntityDBModel $entity, ?\Closure $fn = null): void
+    protected function baseUp(ProjectModuleEntityDBModel $entity, ?Closure $fn = null): void
     {
-        Schema::create($entity->name, function (Blueprint $table) use ($entity) {
+        Schema::create($entity->name, function (Blueprint $table) use ($entity): void {
             $map = [
                 AttributeTypeEnum::char->name => BlueprintCharFactory::class,
                 AttributeTypeEnum::date->name => BlueprintDateFactory::class,
@@ -58,7 +62,7 @@ abstract class BaseMigration extends Migration
             $attributes = $entity->entityAttributes()->with('relationship.secondModelEntity')->orderBy('id')->get()->all();
             foreach ($attributes as $attribute) {
                 if (! array_key_exists($attribute->typeEnum()->name, $map)) {
-                    throw new \Exception('🤖 Missing '.AttributeTypeEnum::from($attribute->type_id)->name.' class Factory');
+                    throw new Exception('🤖 Missing '.AttributeTypeEnum::from($attribute->type_id)->name.' class Factory');
                 }
                 $class = $map[$attribute->typeEnum()->name];
                 if (is_subclass_of($class, AttributeFactory::class)) {
@@ -72,7 +76,7 @@ abstract class BaseMigration extends Migration
         }
     }
 
-    public function createsUniqueCompositeKey(ProjectModuleEntityDBModel $entity, Blueprint $table): void
+    protected function createsUniqueCompositeKey(ProjectModuleEntityDBModel $entity, Blueprint $table): void
     {
         if ($columns = $entity->getAttributeUniques()->get()->pluck('name')->all()) {
             $table->unique(columns: $columns, name: collect($columns)->prepend('uniques_')->join('_'));

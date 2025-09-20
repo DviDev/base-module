@@ -1,13 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Tests\Tables;
 
 use Modules\Base\Contracts\BaseModel;
-use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Models\RecordRelationModel;
 use Modules\Base\Services\Tests\BaseTest;
 
-class RecordRelationTableTest extends BaseTest
+final class RecordRelationTableTest extends BaseTest
 {
     public function getModelClass(): string|BaseModel
     {

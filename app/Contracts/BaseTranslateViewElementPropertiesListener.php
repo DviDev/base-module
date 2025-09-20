@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Contracts;
 
 use Illuminate\Support\Stringable;
@@ -8,6 +10,10 @@ use Modules\View\Models\ElementPropertyModel;
 
 abstract class BaseTranslateViewElementPropertiesListener
 {
+    abstract protected function moduleName(): string;
+
+    abstract protected function moduleNameLower(): string;
+
     public function handle(ElementPropertyCreatingEvent $event): void
     {
         $property = $event->property;
@@ -21,6 +27,20 @@ abstract class BaseTranslateViewElementPropertiesListener
         $property->value = $property->name === 'placeholder'
             ? $stringable->value()
             : $stringable->ucfirst()->value();
+    }
+
+    protected function propertiesToTranslate(): array
+    {
+        return ['placeholder', 'label'];
+    }
+
+    protected function getStringable(ElementPropertyModel $property): Stringable
+    {
+        $str = $this->moduleNameLower();
+        $entity = $property->element->structure->page->entity;
+        $term = __("$str::$entity->name.$property->value");
+
+        return str($term)->replace('_', ' ');
     }
 
     private function validate(ElementPropertyModel $property): bool
@@ -38,23 +58,5 @@ abstract class BaseTranslateViewElementPropertiesListener
         }
 
         return true;
-    }
-
-    protected function propertiesToTranslate(): array
-    {
-        return ['placeholder', 'label'];
-    }
-
-    abstract protected function moduleName(): string;
-
-    abstract protected function moduleNameLower(): string;
-
-    protected function getStringable(ElementPropertyModel $property): Stringable
-    {
-        $str = $this->moduleNameLower();
-        $entity = $property->element->structure->page->entity;
-        $term = __("$str::$entity->name.$property->value");
-
-        return str($term)->replace('_', ' ');
     }
 }

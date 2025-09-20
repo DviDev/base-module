@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Rules;
 
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
 
-class MinWords implements ValidationRule
+final class MinWords implements ValidationRule
 {
     /**
      * Create a new rule instance.

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Database\Seeders;
 
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 
-class BaseDatabaseSeeder extends BaseSeeder
+final class BaseDatabaseSeeder extends BaseSeeder
 {
     //    use WithoutModelEvents;
     /**

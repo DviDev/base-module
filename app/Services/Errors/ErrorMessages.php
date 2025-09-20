@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Services\Errors;
 
 use Modules\Base\Contracts\BaseServiceProviderInterface;
 use Nwidart\Modules\Module;
 
-class ErrorMessages
+final class ErrorMessages
 {
     public static function getMessageDefault($code): string
     {
         $errors = collect([]);
-        $fn = function (array $array) use ($errors) {
+        $fn = function (array $array) use ($errors): void {
             collect($array)->map(fn (string $value, int|string $key) => $errors->put($key, $value));
         };
         $modules = \Module::allEnabled();

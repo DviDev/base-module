@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Livewire;
 use Modules\Base\Events\UsingSpotlightEvent;
 
-class UseSpotlightMiddleware
+final class UseSpotlightMiddleware
 {
     /**
      * Handle an incoming request.
@@ -36,7 +39,7 @@ class UseSpotlightMiddleware
             return $response;
         }
 
-        $spotlight = \Livewire::mount('livewire-ui-spotlight');
+        $spotlight = Livewire::mount('livewire-ui-spotlight');
 
         $content = str($response->getContent())
             ->remove('<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>')

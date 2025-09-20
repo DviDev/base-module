@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Livewire\Notification;
 
 use App\Models\User;
@@ -9,7 +11,7 @@ use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Base\Services\Notification\Action;
 
-class NotificationView extends Component
+final class NotificationView extends Component
 {
     public DatabaseNotification $notification;
 
@@ -19,14 +21,6 @@ class NotificationView extends Component
     {
         $this->user = $this->getUser();
         $this->notification->markAsRead();
-    }
-
-    /**
-     * @return User
-     */
-    protected function getUser(): ?Model
-    {
-        return User::query()->find($this->notification->data['created_by_user_id'] ?? null);
     }
 
     public function render(): View
@@ -43,5 +37,13 @@ class NotificationView extends Component
             $this->notification->data['action']['btn'] ?? false,
             $this->notification->data['action']['icon'] ?? null,
         );
+    }
+
+    /**
+     * @return User
+     */
+    protected function getUser(): ?Model
+    {
+        return User::query()->find($this->notification->data['created_by_user_id'] ?? null);
     }
 }

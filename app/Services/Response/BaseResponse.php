@@ -1,22 +1,25 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Services\Response;
 
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Http\JsonResponse;
+use JsonSerializable;
 use Modules\Base\Services\Errors\Error;
 
-class BaseResponse implements \JsonSerializable, Jsonable
+final class BaseResponse implements Jsonable, JsonSerializable
 {
-    protected array $errors = [];
+    private array $errors = [];
 
-    protected string $message;
+    private string $message;
 
-    protected string $type;
+    private string $type;
 
-    protected array $data = [];
+    private array $data = [];
 
-    public function addError(int|string $code, ?string $msg = null): BaseResponse
+    public function addError(int|string $code, ?string $msg = null): self
     {
         $this->errors[] = new Error($code, $msg);
 
@@ -30,17 +33,17 @@ class BaseResponse implements \JsonSerializable, Jsonable
 
     public function hasError(): bool
     {
-        return count($this->errors);
+        return count($this->errors) > 0;
     }
 
-    public function setType(string $type): BaseResponse
+    public function setType(string $type): self
     {
         $this->type = $type;
 
         return $this;
     }
 
-    public function addData(string $key, mixed $value): BaseResponse
+    public function addData(string $key, mixed $value): self
     {
         $this->data[$key] = $value;
 
@@ -61,7 +64,7 @@ class BaseResponse implements \JsonSerializable, Jsonable
 
     public function toArray(): array
     {
-        $this->data['message'] = $this->message ?? (count($this->errors) == 0 ? 'ok' : null);
+        $this->data['message'] = $this->message ?? (count($this->errors) === 0 ? 'ok' : null);
         if (count($this->errors) > 0) {
             $this->data['errors'] = collect($this->errors)->toArray();
             $this->data['errors']['type'] = $this->type;

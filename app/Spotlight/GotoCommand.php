@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Spotlight;
 
 use Illuminate\Routing\Route;
@@ -10,7 +12,7 @@ use LivewireUI\Spotlight\SpotlightCommandDependencies;
 use LivewireUI\Spotlight\SpotlightCommandDependency;
 use LivewireUI\Spotlight\SpotlightSearchResult;
 
-class GotoCommand extends SpotlightCommand
+final class GotoCommand extends SpotlightCommand
 {
     protected string $name = 'goto';
 

@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Entities;
 
+use Exception;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\EntityModelInterface;
 use Modules\Base\Repository\BaseRepository;
@@ -24,20 +27,19 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
         $this->table = $this->table();
     }
 
-    protected static function setTable(string $table, ?string $alias = null): string
+    public function __get(string $name)
     {
-        return $table.($alias ? ' as '.$alias : '');
-    }
+        if (array_key_exists($name, $this->attributes_)) {
+            return $this->attributes_[$name];
+        }
 
-    protected function repositoryClass(): ?string
-    {
-        return null;
+        return $this->model->$name ?? null;
     }
 
     public function repository(?BaseModel $model = null): BaseRepository
     {
         if (! $class = $this->repositoryClass()) {
-            throw new \Exception(BaseTypeErrors::errorMessages()[BaseTypeErrors::REPOSITORY_CLASS_UNINFORMED].'('.get_called_class().')');
+            throw new Exception(BaseTypeErrors::errorMessages()[BaseTypeErrors::REPOSITORY_CLASS_UNINFORMED].'('.get_called_class().')');
         }
         /** @var BaseRepository $repository */
         $repository = new $class($model);
@@ -48,15 +50,6 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
         }
 
         return $repository;
-    }
-
-    public function __get(string $name)
-    {
-        if (array_key_exists($name, $this->attributes_)) {
-            return $this->attributes_[$name];
-        }
-
-        return $this->model->$name ?? null;
     }
 
     public function table(): string
@@ -77,5 +70,15 @@ abstract class BaseEntityModel extends BaseEntity implements EntityModelInterfac
         $table = $model_class::table();
 
         return ! $this->table_alias ? $table : $table.' as '.$this->table_alias;
+    }
+
+    protected static function setTable(string $table, ?string $alias = null): string
+    {
+        return $table.($alias ? ' as '.$alias : '');
+    }
+
+    protected function repositoryClass(): ?string
+    {
+        return null;
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Jobs;
 
 use Illuminate\Bus\Queueable;
@@ -11,7 +13,7 @@ use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
 
-class SeederInitialIndependentDataJob implements ShouldQueue
+final class SeederInitialIndependentDataJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

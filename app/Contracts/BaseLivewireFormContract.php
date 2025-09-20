@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Contracts;
 
+use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -14,18 +17,18 @@ abstract class BaseLivewireFormContract extends Component
 
     public array $modelAttributes = [];
 
+    abstract protected function modelClass(): string;
+
+    abstract protected function getModel(): ?BaseModelInterface;
+
+    abstract public function validationAttributes(): array;
+
     public function mount($model): void
     {
         if (isset($this->model->id)) {
             $this->modelAttributes = $this->getModel()->toArray();
         }
     }
-
-    abstract protected function modelClass(): string;
-
-    abstract protected function getModel(): ?BaseModelInterface;
-
-    abstract public function validationAttributes(): array;
 
     public function save(): void
     {
@@ -42,22 +45,22 @@ abstract class BaseLivewireFormContract extends Component
         } catch (ValidationException $exception) {
             Toastr::instance($this)->error($exception->getMessage());
             throw $exception;
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             DB::rollBack();
-            throw_if(config('app.env') == 'local', $exception);
+            throw_if(config('app.env') === 'local', $exception);
 
             Toastr::instance($this)->error('Não foi possível salvar o item. Tente novamente mais tarde');
         }
     }
 
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     protected function getClass(): string
     {
         $class = $this->modelClass();
         if (empty($class)) {
-            throw new \Exception('Inform the model class');
+            throw new Exception('Inform the model class');
         }
 
         return $class;

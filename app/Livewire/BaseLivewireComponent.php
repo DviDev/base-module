@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Livewire;
 
 use Carbon\Carbon;
+use DB;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
@@ -23,6 +26,7 @@ use Modules\View\Entities\ModuleEntityPage\ModuleEntityPageEntityModel;
 use Modules\View\Models\ElementModel;
 use Modules\View\Models\ModuleEntityPageModel;
 use Modules\View\Models\ViewPageStructureModel;
+use Request;
 
 abstract class BaseLivewireComponent extends Component
 {
@@ -43,6 +47,12 @@ abstract class BaseLivewireComponent extends Component
 
     protected $listeners = ['refresh' => '$refresh'];
 
+    abstract public function render(): View;
+
+    abstract public function getStructure(): ViewPageStructureModel;
+
+    abstract public function getExceptItems(): array;
+
     public function mount(): void
     {
         $this->modelObject = $this->model;
@@ -61,24 +71,6 @@ abstract class BaseLivewireComponent extends Component
                 $value = $prop;
                 $this->values['dates'][$attribute] = ['date' => $value->format('Y-m-d'), 'time' => $value->format('H:i')];
             }
-        }
-    }
-
-    protected function transformValues($fn): void
-    {
-        $attribute = ProjectModuleEntityAttributeEntityModel::props('attribute');
-        $attributes = $this->getStructureCache()
-            ->elements()->whereNotNull('attribute_id')
-            ->join($attribute->table(), $attribute->id, 'attribute_id')
-            ->whereHas('attribute', function (Builder $query) {
-                $query->where('type_id', ModuleEntityAttributeTypeEnum::getId(ModuleEntityAttributeTypeEnum::decimal));
-            })
-            ->pluck('attribute.name')->all();
-        foreach ($attributes as $attribute) {
-            if (empty($this->model[$attribute])) {
-                continue;
-            }
-            $this->model[$attribute] = $fn($this->model[$attribute]);
         }
     }
 
@@ -108,8 +100,6 @@ abstract class BaseLivewireComponent extends Component
         return cache()->rememberForever($cache_key, $callback);
     }
 
-    abstract public function render(): View;
-
     public function getRules()
     {
         $cache_key = 'model-'.($this->model['id'] ?? '').'-'.auth()->user()->id;
@@ -117,16 +107,6 @@ abstract class BaseLivewireComponent extends Component
 
         return cache()->remember($cache_key, $ttl, function () {
             return $this->getDynamicRules($this->modelObject->getTable(), 'save', $this->model);
-        });
-    }
-
-    protected function validationAttributes(): array
-    {
-        $cache_key = 'validationAttributes::page-'.($this->page->id);
-        $ttl = now()->addHours(3);
-
-        return cache()->remember($cache_key, $ttl, function () {
-            return $this->dynamicValidationAttributes('save');
         });
     }
 
@@ -160,14 +140,14 @@ abstract class BaseLivewireComponent extends Component
             }
             $fn = fn ($value) => toBRL($value);
             $this->transformValues($fn);
-            Toastr::instance($this)->success(str(__('the data has been saved'))->ucfirst());
+            Toastr::instance($this)->success(str(__('the data has been saved'))->ucfirst()->value());
         } catch (ValidationException $exception) {
             $fn = fn ($value) => toBRL($value);
             $this->transformValues($fn);
             Toastr::instance($this)->error($exception->getMessage());
             throw $exception;
         } catch (Exception $exception) {
-            if (config('app.env') == 'local') {
+            if (config('app.env') === 'local') {
                 throw $exception;
             }
             Toastr::instance($this)->error('Não foi possível salvar o item');
@@ -184,7 +164,7 @@ abstract class BaseLivewireComponent extends Component
 
     public function getReferencedTableData(ElementModel $element, ProjectModuleEntityAttributeModel $projectAttribute): array|LengthAwarePaginator
     {
-        if ($element->attribute->typeEnum() == ModuleEntityAttributeTypeEnum::enum && $element->attribute->items) {
+        if ($element->attribute->typeEnum() === ModuleEntityAttributeTypeEnum::enum && $element->attribute->items) {
             return $element->attribute->items->pluck('name')->all();
         }
         $columns = ['id'];
@@ -205,9 +185,9 @@ abstract class BaseLivewireComponent extends Component
         $module = $entity_name->explode(' ')->first();
         $entity_name = $entity_name->explode(' ')->filter(fn ($i) => $i !== $module)->join('\\');
         $entity_name = str($entity_name)->singular()->value();
-        /** @var BaseModel $model_class */
         $model_class = "Modules\\$module\\Models\\$entity_name".'Model';
         if (class_exists($model_class)) {
+            /** @var BaseModel $model_class */
             $items = $model_class::query();
             if ($projectAttribute->referenced_table_name) {
                 $str = str($projectAttribute->referenced_table_name);
@@ -218,7 +198,7 @@ abstract class BaseLivewireComponent extends Component
             return $items->paginate();
         }
 
-        return \DB::table($referenced_table_name)
+        return DB::table($referenced_table_name)
             ->select($columns)
             ->paginate();
     }
@@ -295,6 +275,41 @@ abstract class BaseLivewireComponent extends Component
         }
     }
 
+    public function getStructureCache(): ViewPageStructureModel
+    {
+        $key = 'page::'.$this->page->id.'::structure';
+
+        return cache()->rememberForever($key, fn () => $this->getStructure());
+    }
+
+    protected function transformValues($fn): void
+    {
+        $attribute = ProjectModuleEntityAttributeEntityModel::props('attribute');
+        $attributes = $this->getStructureCache()
+            ->elements()->whereNotNull('attribute_id')
+            ->join($attribute->table(), $attribute->id, 'attribute_id')
+            ->whereHas('attribute', function (Builder $query): void {
+                $query->where('type_id', ModuleEntityAttributeTypeEnum::getId(ModuleEntityAttributeTypeEnum::decimal));
+            })
+            ->pluck('attribute.name')->all();
+        foreach ($attributes as $attribute) {
+            if (empty($this->model[$attribute])) {
+                continue;
+            }
+            $this->model[$attribute] = $fn($this->model[$attribute]);
+        }
+    }
+
+    protected function validationAttributes(): array
+    {
+        $cache_key = 'validationAttributes::page-'.($this->page->id);
+        $ttl = now()->addHours(3);
+
+        return cache()->remember($cache_key, $ttl, function () {
+            return $this->dynamicValidationAttributes('save');
+        });
+    }
+
     protected function getValue($element): string
     {
         $referenced_table_name = $element->attribute->referenced_table_name;
@@ -314,7 +329,7 @@ abstract class BaseLivewireComponent extends Component
 
     protected function setPage(): void
     {
-        if (\Request::routeIs('view.entity.page.form')) {
+        if (Request::routeIs('view.entity.page.form')) {
             if (! $this->model) {
                 throw new Exception(__('Model not found'));
             }
@@ -334,15 +349,4 @@ abstract class BaseLivewireComponent extends Component
             ->where($page->route, 'like', '%.form')
             ->first();
     }
-
-    public function getStructureCache(): ViewPageStructureModel
-    {
-        $key = 'page::'.$this->page->id.'::structure';
-
-        return cache()->rememberForever($key, fn () => $this->getStructure());
-    }
-
-    abstract public function getStructure(): ViewPageStructureModel;
-
-    abstract public function getExceptItems(): array;
 }

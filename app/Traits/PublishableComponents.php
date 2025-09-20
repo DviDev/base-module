@@ -1,11 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Traits;
 
 use Illuminate\Support\Facades\Blade;
 
 trait PublishableComponents
 {
+    abstract public function getModuleName(): string;
+
+    abstract public function getModuleNameLower(): string;
+
     protected function publishableComponent($name, $class): void
     {
         Blade::component(class: $class, alias: $this->getModuleNameLower().'::'.$name);
@@ -33,8 +39,4 @@ trait PublishableComponents
 
         return [$origin, $destination];
     }
-
-    abstract public function getModuleName(): string;
-
-    abstract public function getModuleNameLower(): string;
 }

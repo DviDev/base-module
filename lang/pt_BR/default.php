@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'actions' => 'Ações',
     'visible only in local environment' => 'visível apenas em ambiente local',

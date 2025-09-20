@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Livewire\Config;
 
 use Illuminate\View\View;
 use Livewire\Component;
 use Modules\Base\Models\ConfigModel;
 
-class ConfigListItem extends Component
+final class ConfigListItem extends Component
 {
     public ConfigModel $config;
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Database\Seeders;
 
 use Closure;
@@ -47,7 +49,7 @@ abstract class BaseSeeder extends Seeder
     protected function done(): void
     {
         $class = get_called_class();
-        $this->commandInfo($class, '🟢 done');
+        $this->commandInfo($class, '✅ done');
     }
 
     protected function commandWarn(string $target, ?string $label = null): void

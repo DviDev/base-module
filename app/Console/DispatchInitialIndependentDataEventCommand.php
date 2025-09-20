@@ -1,13 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Console;
 
+use Event;
 use Illuminate\Console\Command;
 use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
-class DispatchInitialIndependentDataEventCommand extends Command
+final class DispatchInitialIndependentDataEventCommand extends Command
 {
     /**
      * The name and signature of the console command.
@@ -32,7 +35,7 @@ class DispatchInitialIndependentDataEventCommand extends Command
      */
     public function handle(): void
     {
-        \Event::dispatch(new BaseSeederInitialIndependentDataEvent);
+        Event::dispatch(new BaseSeederInitialIndependentDataEvent);
     }
 
     /**

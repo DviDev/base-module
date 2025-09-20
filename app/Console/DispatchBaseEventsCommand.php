@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Console;
 
+use Event;
 use Illuminate\Console\Command;
 use Modules\Base\Events\DatabaseSeederEvent;
 use Modules\DBMap\Events\ScanTableEvent;
 
-class DispatchBaseEventsCommand extends Command
+final class DispatchBaseEventsCommand extends Command
 {
     protected $signature = 'base:dispatch_base_events';
 
@@ -19,7 +22,7 @@ class DispatchBaseEventsCommand extends Command
 
     public function handle(): void
     {
-        \Event::dispatch(new ScanTableEvent);
-        \Event::dispatch(new DatabaseSeederEvent);
+        Event::dispatch(new ScanTableEvent);
+        Event::dispatch(new DatabaseSeederEvent);
     }
 }

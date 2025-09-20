@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Services\Errors;
 
 use Exception;
@@ -9,7 +11,7 @@ use Throwable;
 /**
  * @method-red getMessage()
  */
-class ExceptionBaseResponse extends Exception
+final class ExceptionBaseResponse extends Exception
 {
     private BaseResponse $response;
 
@@ -23,12 +25,29 @@ class ExceptionBaseResponse extends Exception
         parent::__construct();
     }
 
+    public function __toString(): string
+    {
+        $str = '';
+        if ($message = $this->message()) {
+            $str = 'Error: '.$message;
+        }
+        if ($file = $this->file()) {
+            $str .= ' in '.$file;
+        }
+
+        if ($line = $this->line()) {
+            $str .= ' line '.$line;
+        }
+
+        return $str;
+    }
+
     /**
      * @throws ExceptionBaseResponse
      */
-    public static function throw(int $errorCode, ?string $msg = null, ?object $exception = null): ExceptionBaseResponse
+    public static function throw(int $errorCode, ?string $msg = null, ?object $exception = null): self
     {
-        if (is_a($exception, ExceptionBaseResponse::class)) {
+        if (is_a($exception, self::class)) {
             /** @var ExceptionBaseResponse $exception */
             $exception->response()->addError($errorCode);
             throw $exception;
@@ -36,9 +55,9 @@ class ExceptionBaseResponse extends Exception
         throw new self((new BaseResponse)->addError($errorCode, $msg), $exception);
     }
 
-    public static function throwWithBaseResponse(BaseResponse $baseResponse, Exception $exception): ExceptionBaseResponse
+    public static function throwWithBaseResponse(BaseResponse $baseResponse, Exception $exception): self
     {
-        if (is_a($exception, ExceptionBaseResponse::class)) {
+        if (is_a($exception, self::class)) {
             throw $exception;
         }
         throw new self($baseResponse, $exception);
@@ -119,22 +138,5 @@ class ExceptionBaseResponse extends Exception
         }
 
         return null;
-    }
-
-    public function __toString(): string
-    {
-        $str = '';
-        if ($message = $this->message()) {
-            $str = 'Error: '.$message;
-        }
-        if ($file = $this->file()) {
-            $str .= ' in '.$file;
-        }
-
-        if ($line = $this->line()) {
-            $str .= ' line '.$line;
-        }
-
-        return $str;
     }
 }

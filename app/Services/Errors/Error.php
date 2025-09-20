@@ -1,11 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Services\Errors;
 
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
 
-class Error implements Arrayable, JsonSerializable
+final class Error implements Arrayable, JsonSerializable
 {
     public int $code;
 

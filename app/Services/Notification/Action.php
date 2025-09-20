@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Services\Notification;
 
-class Action
+final class Action
 {
     public function __construct(
         public ?string $text = 'Visualizar',
@@ -18,7 +20,7 @@ class Action
         string $type = 'info',
         bool $btn = false,
         ?string $icon = null,
-    ): Action {
+    ): self {
         return new self($text, $url, $type, $btn, $icon);
     }
 }

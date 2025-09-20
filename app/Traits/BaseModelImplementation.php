@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Traits;
 
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Contracts\BaseModel;
@@ -20,7 +23,7 @@ trait BaseModelImplementation
     }
 
     /**@return self */
-    public static function createFn(\Closure $fn)
+    public static function createFn(Closure $fn)
     {
         $entity_class = (new static)->modelEntity();
         $attributes = $fn($entity_class::props());
@@ -28,7 +31,7 @@ trait BaseModelImplementation
         return self::query()->create($attributes);
     }
 
-    public static function whereFn(\Closure $fn): Builder
+    public static function whereFn(Closure $fn): Builder
     {
         $entity_class = (new static)->modelEntity();
         $arrays = $fn($entity_class::props());
@@ -44,40 +47,9 @@ trait BaseModelImplementation
         return $builder;
     }
 
-    protected static function booted()
-    {
-        static::saving(function (Model $model) {
-            $props = $model->props()->toArray();
-            if (in_array('created_at', $props) && ! isset($model->created_at)) {
-                $model->created_at = now();
-            }
-            if (in_array('updated_at', $props) && ! isset($model->updated_at)) {
-                $model->updated_at = now();
-            }
-        });
-        static::creating(function (Model $model) {
-            if (in_array('created_at', $model->props()->toArray()) && ! isset($model->created_at)) {
-                $model->created_at = now();
-            }
-        });
-
-        static::updating(function (Model $model) {
-            if (in_array('updated_at', $model->props()->toArray()) && $model->isDirty()) {
-                $model->updated_at = now();
-            }
-        });
-
-        parent::booted();
-    }
-
     public function props($alias = null, $refresh = false): object
     {
         return $this->modelEntity()::props($alias, $refresh);
-    }
-
-    protected static function dbTable($table, $alias = null): string
-    {
-        return $table.($alias ? ' as '.$alias : '');
     }
 
     public function toEntity(): BaseEntityModel
@@ -100,5 +72,36 @@ trait BaseModelImplementation
         $entity = $this->modelEntity();
 
         return (new $entity)->repository($this);
+    }
+
+    protected static function booted()
+    {
+        static::saving(function (Model $model): void {
+            $props = $model->props()->toArray();
+            if (in_array('created_at', $props) && ! isset($model->created_at)) {
+                $model->created_at = now();
+            }
+            if (in_array('updated_at', $props) && ! isset($model->updated_at)) {
+                $model->updated_at = now();
+            }
+        });
+        static::creating(function (Model $model): void {
+            if (in_array('created_at', $model->props()->toArray()) && ! isset($model->created_at)) {
+                $model->created_at = now();
+            }
+        });
+
+        static::updating(function (Model $model): void {
+            if (in_array('updated_at', $model->props()->toArray()) && $model->isDirty()) {
+                $model->updated_at = now();
+            }
+        });
+
+        parent::booted();
+    }
+
+    protected static function dbTable($table, $alias = null): string
+    {
+        return $table.($alias ? ' as '.$alias : '');
     }
 }

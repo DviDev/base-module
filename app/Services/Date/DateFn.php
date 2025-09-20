@@ -1,8 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Services\Date;
 
-class DateFn
+final class DateFn
 {
     public function validate(string $date): bool
     {
@@ -14,9 +16,9 @@ class DateFn
         $date = explode('.', $date);
         $newDate = explode('-', $date[0]);
 
-        $year = $newDate[0];
-        $month = $newDate[1];
-        $day = explode(' ', $newDate[2])[0];
+        $year = (int) $newDate[0];
+        $month = (int) $newDate[1];
+        $day = (int) explode(' ', $newDate[2])[0];
 
         return checkdate($month, $day, $year);
     }

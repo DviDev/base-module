@@ -8,6 +8,9 @@
             "email": "davimenezes.dev@gmail.com"
         }
     ],
+    "require": {
+        "ext-intl": "*"
+    },
     "extra": {
         "laravel": {
             "providers": [],

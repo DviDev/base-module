@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Providers;
 
+use Event;
 use Illuminate\Support\ServiceProvider;
 use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
 use Modules\Base\Listeners\CreateMenuItemsBaseListener;
@@ -10,16 +13,16 @@ use Modules\Base\Listeners\SeederInitialIndependentDataBaseListener;
 use Modules\Project\Events\CreateMenuItemsEvent;
 use Modules\View\Events\DefineSearchableAttributesEvent;
 
-class BaseEventServiceProvider extends ServiceProvider
+final class BaseEventServiceProvider extends ServiceProvider
 {
     /**
      * Register the service provider.
      */
     public function register(): void
     {
-        \Event::listen(BaseSeederInitialIndependentDataEvent::class, SeederInitialIndependentDataBaseListener::class);
-        \Event::listen(CreateMenuItemsEvent::class, CreateMenuItemsBaseListener::class);
-        \Event::listen(DefineSearchableAttributesEvent::class, DefineSearchableAttributes::class);
+        Event::listen(BaseSeederInitialIndependentDataEvent::class, SeederInitialIndependentDataBaseListener::class);
+        Event::listen(CreateMenuItemsEvent::class, CreateMenuItemsBaseListener::class);
+        Event::listen(DefineSearchableAttributesEvent::class, DefineSearchableAttributes::class);
     }
 
     /**

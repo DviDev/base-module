@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Modules\Base\Entities;
 
 use ReflectionClass;
@@ -26,7 +28,7 @@ trait Props
             if (! str_contains($line, $property_type)) {
                 continue;
             }
-            $props[] = trim(substr($line, strpos($line, '$') + 1));
+            $props[] = trim(mb_substr($line, mb_strpos($line, '$') + 1));
         }
 
         return $props;
