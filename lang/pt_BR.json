@@ -17,5 +17,7 @@
     "module": "modulo",
     "notification": "notificação",
     "notifications": "notificações",
-    "sign out": "sair"
+    "sign out": "sair",
+    "The item has been created": "O item foi criado",
+    "amount of items to insert": "quantidade de itens a inserir"
 }
