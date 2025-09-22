@@ -57,7 +57,7 @@ abstract class BaseLivewireComponent extends Component
     {
         $this->modelObject = $this->model;
         $this->model = $this->model->attributesToArray();
-        $this->setPage();
+        $this->setEntityPage();
         if (! $this->page) {
             return;
         }
@@ -327,7 +327,7 @@ abstract class BaseLivewireComponent extends Component
         return 'structure.'.$structure->id.'.allChildren.elements';
     }
 
-    protected function setPage(): void
+    protected function setEntityPage(): void
     {
         if (Request::routeIs('view.entity.page.form')) {
             if (! $this->model) {
