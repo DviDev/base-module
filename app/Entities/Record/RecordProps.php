@@ -6,6 +6,7 @@ namespace Modules\Base\Entities\Record;
 
 /**
  * @property $id
+ * @property $uuid
  * @property $type_id
  * @property $created_at
  * @property $updated_at
