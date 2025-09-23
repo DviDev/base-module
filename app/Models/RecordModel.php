@@ -6,11 +6,13 @@ namespace Modules\Base\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Entities\Record\RecordEntityModel;
 use Modules\Base\Entities\Record\RecordProps;
 use Modules\Base\Factories\BaseFactory;
+use Modules\Permission\Contracts\UseActionsInterface;
 use Modules\Permission\Models\PermissionActionConditionGroupModel;
 use Modules\Permission\Traits\HasActions;
 
@@ -20,13 +22,14 @@ use Modules\Permission\Traits\HasActions;
  * @link https://github.com/DaviMenezes
  *
  * @property-read RecordModel $model
+ * @property-read RecordTypeModel $type
  *
  * @method RecordEntityModel toEntity()
  * @method self factory()
  *
  * @mixin Builder
  */
-final class RecordModel extends BaseModel
+final class RecordModel extends BaseModel implements UseActionsInterface
 {
     use RecordProps;
 
@@ -75,8 +78,14 @@ final class RecordModel extends BaseModel
         };
     }
 
+    public function type(): BelongsTo
+    {
+        return $this->belongsTo(RecordTypeModel::class, 'type_id');
+    }
+
     public function firstOrCreateActionWithGroup(string $name, $owner_id = 1): PermissionActionConditionGroupModel
     {
-        throw new \Exception('Not implemented');
+        $title = str($this->type->name)->explode('/')->last();
+        return $this->getFirstOrCreateActionWithGroup(title: $title, name: $name, owner_id: $owner_id);
     }
 }
