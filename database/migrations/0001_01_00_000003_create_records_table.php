@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('base_records', function (Blueprint $table): void {
             $p = RecordEntityModel::props(force: true);
             $table->id();
+            $table->uuid();
             $table->foreignId($p->type_id)->references('id')->on('base_record_types')
                 ->cascadeOnUpdate()->restrictOnDelete();
 
