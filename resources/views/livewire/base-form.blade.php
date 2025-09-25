@@ -3,7 +3,7 @@
     use Modules\Base\Entities\Actions\Builder;
     use Modules\Person\Enums\UserType;
     use Modules\Permission\Models\PermissionActionModel;
-    use Modules\Project\Models\ProjectModuleEntityDBModel;
+    use Modules\Schema\Models\ModuleEntityDBModel;
     use Modules\View\Domains\ViewStructureComponentType;
     use Modules\View\Models\ViewPageStructureModel;
 @endphp
@@ -32,13 +32,13 @@
                                         </a>
                                     @endif
                                     <div
-                                        @class([
-                                            "bg-gray-100",
-                                             "text-gray-600 hover:text-blue-700 px-2 py-1 cursor-pointer",
-                                            "flex space-x-2", "rounded-r" => !isset($model['id']),
-                                        ])
-                                        wire:click="updateStructureCache"
-                                        title="{{ucfirst(__('base::cache.update cache'))}}">
+                                            @class([
+                                                "bg-gray-100",
+                                                 "text-gray-600 hover:text-blue-700 px-2 py-1 cursor-pointer",
+                                                "flex space-x-2", "rounded-r" => !isset($model['id']),
+                                            ])
+                                            wire:click="updateStructureCache"
+                                            title="{{ucfirst(__('base::cache.update cache'))}}">
                                         <x-dvui::icon.trash s4 fill class="my-auto font-bold"
                                                             wire:loading.class="hidden"
                                                             wire:target="updateStructureCache"/>
@@ -49,24 +49,25 @@
                                         <span class="my-auto">cache</span>
                                     </div>
                                     <div
-                                        @class([
-                                            "bg-gray-100",
-                                             "text-gray-600 hover:text-blue-700 px-2 py-1 cursor-pointer",
-                                            "flex space-x-2", "rounded-r" => !isset($model['id']),
-                                        ]) wire:click="updateComponent" title="{{__('base::page.update page')}}">
+                                            @class([
+                                                "bg-gray-100",
+                                                 "text-gray-600 hover:text-blue-700 px-2 py-1 cursor-pointer",
+                                                "flex space-x-2", "rounded-r" => !isset($model['id']),
+                                            ]) wire:click="updateComponent" title="{{__('base::page.update page')}}">
                                         <i class="fas fa-sync my-auto" wire:loading.class="animate-spin"
                                            wire:target="updateComponent"></i>
                                         <span class="my-auto">refresh</span>
                                     </div>
                                     <div class="bg-gray-100 flex">
-                                        <a href="{{route($page->entity->firstPageList()->route)}}" wire:navigate title="{{__('list')}}"
-                                            @class(["text-gray-600 hover:text-blue-600 px-2 my-auto"])>
+                                        <a href="{{route($page->entity->firstPageList()->route)}}" wire:navigate
+                                           title="{{__('list')}}"
+                                                @class(["text-gray-600 hover:text-blue-600 px-2 my-auto"])>
                                             <x-dvui::icon.document mini wire:loading.class="animate-spin"/>
                                         </a>
                                     </div>
                                     @isset($model['id'])
                                         <a href="{{route($page->route)}}" wire:navigate title="{{__('new')}}"
-                                            @class(["bg-gray-100 text-gray-600 hover:text-blue-600 rounded-r px-2 py-1"])>
+                                                @class(["bg-gray-100 text-gray-600 hover:text-blue-600 rounded-r px-2 py-1"])>
                                             <x-dvui::icon.plus/>
                                         </a>
                                     @endisset

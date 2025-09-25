@@ -17,11 +17,11 @@ use Livewire\Component;
 use Modules\Base\Contracts\BaseModel;
 use Modules\DBMap\Traits\DynamicRules;
 use Modules\DvUi\Services\Plugins\Toastr\Toastr;
-use Modules\Project\Entities\ProjectModuleEntity\ProjectModuleEntityEntityModel;
-use Modules\Project\Entities\ProjectModuleEntityAttribute\ProjectModuleEntityAttributeEntityModel;
+use Modules\Schema\Entities\ModuleEntity\ModuleEntityEntityModel;
+use Modules\Schema\Entities\ModuleEntityAttribute\ModuleEntityAttributeEntityModel;
 use Modules\Project\Enums\ModuleEntityAttributeTypeEnum;
-use Modules\Project\Models\ProjectModuleEntityAttributeModel;
-use Modules\Project\Models\ProjectModuleEntityDBModel;
+use Modules\Schema\Models\ModuleEntityAttributeModel;
+use Modules\Schema\Models\ModuleEntityDBModel;
 use Modules\View\Entities\ModuleEntityPage\ModuleEntityPageEntityModel;
 use Modules\View\Models\ElementModel;
 use Modules\View\Models\ModuleEntityPageModel;
@@ -156,13 +156,13 @@ abstract class BaseLivewireComponent extends Component
 
     public function projectAttribute($property_name, $entity_id)
     {
-        return ProjectModuleEntityAttributeModel::query()
+        return ModuleEntityAttributeModel::query()
             ->where('entity_id', $entity_id)
             ->where('name', $property_name)
             ->get(['referenced_table_name'])->first();
     }
 
-    public function getReferencedTableData(ElementModel $element, ProjectModuleEntityAttributeModel $projectAttribute): array|LengthAwarePaginator
+    public function getReferencedTableData(ElementModel $element, ModuleEntityAttributeModel $projectAttribute): array|LengthAwarePaginator
     {
         if ($element->attribute->typeEnum() === ModuleEntityAttributeTypeEnum::enum && $element->attribute->items) {
             return $element->attribute->items->pluck('name')->all();
@@ -170,7 +170,7 @@ abstract class BaseLivewireComponent extends Component
         $columns = ['id'];
 
         $referenced_table_name = $element->structure->page->entity->name;
-        $entity = ProjectModuleEntityDBModel::query()->where('name', $referenced_table_name)->first();
+        $entity = ModuleEntityDBModel::query()->where('name', $referenced_table_name)->first();
         $name_exists = $entity->entityAttributes()->where('name', 'name')->exists();
         $nome_exists = $entity->entityAttributes()->where('name', 'nome')->exists();
         if ($name_exists) {
@@ -284,7 +284,7 @@ abstract class BaseLivewireComponent extends Component
 
     protected function transformValues($fn): void
     {
-        $attribute = ProjectModuleEntityAttributeEntityModel::props('attribute');
+        $attribute = ModuleEntityAttributeEntityModel::props('attribute');
         $attributes = $this->getStructureCache()
             ->elements()->whereNotNull('attribute_id')
             ->join($attribute->table(), $attribute->id, 'attribute_id')
@@ -313,7 +313,7 @@ abstract class BaseLivewireComponent extends Component
     protected function getValue($element): string
     {
         $referenced_table_name = $element->attribute->referenced_table_name;
-        $entity = ProjectModuleEntityDBModel::query()->firstWhere('name', $referenced_table_name);
+        $entity = ModuleEntityDBModel::query()->firstWhere('name', $referenced_table_name);
         $name_exists = $entity->entityAttributes()->where('name', 'name')->exists();
         if ($name_exists) {
             return 'name';
@@ -339,7 +339,7 @@ abstract class BaseLivewireComponent extends Component
         }
 
         $page = ModuleEntityPageEntityModel::props('page');
-        $entity = ProjectModuleEntityEntityModel::props('entity');
+        $entity = ModuleEntityEntityModel::props('entity');
 
         $this->page = ModuleEntityPageModel::query()
             ->select($page->table_alias.'.*')
