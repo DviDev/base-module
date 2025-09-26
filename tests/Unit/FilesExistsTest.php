@@ -19,7 +19,7 @@ use Modules\Base\Contracts\BaseSeeder;
 use Modules\Base\Database\Seeders\ConfigTableSeeder;
 use Modules\Base\Database\Seeders\DispatchBaseEventSeeder;
 use Modules\Base\Database\Seeders\SeederEventDTO;
-use Modules\Base\Domain\BaseDomain;
+use Modules\Base\Contracts\BaseDomain;
 use Modules\Base\Entities\Actions\Builder;
 use Modules\Base\Entities\Actions\GateContract;
 use Modules\Base\Contracts\BaseEntity;
