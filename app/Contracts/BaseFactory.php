@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Base\Factories;
+namespace Modules\Base\Contracts;
 
 use App\Models\User;
 use BadMethodCallException;

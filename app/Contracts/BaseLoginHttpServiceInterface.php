@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Base\Services;
+namespace Modules\Base\Contracts;
 
 interface BaseLoginHttpServiceInterface
 {

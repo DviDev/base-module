@@ -11,7 +11,7 @@ use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\BaseEntityModel;
 use Modules\Base\Entities\Record\RecordEntityModel;
 use Modules\Base\Entities\Record\RecordProps;
-use Modules\Base\Factories\BaseFactory;
+use Modules\Base\Contracts\BaseFactory;
 use Modules\Permission\Contracts\Actionable;
 use Modules\Permission\Models\PermissionActionConditionGroupModel;
 use Modules\Permission\Traits\HasActions;

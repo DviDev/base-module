@@ -6,7 +6,7 @@ namespace Modules\Base\Tests\Tables;
 
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Models\RecordTypeModel;
-use Modules\Base\Services\Tests\BaseTest;
+use Modules\Base\Contracts\Tests\BaseTest;
 
 final class RecordTypeTableTest extends BaseTest
 {

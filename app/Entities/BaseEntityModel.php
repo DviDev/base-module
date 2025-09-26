@@ -7,8 +7,8 @@ namespace Modules\Base\Entities;
 use Exception;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\EntityModelInterface;
-use Modules\Base\Repository\BaseRepository;
-use Modules\Base\Services\Errors\BaseTypeErrors;
+use Modules\Base\Contracts\BaseRepository;
+use Modules\Base\Contracts\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
 
 /**

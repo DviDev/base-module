@@ -7,7 +7,7 @@ namespace Modules\Base\Models;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\RecordRelation\RecordRelationEntityModel;
 use Modules\Base\Entities\RecordRelation\RecordRelationProps;
-use Modules\Base\Factories\BaseFactory;
+use Modules\Base\Contracts\BaseFactory;
 
 /**
  * @author Davi Menezes (davimenezes.dev@gmail.com)

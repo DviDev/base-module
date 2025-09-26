@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Base\Http\Controllers;
+namespace Modules\Base\Contracts;
 
 use Exception;
 use Modules\Base\Domain\BaseDomain;

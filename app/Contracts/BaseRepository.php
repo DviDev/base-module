@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Base\Repository;
+namespace Modules\Base\Contracts;
 
 use Closure;
 use Exception;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\BaseEntityModel;
-use Modules\Base\Services\Errors\BaseTypeErrors;
+use Modules\Base\Contracts\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
 
 /**

@@ -7,7 +7,7 @@ namespace Modules\Base\Models;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\RecordType\RecordTypeEntityModel;
 use Modules\Base\Entities\RecordType\RecordTypeProps;
-use Modules\Base\Factories\BaseFactory;
+use Modules\Base\Contracts\BaseFactory;
 
 /**
  * @author Davi Menezes (davimenezes.dev@gmail.com)
