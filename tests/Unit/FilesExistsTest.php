@@ -15,7 +15,7 @@ use Modules\Base\Contracts\BaseServiceProviderInterface;
 use Modules\Base\Contracts\EntityInterface;
 use Modules\Base\Contracts\EntityModelInterface;
 use Modules\Base\Database\Seeders\BaseDatabaseSeeder;
-use Modules\Base\Database\Seeders\BaseSeeder;
+use Modules\Base\Contracts\BaseSeeder;
 use Modules\Base\Database\Seeders\ConfigTableSeeder;
 use Modules\Base\Database\Seeders\DispatchBaseEventSeeder;
 use Modules\Base\Database\Seeders\SeederEventDTO;

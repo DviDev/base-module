@@ -7,6 +7,7 @@ namespace Modules\Base\Database\Seeders;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
+use Modules\Base\Contracts\BaseSeeder;
 
 final class BaseDatabaseSeeder extends BaseSeeder
 {

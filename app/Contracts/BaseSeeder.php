@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Base\Database\Seeders;
+namespace Modules\Base\Contracts;
 
 use Closure;
 use Illuminate\Database\Seeder;
