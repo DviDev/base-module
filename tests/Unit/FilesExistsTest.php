@@ -23,7 +23,7 @@ use Modules\Base\Domain\BaseDomain;
 use Modules\Base\Entities\Actions\Builder;
 use Modules\Base\Entities\Actions\GateContract;
 use Modules\Base\Entities\BaseEntity;
-use Modules\Base\Entities\BaseEntityModel;
+use Modules\Base\Contracts\BaseEntityModel;
 use Modules\Base\Entities\Config\ConfigEntityModel;
 use Modules\Base\Entities\Config\ConfigProps;
 use Modules\Base\Entities\Props;
