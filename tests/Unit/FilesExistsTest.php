@@ -33,7 +33,7 @@ use Modules\Base\Entities\RecordRelation\RecordRelationEntityModel;
 use Modules\Base\Entities\RecordRelation\RecordRelationProps;
 use Modules\Base\Entities\RecordType\RecordTypeEntityModel;
 use Modules\Base\Entities\RecordType\RecordTypeProps;
-use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
+use Modules\Base\Events\SeedInitialIndependentDataEvent;
 use Modules\Base\Events\DatabaseSeederEvent;
 use Modules\Base\Events\InstallFinishedEvent;
 use Modules\Base\Events\UsingSpotlightEvent;
@@ -192,7 +192,7 @@ describe('base.entities', function (): void {
 
 it('possui todos os arquivos de Eventos', function (): void {
     expectClassesExist([
-        BaseSeederInitialIndependentDataEvent::class,
+        SeedInitialIndependentDataEvent::class,
         DatabaseSeederEvent::class,
         InstallFinishedEvent::class,
         UsingSpotlightEvent::class,

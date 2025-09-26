@@ -6,7 +6,7 @@ namespace Modules\Base\Events;
 
 use Illuminate\Queue\SerializesModels;
 
-final class BaseSeederInitialIndependentDataEvent
+final class SeedInitialIndependentDataEvent
 {
     use SerializesModels;
 
