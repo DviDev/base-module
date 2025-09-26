@@ -29,9 +29,6 @@ final class BaseNewServiceProvider extends BaseServiceProviderContract
         Model::preventLazyLoading();
     }
 
-    /**
-     * Register the service provider.
-     */
     public function register(): void
     {
         parent::register();
@@ -79,7 +76,6 @@ final class BaseNewServiceProvider extends BaseServiceProviderContract
     {
         Livewire::component('base::notification.notification-list', NotificationList::class);
         Livewire::component('base::notification.notification-view', NotificationView::class);
-
         Livewire::component('base::config.config-list', ConfigList::class);
     }
 }
