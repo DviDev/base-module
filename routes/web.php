@@ -15,7 +15,7 @@ declare(strict_types=1);
 
 use Illuminate\Notifications\DatabaseNotification;
 use Modules\Base\Models\ConfigModel;
-use Modules\DvUi\View\BaseBladeComponent;
+use Modules\DvUi\Contracts\BaseBladeComponent;
 
 Route::prefix('admin/')->middleware(['auth', 'verified'])->group(function (): void {
     Route::get('config/list', fn () => view('lte::components.pages.config.config_list_page'))
