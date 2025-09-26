@@ -22,7 +22,7 @@ use Modules\Base\Database\Seeders\SeederEventDTO;
 use Modules\Base\Domain\BaseDomain;
 use Modules\Base\Entities\Actions\Builder;
 use Modules\Base\Entities\Actions\GateContract;
-use Modules\Base\Entities\BaseEntity;
+use Modules\Base\Contracts\BaseEntity;
 use Modules\Base\Contracts\BaseEntityModel;
 use Modules\Base\Entities\Config\ConfigEntityModel;
 use Modules\Base\Entities\Config\ConfigProps;

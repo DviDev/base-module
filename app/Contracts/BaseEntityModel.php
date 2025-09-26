@@ -9,7 +9,7 @@ use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\EntityModelInterface;
 use Modules\Base\Contracts\BaseRepository;
 use Modules\Base\Contracts\BaseTypeErrors;
-use Modules\Base\Entities\BaseEntity;
+use Modules\Base\Contracts\BaseEntity;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
 
 /**

@@ -9,7 +9,7 @@ use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Modules\Base\Entities\BaseEntity;
+use Modules\Base\Contracts\BaseEntity;
 use Modules\Base\Contracts\BaseLoginHttpServiceInterface;
 use Modules\Base\Contracts\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
