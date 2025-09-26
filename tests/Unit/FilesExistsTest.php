@@ -97,7 +97,7 @@ use Modules\Base\Contracts\Tests\BaseTest;
 use Modules\Base\Spotlight\GotoCommand;
 use Modules\Base\Traits\BaseModelImplementation;
 use Modules\Base\Traits\HasFactory;
-use Modules\Base\View\Components\Form\BaseFormBladeComponent;
+use Modules\Base\Contracts\BaseFormBladeComponent;
 use Modules\Base\View\Components\Page\Notification\NotificationListPage;
 use Modules\Base\View\Components\Page\Notification\NotificationViewPage;
 use Modules\Permission\Enums\Actions;

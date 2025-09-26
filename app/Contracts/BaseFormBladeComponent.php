@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Base\View\Components\Form;
+namespace Modules\Base\Contracts;
 
 use Illuminate\Support\Carbon;
 use Illuminate\View\Component;
