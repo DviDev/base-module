@@ -3,7 +3,7 @@
     use Modules\Base\Entities\Actions\Builder;
     use Modules\Person\Enums\UserType;
     use Modules\Permission\Models\PermissionActionModel;
-    use Modules\Project\Models\ProjectModuleEntityDBModel;
+    use Modules\Schema\Models\ModuleEntityDBModel;
     use Modules\View\Domains\ViewStructureComponentType;
     use Modules\View\Models\ViewPageStructureModel;
 @endphp
@@ -59,9 +59,11 @@
                                         <span class="my-auto">refresh</span>
                                     </div>
                                     <div class="bg-gray-100 flex">
-                                        <a href="{{route($page->entity->firstPageList()->route)}}" wire:navigate title="{{__('list')}}"
-                                            @class(["text-gray-600 hover:text-blue-600 px-2 my-auto"])>
-                                            <x-dvui::icon.document mini wire:loading.class="animate-spin"/>
+                                        <a href="{{route($page->entity->firstPageList()->route)}}"
+                                           title="{{__('list')}}"
+                                           wire:navigate
+                                           @class(["text-gray-600 hover:text-blue-600 px-2 my-auto"])>
+                                            <x-dvui::icon.document mini/>
                                         </a>
                                     </div>
                                     @isset($model['id'])
@@ -76,7 +78,10 @@
                     </x-lte::card.header>
                     <x-lte::card.body>
                         @foreach($element->allChildren as $child)
-                            <x-view::elements :child="$child" :model="$model"/>
+                            <x-view::elements
+                                :child="$child" :model="$model"
+                                :extra="collect(['editingAttribute' => $editingAttribute])"
+                            />
                         @endforeach
                     </x-lte::card.body>
                     @php

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Base\Entities;
 
+use Modules\Base\Contracts\BaseEntityModel;
 use ReflectionClass;
 
 trait Props

@@ -18,7 +18,7 @@ use Modules\Base\Livewire\Config\ConfigList;
 use Modules\Base\Livewire\Config\ConfigListItem;
 use Modules\Base\Livewire\Notification\NotificationList;
 use Modules\Base\Livewire\Notification\NotificationView;
-use Modules\Base\Services\Errors\BaseTypeErrors;
+use Modules\Base\Contracts\BaseTypeErrors;
 use Modules\Base\View\Components\Page\Notification\NotificationListPage;
 use Modules\Base\View\Components\Page\Notification\NotificationViewPage;
 

@@ -8,11 +8,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Base\Contracts\BaseModel;
-use Modules\Base\Entities\BaseEntityModel;
+use Modules\Base\Contracts\BaseEntityModel;
 use Modules\Base\Entities\Record\RecordEntityModel;
 use Modules\Base\Entities\Record\RecordProps;
-use Modules\Base\Factories\BaseFactory;
-use Modules\Permission\Contracts\UseActionsInterface;
+use Modules\Base\Contracts\BaseFactory;
+use Modules\Permission\Contracts\Actionable;
 use Modules\Permission\Models\PermissionActionConditionGroupModel;
 use Modules\Permission\Traits\HasActions;
 
@@ -29,7 +29,7 @@ use Modules\Permission\Traits\HasActions;
  *
  * @mixin Builder
  */
-final class RecordModel extends BaseModel implements UseActionsInterface
+final class RecordModel extends BaseModel implements Actionable
 {
     use RecordProps;
 
@@ -85,7 +85,7 @@ final class RecordModel extends BaseModel implements UseActionsInterface
 
     public function firstOrCreateActionWithGroup(string $name, $owner_id = 1): PermissionActionConditionGroupModel
     {
-        $title = str($this->type->name)->explode('/')->last();
+        $title = str($this->type->name)->explode('\\')->last();
         return $this->getFirstOrCreateActionWithGroup(title: $title, name: $name, owner_id: $owner_id);
     }
 }

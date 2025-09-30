@@ -6,7 +6,7 @@ namespace Modules\Base\Providers;
 
 use Event;
 use Illuminate\Support\ServiceProvider;
-use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
+use Modules\Base\Events\SeedInitialIndependentDataEvent;
 use Modules\Base\Listeners\CreateMenuItemsBaseListener;
 use Modules\Base\Listeners\DefineSearchableAttributes;
 use Modules\Base\Listeners\SeederInitialIndependentDataBaseListener;
@@ -20,7 +20,7 @@ final class BaseEventServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        Event::listen(BaseSeederInitialIndependentDataEvent::class, SeederInitialIndependentDataBaseListener::class);
+        Event::listen(SeedInitialIndependentDataEvent::class, SeederInitialIndependentDataBaseListener::class);
         Event::listen(CreateMenuItemsEvent::class, CreateMenuItemsBaseListener::class);
         Event::listen(DefineSearchableAttributesEvent::class, DefineSearchableAttributes::class);
     }

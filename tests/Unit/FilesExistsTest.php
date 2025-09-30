@@ -15,15 +15,15 @@ use Modules\Base\Contracts\BaseServiceProviderInterface;
 use Modules\Base\Contracts\EntityInterface;
 use Modules\Base\Contracts\EntityModelInterface;
 use Modules\Base\Database\Seeders\BaseDatabaseSeeder;
-use Modules\Base\Database\Seeders\BaseSeeder;
+use Modules\Base\Contracts\BaseSeeder;
 use Modules\Base\Database\Seeders\ConfigTableSeeder;
 use Modules\Base\Database\Seeders\DispatchBaseEventSeeder;
 use Modules\Base\Database\Seeders\SeederEventDTO;
-use Modules\Base\Domain\BaseDomain;
+use Modules\Base\Contracts\BaseDomain;
 use Modules\Base\Entities\Actions\Builder;
 use Modules\Base\Entities\Actions\GateContract;
-use Modules\Base\Entities\BaseEntity;
-use Modules\Base\Entities\BaseEntityModel;
+use Modules\Base\Contracts\BaseEntity;
+use Modules\Base\Contracts\BaseEntityModel;
 use Modules\Base\Entities\Config\ConfigEntityModel;
 use Modules\Base\Entities\Config\ConfigProps;
 use Modules\Base\Entities\Props;
@@ -33,7 +33,7 @@ use Modules\Base\Entities\RecordRelation\RecordRelationEntityModel;
 use Modules\Base\Entities\RecordRelation\RecordRelationProps;
 use Modules\Base\Entities\RecordType\RecordTypeEntityModel;
 use Modules\Base\Entities\RecordType\RecordTypeProps;
-use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
+use Modules\Base\Events\SeedInitialIndependentDataEvent;
 use Modules\Base\Events\DatabaseSeederEvent;
 use Modules\Base\Events\InstallFinishedEvent;
 use Modules\Base\Events\UsingSpotlightEvent;
@@ -57,8 +57,8 @@ use Modules\Base\Factories\Attributes\BlueprintTimeFactory;
 use Modules\Base\Factories\Attributes\BlueprintTimestampFactory;
 use Modules\Base\Factories\Attributes\BlueprintTinyIntegerFactory;
 use Modules\Base\Factories\Attributes\BlueprintYearFactory;
-use Modules\Base\Factories\BaseFactory;
-use Modules\Base\Http\Controllers\BaseController;
+use Modules\Base\Contracts\BaseFactory;
+use Modules\Base\Contracts\BaseController;
 use Modules\Base\Http\Middleware\LocalEnvironmentMiddleware;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Listeners\CreateMenuItemsBaseListener;
@@ -79,25 +79,25 @@ use Modules\Base\Providers\BaseAuthServiceProvider;
 use Modules\Base\Providers\BaseNewServiceProvider;
 use Modules\Base\Providers\EventServiceProvider;
 use Modules\Base\Providers\RouteServiceProvider;
-use Modules\Base\Repository\BaseRepository;
+use Modules\Base\Contracts\BaseRepository;
 use Modules\Base\Rules\MinWords;
-use Modules\Base\Services\BaseLoginHttpServiceInterface;
+use Modules\Base\Contracts\BaseLoginHttpServiceInterface;
 use Modules\Base\Services\BaseService;
 use Modules\Base\Services\Date\DateFn;
-use Modules\Base\Services\Errors\BaseTypeErrors;
+use Modules\Base\Contracts\BaseTypeErrors;
 use Modules\Base\Services\Errors\Error;
 use Modules\Base\Services\Errors\ErrorMessages;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
 use Modules\Base\Services\Functions;
-use Modules\Base\Services\HttpContract;
+use Modules\Base\Contracts\HttpContract;
 use Modules\Base\Services\Notification\Action;
 use Modules\Base\Services\Response\BaseResponse;
 use Modules\Base\Services\Response\ResponseType;
-use Modules\Base\Services\Tests\BaseTest;
+use Modules\Base\Contracts\Tests\BaseTest;
 use Modules\Base\Spotlight\GotoCommand;
 use Modules\Base\Traits\BaseModelImplementation;
 use Modules\Base\Traits\HasFactory;
-use Modules\Base\View\Components\Form\BaseFormBladeComponent;
+use Modules\Base\Contracts\BaseFormBladeComponent;
 use Modules\Base\View\Components\Page\Notification\NotificationListPage;
 use Modules\Base\View\Components\Page\Notification\NotificationViewPage;
 use Modules\Permission\Enums\Actions;
@@ -192,7 +192,7 @@ describe('base.entities', function (): void {
 
 it('possui todos os arquivos de Eventos', function (): void {
     expectClassesExist([
-        BaseSeederInitialIndependentDataEvent::class,
+        SeedInitialIndependentDataEvent::class,
         DatabaseSeederEvent::class,
         InstallFinishedEvent::class,
         UsingSpotlightEvent::class,

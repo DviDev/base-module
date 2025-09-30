@@ -7,10 +7,10 @@ namespace Modules\Base\Models;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Base\Contracts\BaseModel;
-use Modules\Base\Entities\BaseEntityModel;
+use Modules\Base\Contracts\BaseEntityModel;
 use Modules\Base\Entities\Config\ConfigEntityModel;
 use Modules\Base\Entities\Config\ConfigProps;
-use Modules\Base\Factories\BaseFactory;
+use Modules\Base\Contracts\BaseFactory;
 
 /**
  * @author Davi Menezes (davimenezes.dev@gmail.com)

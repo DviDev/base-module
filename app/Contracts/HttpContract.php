@@ -2,18 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Modules\Base\Services;
+namespace Modules\Base\Contracts;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
-use Modules\Base\Entities\BaseEntity;
-use Modules\Base\Services\Errors\BaseTypeErrors;
+use Modules\Base\Contracts\BaseEntity;
+use Modules\Base\Contracts\BaseLoginHttpServiceInterface;
+use Modules\Base\Contracts\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
 use Modules\Base\Services\Response\BaseResponse;
 use Modules\Base\Services\Response\ResponseType;
+use Modules\Base\Services\TokenEntity;
 
 abstract class HttpContract
 {

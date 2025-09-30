@@ -11,7 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
-use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
+use Modules\Base\Events\SeedInitialIndependentDataEvent;
 
 final class SeederInitialIndependentDataJob implements ShouldQueue
 {
@@ -23,6 +23,6 @@ final class SeederInitialIndependentDataJob implements ShouldQueue
     public function handle(): void
     {
         Log::info('Seed Initial Independent Data.');
-        Event::dispatch(new BaseSeederInitialIndependentDataEvent);
+        Event::dispatch(new SeedInitialIndependentDataEvent);
     }
 }

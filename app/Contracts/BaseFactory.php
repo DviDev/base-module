@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Base\Factories;
+namespace Modules\Base\Contracts;
 
 use App\Models\User;
 use BadMethodCallException;
@@ -20,7 +20,7 @@ use Illuminate\Support\Stringable;
 use Mockery\Exception;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\BaseModelInterface;
-use Modules\Base\Entities\BaseEntityModel;
+use Modules\Base\Contracts\BaseEntityModel;
 use Modules\Person\Models\PersonModel;
 use Modules\Person\Models\UserTypeModel;
 use Modules\Project\Enums\ModuleEntityAttributeTypeEnum;

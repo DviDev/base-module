@@ -6,7 +6,7 @@ namespace Modules\Base\Console;
 
 use Event;
 use Illuminate\Console\Command;
-use Modules\Base\Events\BaseSeederInitialIndependentDataEvent;
+use Modules\Base\Events\SeedInitialIndependentDataEvent;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -35,7 +35,7 @@ final class DispatchInitialIndependentDataEventCommand extends Command
      */
     public function handle(): void
     {
-        Event::dispatch(new BaseSeederInitialIndependentDataEvent);
+        Event::dispatch(new SeedInitialIndependentDataEvent);
     }
 
     /**

@@ -8,7 +8,7 @@ use Modules\Permission\Enums\Actions;
 use Modules\Permission\Models\PermissionActionModel;
 use Modules\Person\Enums\UserType;
 use Modules\Project\Contracts\CreateMenuItemsListenerContract;
-use Modules\Project\Entities\ProjectModuleMenuItem\ProjectModuleMenuItemEntityModel;
+use Modules\Schema\Entities\ModuleMenuItem\ProjectModuleMenuItemEntityModel;
 use Modules\Project\Events\CreateMenuItemsEvent;
 
 final class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract

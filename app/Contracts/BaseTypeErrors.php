@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Modules\Base\Services\Errors;
+namespace Modules\Base\Contracts;
 
 abstract class BaseTypeErrors
 {

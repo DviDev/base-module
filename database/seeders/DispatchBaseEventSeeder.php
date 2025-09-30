@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Modules\Base\Database\Seeders;
 
+use Modules\Base\Contracts\BaseSeeder;
 use Nwidart\Modules\Facades\Module;
 
 final class DispatchBaseEventSeeder extends BaseSeeder

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Modules\Base\Traits;
 
 use Illuminate\Support\Collection;
-use Modules\Base\Factories\BaseFactory;
+use Modules\Base\Contracts\BaseFactory;
 
 trait HasFactory
 {
