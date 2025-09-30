@@ -78,7 +78,10 @@
                     </x-lte::card.header>
                     <x-lte::card.body>
                         @foreach($element->allChildren as $child)
-                            <x-view::elements :child="$child" :model="$model"/>
+                            <x-view::elements
+                                :child="$child" :model="$model"
+                                :extra="collect(['editingAttribute' => $editingAttribute])"
+                            />
                         @endforeach
                     </x-lte::card.body>
                     @php
