@@ -32,13 +32,13 @@
                                         </a>
                                     @endif
                                     <div
-                                            @class([
-                                                "bg-gray-100",
-                                                 "text-gray-600 hover:text-blue-700 px-2 py-1 cursor-pointer",
-                                                "flex space-x-2", "rounded-r" => !isset($model['id']),
-                                            ])
-                                            wire:click="updateStructureCache"
-                                            title="{{ucfirst(__('base::cache.update cache'))}}">
+                                        @class([
+                                            "bg-gray-100",
+                                             "text-gray-600 hover:text-blue-700 px-2 py-1 cursor-pointer",
+                                            "flex space-x-2", "rounded-r" => !isset($model['id']),
+                                        ])
+                                        wire:click="updateStructureCache"
+                                        title="{{ucfirst(__('base::cache.update cache'))}}">
                                         <x-dvui::icon.trash s4 fill class="my-auto font-bold"
                                                             wire:loading.class="hidden"
                                                             wire:target="updateStructureCache"/>
