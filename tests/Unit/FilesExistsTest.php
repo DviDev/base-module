@@ -93,7 +93,7 @@ use Modules\Base\Contracts\HttpContract;
 use Modules\Base\Services\Notification\Action;
 use Modules\Base\Services\Response\BaseResponse;
 use Modules\Base\Services\Response\ResponseType;
-use Modules\Base\Contracts\Tests\BaseTest;
+use Modules\Base\Contracts\BaseTest;
 use Modules\Base\Spotlight\GotoCommand;
 use Modules\Base\Traits\BaseModelImplementation;
 use Modules\Base\Traits\HasFactory;

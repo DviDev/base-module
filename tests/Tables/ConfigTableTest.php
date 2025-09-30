@@ -6,7 +6,7 @@ namespace Modules\Base\Tests\Tables;
 
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Models\ConfigModel;
-use Modules\Base\Contracts\Tests\BaseTest;
+use Modules\Base\Contracts\BaseTest;
 
 final class ConfigTableTest extends BaseTest
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Base\Contracts\Tests;
+namespace Modules\Base\Contracts;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
