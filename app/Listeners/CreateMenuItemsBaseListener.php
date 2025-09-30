@@ -8,8 +8,8 @@ use Modules\Permission\Enums\Actions;
 use Modules\Permission\Models\PermissionActionModel;
 use Modules\Person\Enums\UserType;
 use Modules\Project\Contracts\CreateMenuItemsListenerContract;
-use Modules\Schema\Entities\ModuleMenuItem\ProjectModuleMenuItemEntityModel;
 use Modules\Project\Events\CreateMenuItemsEvent;
+use Modules\Schema\Entities\ModuleMenuItem\ProjectModuleMenuItemEntityModel;
 
 final class CreateMenuItemsBaseListener extends CreateMenuItemsListenerContract
 {

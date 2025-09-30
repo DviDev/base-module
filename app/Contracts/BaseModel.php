@@ -6,7 +6,6 @@ namespace Modules\Base\Contracts;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Base\Contracts\BaseEntityModel;
 use Modules\Base\Traits\BaseModelImplementation;
 use Modules\Base\Traits\HasFactory;
 use Modules\Base\Traits\HasFirstOrCreateViaFactory;

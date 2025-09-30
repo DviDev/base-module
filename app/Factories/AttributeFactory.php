@@ -12,7 +12,7 @@ abstract class AttributeFactory
 {
     public function __construct(
         public ModuleEntityAttributeModel $attributeEntity,
-        public Blueprint                  &$table
+        public Blueprint &$table
     ) {}
 
     abstract public function handle(): void;

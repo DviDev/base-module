@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Modules\Base\View\Components\Page\Notification;
 
 use Illuminate\View\View;
-use Modules\DvUi\Enums\DvuiComponentAlias;
 use Modules\DvUi\Contracts\BaseBladeComponent;
+use Modules\DvUi\Enums\DvuiComponentAlias;
 
 final class NotificationListPage extends BaseBladeComponent
 {

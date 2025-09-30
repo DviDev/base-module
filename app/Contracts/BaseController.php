@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Modules\Base\Contracts;
 
 use Exception;
-use Modules\Base\Contracts\BaseDomain;
 
 /**
  * @author     Davi Menezes

@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Modules\Base\Contracts;
 
-use Modules\Base\Contracts\BaseRepository;
 use Modules\Base\Services\Response\BaseResponse;
 use ReflectionClass;
 

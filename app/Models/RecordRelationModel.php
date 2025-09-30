@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Modules\Base\Models;
 
+use Modules\Base\Contracts\BaseFactory;
 use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\RecordRelation\RecordRelationEntityModel;
 use Modules\Base\Entities\RecordRelation\RecordRelationProps;
-use Modules\Base\Contracts\BaseFactory;
 
 /**
  * @author Davi Menezes (davimenezes.dev@gmail.com)

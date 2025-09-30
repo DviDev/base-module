@@ -5,11 +5,6 @@ declare(strict_types=1);
 namespace Modules\Base\Contracts;
 
 use Exception;
-use Modules\Base\Contracts\BaseModel;
-use Modules\Base\Contracts\EntityModelInterface;
-use Modules\Base\Contracts\BaseRepository;
-use Modules\Base\Contracts\BaseTypeErrors;
-use Modules\Base\Contracts\BaseEntity;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
 
 /**

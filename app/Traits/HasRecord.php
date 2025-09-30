@@ -10,13 +10,11 @@ use Modules\Permission\Enums\Actions;
 
 /**
  * @extends BaseModel
- * @property RecordModel $record
  *
+ * @property RecordModel $record
  */
 trait HasRecord
 {
-
-
     public function record(): BelongsTo
     {
         return $this->belongsTo(RecordModel::class, 'record_id');
