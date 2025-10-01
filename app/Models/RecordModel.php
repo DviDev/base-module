@@ -7,11 +7,11 @@ namespace Modules\Base\Models;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\BaseEntityModel;
+use Modules\Base\Contracts\BaseFactory;
+use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Entities\Record\RecordEntityModel;
 use Modules\Base\Entities\Record\RecordProps;
-use Modules\Base\Contracts\BaseFactory;
 use Modules\Permission\Contracts\Actionable;
 use Modules\Permission\Models\PermissionActionConditionGroupModel;
 use Modules\Permission\Traits\HasActions;
@@ -31,10 +31,9 @@ use Modules\Permission\Traits\HasActions;
  */
 final class RecordModel extends BaseModel implements Actionable
 {
-    use RecordProps;
-
     use HasActions;
     use HasUuids;
+    use RecordProps;
 
     public function uniqueIds(): array
     {
@@ -86,6 +85,7 @@ final class RecordModel extends BaseModel implements Actionable
     public function firstOrCreateActionWithGroup(string $name, $owner_id = 1): PermissionActionConditionGroupModel
     {
         $title = str($this->type->name)->explode('\\')->last();
+
         return $this->getFirstOrCreateActionWithGroup(title: $title, name: $name, owner_id: $owner_id);
     }
 }

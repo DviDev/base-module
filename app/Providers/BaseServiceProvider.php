@@ -12,13 +12,13 @@ use Modules\Base\Console\DispatchInitialIndependentDataEventCommand;
 use Modules\Base\Console\FeatureFlushCommand;
 use Modules\Base\Console\InstallModulesCommand;
 use Modules\Base\Contracts\BaseServiceProviderContract;
+use Modules\Base\Contracts\BaseTypeErrors;
 use Modules\Base\Http\Middleware\UseSpotlightMiddleware;
 use Modules\Base\Livewire\Config\ConfigForm;
 use Modules\Base\Livewire\Config\ConfigList;
 use Modules\Base\Livewire\Config\ConfigListItem;
 use Modules\Base\Livewire\Notification\NotificationList;
 use Modules\Base\Livewire\Notification\NotificationView;
-use Modules\Base\Contracts\BaseTypeErrors;
 use Modules\Base\View\Components\Page\Notification\NotificationListPage;
 use Modules\Base\View\Components\Page\Notification\NotificationViewPage;
 

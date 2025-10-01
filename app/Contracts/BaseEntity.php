@@ -6,10 +6,7 @@ namespace Modules\Base\Contracts;
 
 use Illuminate\Contracts\Support\Arrayable;
 use JsonSerializable;
-use Modules\Base\Contracts\BaseEntityModel;
-use Modules\Base\Contracts\EntityInterface;
 use Modules\Base\Entities\EntityImplementation;
-use Modules\Base\Entities\Props;
 
 abstract class BaseEntity implements Arrayable, EntityInterface, JsonSerializable
 {

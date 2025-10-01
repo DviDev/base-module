@@ -8,9 +8,6 @@ use Closure;
 use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Base\Contracts\BaseModel;
-use Modules\Base\Contracts\BaseEntityModel;
-use Modules\Base\Contracts\BaseTypeErrors;
 use Modules\Base\Services\Errors\ExceptionBaseResponse;
 
 /**

@@ -7,8 +7,8 @@ namespace Modules\Base\Traits;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Modules\Base\Contracts\BaseModel;
 use Modules\Base\Contracts\BaseEntityModel;
+use Modules\Base\Contracts\BaseModel;
 
 /**
  * @extends BaseModel

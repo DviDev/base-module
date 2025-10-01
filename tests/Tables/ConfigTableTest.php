@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace Modules\Base\Tests\Tables;
 
 use Modules\Base\Contracts\BaseModel;
+use Modules\Base\Contracts\BaseTest;
 use Modules\Base\Models\ConfigModel;
-use Modules\Base\Contracts\Tests\BaseTest;
 
 final class ConfigTableTest extends BaseTest
 {
