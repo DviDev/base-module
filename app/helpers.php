@@ -93,3 +93,10 @@ if (! function_exists('carbon')) {
         return new Carbon($value);
     }
 }
+
+if (!function_exists('moduleIsEnabled')) {
+    function moduleIsEnabled(string $module): bool
+    {
+        return Module::find($module) && Module::isEnabled($module);
+    }
+}
