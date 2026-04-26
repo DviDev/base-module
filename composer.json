@@ -20,6 +20,9 @@
         }
     },
     "autoload": {
+        "files": [
+            "app/helpers.php"
+        ],
         "psr-4": {
             "Modules\\Base\\": "app/",
             "Modules\\Base\\Database\\Seeders\\": "database/seeders/"
