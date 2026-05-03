@@ -283,7 +283,7 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         return $paths;
     }
 
-    private function configureCommands(): void
+    protected function configureCommands(): void
     {
         DB::prohibitDestructiveCommands(
             $this->app->isProduction()
