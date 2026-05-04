@@ -38,6 +38,8 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $this->loadMigrationsFrom(module_path($this->getModuleName(), 'database/Migrations'));
 
         $this->registerRequiredModules();
+
+        $this->gates();
     }
 
     /**
@@ -281,10 +283,15 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         return $paths;
     }
 
-    private function configureCommands(): void
+    protected function configureCommands(): void
     {
         DB::prohibitDestructiveCommands(
             $this->app->isProduction()
         );
+    }
+    
+    public function gates(): void
+    {
+        
     }
 }
