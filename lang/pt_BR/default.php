@@ -11,4 +11,5 @@ return [
     'password confirmation' => 'Confirmação de senha',
     'confirm password' => 'Confirme a senha',
     'back' => 'voltar',
+    'filter' => 'filtrar'
 ];
