@@ -15,7 +15,7 @@ final class UseSpotlightMiddleware
     /**
      * Handle an incoming request.
      */
-    public function handle(Request $request, Closure $next): Response
+    public function handle(Request $request, Closure $next)
     {
         if (! config('base.use.spotlight')) {
             return $next($request);
