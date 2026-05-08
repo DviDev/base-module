@@ -107,56 +107,6 @@ abstract class BaseServiceProviderContract extends ServiceProvider
         $this->bootstrapModules();
 
         $this->registerEnabledModulesMigrationPaths();
-
-        return;
-
-        $modules = $this->requireModules();
-        if (empty($modules)) {
-            return;
-        }
-        if (! $this->app->runningInConsole()) {
-            return;
-        }
-        $migrator = $this->app->make('migrator');
-        foreach ($modules as $module) {
-            $mod = Module::find($module);
-            $mod->enable();
-            $path = $mod->getPath().'/database/Migrations';
-            if (is_dir($path)) {
-                $migrator->path($path);
-            }
-        }
-
-        return;
-        Event::listen(CommandStarting::class, function (CommandStarting $event) use ($modules): void {
-            $cmd = $event->command ?? '';
-            $migrationCommands = [
-                'migrate',
-                'migrate:fresh',
-                'migrate:refresh',
-                'migrate:install',
-                'migrate:rollback',
-                'migrate --force',
-            ];
-            if (empty($cmd)) {
-                return;
-            }
-            if ($cmd === 'migrate'
-                || str_starts_with($cmd, 'migrate:')
-                || in_array($cmd, $migrationCommands, true)
-            ) {
-                $migrator = $this->app->make('migrator');
-                foreach ($modules as $mod) {
-                    $mod = Module::find($mod);
-                    $mod->enable();
-                    $path = $mod->getPath().'/database/Migrations';
-                    dump($path);
-                    if (is_dir($path)) {
-                        $migrator->path($path);
-                    }
-                }
-            }
-        });
     }
 
     public function requireModules(): array
@@ -289,10 +239,10 @@ abstract class BaseServiceProviderContract extends ServiceProvider
             $this->app->isProduction()
         );
     }
-    
+
     public function gates(): void
     {
-        
+
     }
 
     private function registerAssetPath(): void
