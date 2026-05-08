@@ -5,10 +5,8 @@ declare(strict_types=1);
 namespace Modules\Base\Contracts;
 
 use DB;
-use Illuminate\Console\Events\CommandStarting;
 use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Facades\Blade;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 use Modules\Base\Traits\PublishableComponents;
 use Nwidart\Modules\Facades\Module;
@@ -29,11 +27,13 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     {
         $this->registerCommands();
         $this->configureCommands();
+
         $this->registerCommandSchedules();
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();
         $this->registerComponents();
+        $this->registerAssetPath();
 
         $this->loadMigrationsFrom(module_path($this->getModuleName(), 'database/Migrations'));
 
@@ -293,5 +293,12 @@ abstract class BaseServiceProviderContract extends ServiceProvider
     public function gates(): void
     {
         
+    }
+
+    private function registerAssetPath(): void
+    {
+        $assetVendorPath = public_path('assets/modules/'.$this->getModuleNameLower());
+        $sourceVendorPath = module_path($this->getModuleName(), 'resources/assets');
+        $this->publishes([$sourceVendorPath => $assetVendorPath], $this->getModuleNameLower().'-assets');
     }
 }
