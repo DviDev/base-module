@@ -18,4 +18,5 @@ return [
     'search by id' => 'pesquisar por id',
     'search by name' => 'pesquisar por nome',
     'search by email' => 'pesquisar por email',
+    '' => 'Ocorreu um erro. Tente novamente mais tarde'
 ];

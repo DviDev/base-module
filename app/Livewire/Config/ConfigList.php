@@ -47,7 +47,7 @@ final class ConfigList extends Component
 
     public function delete(): void
     {
-        Toastr::instance($this)->success('Item removido');
+        Toastr::instance($this)->success(__('base::form.The item has been removed'));
         $this->dispatch('refresh')->self();
     }
 

@@ -78,4 +78,9 @@ final class BaseNewServiceProvider extends BaseServiceProviderContract
         Livewire::component('base::notification.notification-view', NotificationView::class);
         Livewire::component('base::config.config-list', ConfigList::class);
     }
+
+    protected function langPath(): string
+    {
+        return module_path($this->getModuleName(), 'resources/lang');
+    }
 }
