@@ -41,7 +41,7 @@ abstract class BaseLivewireFormContract extends Component
             $this->model = $this->model ?? new $class;
             $this->saveAction();
             DB::commit();
-            Toastr::instance($this)->success('Item salvo');
+            Toastr::instance($this)->success(__('base::form.The item has been saved'));
         } catch (ValidationException $exception) {
             Toastr::instance($this)->error($exception->getMessage());
             throw $exception;
