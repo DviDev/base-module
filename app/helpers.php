@@ -72,7 +72,7 @@ if (! function_exists('currencyToText')) {
 if (! function_exists('toBRL')) {
     function toBRL($value = null): bool|string
     {
-        $value = empty($value) ? 0 : $value;
+        $value = empty($value) ? 0 : (float)$value;
 
         return Number::format($value, 2, null, 'pt_BR');
     }
